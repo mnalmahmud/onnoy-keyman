@@ -14,19 +14,17 @@ A fixed, Unicode Bengali-script keyboard layout for physical US-QWERTY keys. **O
 | Windows | `.klc` source | Includes ligature entries; must be compiled and tested with MSKLC; **not an installer** |
 | Keyman desktop | `.kmp` package | Compiled in CI; requires Keyman and target-OS testing |
 
-CI artifacts are downloadable from a successful [workflow run](https://github.com/mnalmahmud/onnoy-keyman/actions). There are currently no published GitHub Releases. A successful CI build does not certify that a layout installs correctly on every operating system.
+CI artifacts (including the Linux Compose file) are downloadable from a successful [workflow run](https://github.com/mnalmahmud/onnoy-keyman/actions). There are currently no published GitHub Releases. A successful CI build does not certify that a layout installs correctly on every operating system.
 
 ## Keyboard layout
 
 The 26 letter positions, 10 number positions and period key have four layers: Base, Shift, AltGr (Right Alt / macOS Option) and Shift+AltGr. Unassigned outputs are `null` in [the canonical mapping](layout/onnoy.json); they do not imply ASCII fallback on every platform.
 
-Key examples:
-
-The 26 letters use their physical US-QWERTY positions and four layers: Base, Shift, AltGr, AltGr+Shift. Use the [canonical layout definition](layout/onnoy.json) for all assignments. Q carries ড/ঢ/ড়/ঢ় and W carries ট/ঠ, keeping each consonant family together while placing the more frequent ট/ঠ on W. In particular, the vowel groups are E (ে এ ৈ ঐ), I (ি ই ী ঈ), U (ু উ ূ ঊ) and O (ো ও ৌ ঔ). F produces virama (্); Shift+F produces nukta (়). The number row yields Bengali digits; AltGr gives ASCII digits. Shift+4 gives ৳ and AltGr+Shift+4 gives $. The period key yields । (base), > (Shift), and . (AltGr).
+The [canonical layout definition](layout/onnoy.json) lists every assignment. Q carries ড/ঢ/ড়/ঢ় and W carries ট/ঠ, keeping each consonant family together while placing the more frequent ট/ঠ on W. In particular, the vowel groups are E (ে এ ৈ ঐ), I (ি ই ী ঈ), U (ু উ ূ ঊ) and O (ো ও ৌ ঔ). F produces virama (্); Shift+F produces nukta (়). The number row yields Bengali digits; AltGr gives ASCII digits. Shift+4 gives ৳ and AltGr+Shift+4 gives $. The period key yields । (base), > (Shift), and . (AltGr).
 
 **Approved shortcuts:** Shift+X → ক্ষ (ক + ্ + ষ), AltGr+G → জ্ঞ (জ + ্ + ঞ), AltGr+Y → য-ফলা (্ + য). The default ya-phala sequence does not include ZWJ.
 
-**Linux, no Keyman required:** The generator creates both `dist/linux/symbols/onnoy` and `dist/linux/Onnoy.XCompose`. The XKB symbols assign internal F13–F15 keysyms to these shortcuts; the Compose file maps them to full Unicode strings. Merge the Onnoy Compose rules into `~/.XCompose` (keeping `include "%L"` if appropriate), and reload/restart applications to make them effective. Compose processing varies among desktop environments, Wayland compositors and applications, so verify on your Linux setup. F13–F15 should be reserved for Onnoy; software using those function keys may conflict.
+**Linux, no Keyman required:** The generator creates both `dist/linux/symbols/onnoy` and `dist/linux/Onnoy.XCompose`. The XKB symbols assign internal F13–F15 keysyms to these shortcuts; the Compose file maps them to full Unicode strings. Keysyms are generated in physical-key order, rather than shortcut approval order. Merge the Onnoy Compose rules into `~/.XCompose` (keeping `include "%L"` if appropriate), and reload/restart applications to make them effective. Compose processing varies among desktop environments, Wayland compositors and applications, so verify on your Linux setup. F13–F15 should be reserved for Onnoy; software using those function keys may conflict.
 
 **Windows:** the KLC contains `%%` entries and corresponding `LIGATURE` rules for these sequences; MSKLC compatibility must be verified on Windows. macOS emits the Unicode strings directly. Keyman supports these sequences, too.
 

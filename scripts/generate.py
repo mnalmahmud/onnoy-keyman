@@ -97,16 +97,16 @@ def windows(m):
         vals=m[k]
         cols=" ".join(code(x) for x in (vals[0],vals[1],None,vals[2],vals[3]))
         vk="OEM_PERIOD" if k=="." else k
-        s.append("%s\\t%s\\t0\\t%s\\t// %s"%(SCAN[k],vk,cols,k))
+        s.append("%s\t%s\t0\t%s\t// %s"%(SCAN[k],vk,cols,k))
         for shift_index,value in enumerate((vals[0],vals[1],None,vals[2],vals[3])):
             if value is not None and len(value)>1:
-                ligatures.append("%s\\t%d\\t%s"%(vk,shift_index," ".join("%04x"%ord(ch) for ch in value)))
+                ligatures.append("%s\t%d\t%s"%(vk,shift_index," ".join("%04x"%ord(ch) for ch in value)))
     for scan,vk,mac,base,shift in PUNCT:
         s.append("%s\t%s\t0\t%s %s %s -1 -1"%(scan,vk,code(base),code(shift),"0020" if vk=="SPACE" else "-1"))
     if ligatures:
         s+=['','LIGATURE','//VK_ Mod# Char0 Char1 Char2 Char3']
         s+=ligatures
-    s+=['','KEYNAME','01\\tEsc','0e\tBackspace','0f\tTab','1c\tEnter',
+    s+=['','KEYNAME','01\tEsc','0e\tBackspace','0f\tTab','1c\tEnter',
         '1d\tCtrl','2a\tShift','36\t"Right Shift"','38\tAlt',
         '39\tSpace','3a\t"Caps Lock"','KEYNAME_EXT',
         '38\t"Right Alt"','1d\t"Right Ctrl"',
