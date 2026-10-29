@@ -55,7 +55,7 @@ class BrowserSmokeTests(unittest.TestCase):
         self.assertIn("ZWNJ", self.page.locator(".keyboard-row").nth(3).inner_text())
         self.page.locator('button[data-layer="3"]').click()
         self.assertIn("ZWJ", self.page.locator(".keyboard-row").nth(3).inner_text())
-        self.page.locator(".keyboard-row").nth(1).locator("button").first.click()
+        self.page.locator(".keyboard-row").nth(1).locator("button").nth(1).click()
         self.assertIn("AltGr + Shift: —", self.page.locator("#key-details").inner_text())
 
     def test_editor_inspector_copy_and_failure_fallback(self):
