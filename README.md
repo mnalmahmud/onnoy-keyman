@@ -1,33 +1,33 @@
 # অন্বয় · Onnoy
 
-**A Unicode keyboard layout for Bengali, built with Keyman.** Onnoy combines predictable character relationships with a Bengali-first physical QWERTY layout.
+**A physical-key Unicode keyboard for Bengali script, built with [Keyman](https://keyman.com/).**
 
-**[Try Onnoy in your browser](https://mnalmahmud.github.io/onnoy-keyman/)** · [Full keymap](#layout) · [Build from source](#build) · [Contribute](CONTRIBUTING.md)
+[**Try Onnoy**](https://mnalmahmud.github.io/onnoy-keyman/) · [Keyboard source](source/onnoy.kmn) · [Builds](../../actions) · [Report an issue](../../issues)
 
-> **GitHub Pages:** In **Settings → Pages → Build and deployment**, select **GitHub Actions**. The browser typing test will become available at the link above after a successful deployment from `main`.
+Onnoy uses predictable character groups on the standard US-QWERTY keyboard. It is a **fixed key layout**, not phonetic transliteration: pressing a key produces its assigned Unicode character, not a transliteration of an English spelling.
 
-## Try in your browser
+> **Project status:** The desktop and web keyboards compile in GitHub Actions. This is a prerelease project: compilation does not establish that every platform and modifier combination has been tested. Do not treat an untagged CI artifact as a stable release.
 
-The GitHub Pages site uses **KeymanWeb** and the **compiled Onnoy keyboard** from this repository. It is a live typing playground—not a JavaScript mockup of the keymap. Type into the text field using a physical US-QWERTY keyboard, and use Right Alt (AltGr) or Shift to access other layers. There is also a Unicode inspector to help report issues.
+## Try it
 
-It does not install a system-wide keyboard. Mobile touch input needs a separate design; the web playground is intended for physical keyboard testing.
+Open the [live typing playground](https://mnalmahmud.github.io/onnoy-keyman/). It loads the actual compiled KeymanWeb keyboard produced by CI. Use a physical keyboard; the page is not a mobile touch keyboard.
 
-## Downloads
+If you are testing AltGr, use **Right Alt** where available. How Right Alt reaches Keyman depends on your operating system, browser and configured host keyboard. Report the environment alongside any discrepancy.
 
-A successful build creates:
+## Get the keyboard
 
-- **`onnoy.kmp`** — installable Keyman keyboard package for supported desktop Keyman applications.
-- **`onnoy.js`** — compiled KeymanWeb keyboard used by the GitHub Pages test site.
-- **`onnoy.kmx`** — compiled desktop keyboard inside the package, also available for diagnosis.
+- **Desktop:** Download the `onnoy.kmp` artifact from a successful [Actions build](../../actions), then open it with an installed [Keyman](https://keyman.com/) application. The package is intended for supported desktop Keyman installations; please report platform-specific installation results.
+- **Web:** `onnoy.js` is the compiled KeymanWeb keyboard. The GitHub Pages deployment serves the same output.
+- **Stable releases:** Version-tagged builds are published under [Releases](../../releases) after release testing. No stable release is implied until a version is explicitly published.
 
-Build artifacts are attached to successful GitHub Actions runs. When you push a `v*` tag, the workflow attaches the same files to a GitHub Release. No precompiled files are tracked in Git.
+The raw `onnoy.kmx` is a compiled desktop component; most users should install the `.kmp` package instead.
 
-## Layout
+## Keyboard layout
 
-Onnoy is a fixed Unicode layout, **not** English-to-Bengali transliteration. Letters use the 26 physical alphabet keys, with four modifier layers. Numbers and selected punctuation have their own conventional keys.
+The columns represent **Base**, **Shift**, **AltGr**, and **AltGr + Shift**. A dash means Onnoy deliberately assigns nothing at that position.
 
-| Key | Normal | Shift | AltGr | AltGr+Shift |
-|:---:|:---:|:---:|:---:|:---:|
+| Key | Base | Shift | AltGr | AltGr + Shift |
+|:--:|:--:|:--:|:--:|:--:|
 | Q | ট | ঠ | — | — |
 | W | ড | ঢ | ড় | ঢ় |
 | E | ে | এ | ৈ | ঐ |
@@ -55,13 +55,22 @@ Onnoy is a fixed Unicode layout, **not** English-to-Bengali transliteration. Let
 | N | ন | ণ | — | — |
 | M | ম | ং | ঁ | — |
 
-The number keys produce Bengali digits directly and Latin digits through AltGr. `Shift+4` is **৳**; `AltGr+Shift+4` is **$**. `.` is **।**; `AltGr+.` is the ASCII period. Other punctuation retains its normal US-QWERTY behavior.
+**Numbers and punctuation:** Base number-row keys yield Bengali digits (`1` → ১ through `0` → ০); AltGr yields Latin digits. Most Shift number-row symbols follow US-QWERTY, except `Shift+4` → ৳; `AltGr+Shift+4` → `$`. The period key produces `।` on Base, `>` with Shift, and `.` with AltGr. Other punctuation is left to the host keyboard.
 
-The E, I, U, O groups follow one pattern: normal **basic কার**, Shift **independent vowel**, AltGr **paired কার**, AltGr+Shift **paired independent vowel**.
+**Vowels:** E, I, U and O group each vowel's dependent and independent forms. **Conjuncts:** F inserts virama (`্`), so `K F X` yields `ক্ষ`. The font and shaping engine determine the rendered appearance.
 
-## Build
+### Sample keystrokes
 
-Install Node.js 22 and the [Keyman Developer CLI](https://help.keyman.com/developer/current-version/reference/kmc/cli/get-started):
+| Output | Physical keys |
+|---|---|
+| বাংলা | `B A Shift+M L A` |
+| ক্ষ | `K F X` |
+| শিক্ষা | `Shift+S I K F X A` |
+| ৳৪.৫০ | `Shift+4 4 AltGr+. 5 0` |
+
+## Build from source
+
+Requires Node.js, Python 3 and the [Keyman Developer CLI](https://help.keyman.com/developer/current-version/reference/kmc/cli/get-started):
 
 ```bash
 npm install -g @keymanapp/kmc@18
@@ -69,29 +78,34 @@ bash scripts/build.sh
 python3 scripts/verify_build.py
 ```
 
-This builds `build/onnoy.kmp`, `build/onnoy.kmx`, and `build/onnoy.js`. Compilation requires the Keyman CLI; `python3 verify_keyman.py` checks the textual mapping independently of compilation.
+The outputs are `build/onnoy.kmx`, `build/onnoy.js` and `build/onnoy.kmp`. `verify_keyman.py` checks mapping invariants before compilation. The authoritative layout is `source/onnoy.kmn`; avoid maintaining another hand-written mapping for the website.
 
-### Continuous integration and GitHub Pages
+### Repository organization
 
-`.github/workflows/build.yml` runs on pull requests, pushes to `main`, and `v*` version tags.
+| Path | Purpose |
+|---|---|
+| `source/onnoy.kmn` | Keyboard rules |
+| `source/onnoy.kps` | Installable Keyman package definition |
+| `web/` | GitHub Pages typing playground |
+| `scripts/` | Build and artifact verification |
+| `.github/workflows/build.yml` | Compile, test, publish CI artifacts and deploy Pages |
 
-1. Verify the Keyman source map and compile `.kmx`, `.js` and `.kmp`.
-2. Check the compiled package and upload downloadable CI artifacts.
-3. On `main`, deploy `web/index.html` and the freshly compiled `onnoy.js` together using GitHub Pages.
-4. On a `v*` tag, attach `.kmp`, `.kmx` and `.js` to the GitHub release.
+Changes to `main` rebuild the site from the compiled web keyboard. Tags matching `v*` trigger release asset publishing. Maintainers should use the [release checklist](RELEASE_CHECKLIST.md) before tagging.
 
-**Pages must use the GitHub Actions source**. No separate `preview.html`, `docs` branch, or committed compiled keyboard is needed. The test site only works after a successful compiled deployment, not by opening `web/index.html` as a local file.
+## Known limitations
 
-## Scope and known limitations
+- **Physical desktop layout:** A mobile touch layout is not available.
+- **AltGr:** Browser and OS modifier handling varies; a successful CI run does not prove cross-platform modifier behavior.
+- **Composition:** Onnoy inserts Unicode characters. Rendering and conjunct formation depend on fonts and application text engines.
+- **Coverage:** This is not a claim of complete coverage of every historical or modern character used in Bengali and Assamese. Character assignments, including ৰ and ৱ, are documented above.
+- **Availability:** Web testing requires JavaScript and access to the KeymanWeb engine. A network or content blocker may prevent startup.
 
-- Desktop physical US-QWERTY keys are the reference. A touch layout has not been designed.
-- The website is a browser test surface, not an OS keyboard installer.
-- Input method shortcut handling (especially AltGr/Right Alt) varies by browser and operating system.
-- Fonts/renderers shape conjuncts; Onnoy outputs Unicode code points.
-- The source mapping is documented above; broader language coverage should be assessed through real-world testing.
-- Some historical characters and the double danda are deliberately not assigned.
-- Licensed under the [MIT License](LICENSE). Copyright © 2026 Muhtasham Nawr al-Mahmud. Any required upstream notices must also be preserved.
+## Participate
 
-## Contributing
+Bug reports should state the physical keystrokes, expected output, actual Unicode output and environment. Mapping changes should have a clear rationale and regression tests. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-For a typing bug, provide the OS, browser or Keyman version, exact keystrokes, expected Unicode output, and actual result. See [CONTRIBUTING.md](CONTRIBUTING.md).
+## License and credits
+
+Copyright © 2026 **Muhtasham Nawr al-Mahmud**. Distributed under the [MIT License](LICENSE).
+
+Onnoy's layout design draws from experience with Bengali keyboard traditions, including Probhat and KaGaPa. This acknowledgment is not a claim that either project's source code was incorporated verbatim. Any upstream source material added in future must retain its applicable notices.
