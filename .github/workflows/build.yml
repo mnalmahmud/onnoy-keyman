@@ -21,13 +21,21 @@ jobs:
           node-version: '22'
       - name: Install Keyman Developer CLI
         run: npm install -g @keymanapp/kmc@18
-      - name: Build desktop package and web keyboard
+      - name: Generate native layout sources
+        run: |
+          python3 scripts/generate.py
+          python3 -c "import xml.etree.ElementTree as E; E.parse('dist/macos/Onnoy.keylayout')"
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq x11-xkb-utils xkb-data
+          printf 'xkb_keymap { xkb_keycodes { include "evdev+aliases(qwerty)" }; xkb_types { include "complete" }; xkb_compat { include "complete" }; xkb_symbols { include "pc+onnoy(basic)+inet(evdev)" }; xkb_geometry { include "pc(pc105)" }; };' > /tmp/onnoy-test.xkb
+          xkbcomp -w 0 -I"$PWD/dist/linux" /tmp/onnoy-test.xkb /tmp/onnoy-test.xkm
+      - name: Build KeymanWeb and check package
         run: bash scripts/build.sh
       - name: Verify compiled artifacts and website
         run: |
           python3 scripts/verify_build.py
           node --check web/app.js
-      - name: Upload downloadable Keyman artifacts
+      - name: Upload downloadable keyboard artifacts
         uses: actions/upload-artifact@v4
         with:
           name: onnoy-keyman
@@ -35,6 +43,9 @@ jobs:
             build/onnoy.kmp
             build/onnoy.kmx
             build/onnoy.js
+            dist/linux/symbols/onnoy
+            dist/macos/Onnoy.keylayout
+            dist/windows/onnoy.klc
           if-no-files-found: error
       - name: Prepare Pages deployment
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -70,10 +81,16 @@ jobs:
             release-assets/onnoy.kmp
             release-assets/onnoy.kmx
             release-assets/onnoy.js
+            release-assets/onnoy.klc
+            release-assets/Onnoy.keylayout
+            release-assets/onnoy
           generate_release_notes: true
 
   deploy:
     name: Deploy browser test site
+    concurrency:
+      group: onnoy-github-pages
+      cancel-in-progress: false
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest

@@ -1,106 +1,49 @@
 # Onnoy (অন্বয়)
 
-Onnoy is a **Bengali keyboard layout for [Keyman](https://keyman.com/)**. It maps physical US-QWERTY keys directly to Unicode characters. It is not an English-to-Bengali transliteration input method.
+Onnoy is a fixed, Unicode keyboard layout for Bengali script. The character mapping is stored in [`layout/onnoy.json`](layout/onnoy.json). Native desktop layouts and the KeymanWeb keyboard are generated from that same file.
 
-[Try in your browser](https://mnalmahmud.github.io/onnoy-keyman/) · [Source](source/onnoy.kmn) · [Builds](https://github.com/mnalmahmud/onnoy-keyman/actions) · [Issues](https://github.com/mnalmahmud/onnoy-keyman/issues)
+[Try typing online](https://mnalmahmud.github.io/onnoy-keyman/) · [Source mapping](layout/onnoy.json) · [CI builds](https://github.com/mnalmahmud/onnoy-keyman/actions)
 
-## Use Onnoy
+## Install
 
-### In a browser
+**Linux (XKB):** Copy the generated `dist/linux/symbols/onnoy` to your user or system XKB symbols directory, and configure the `onnoy(basic)` variant using your desktop's XKB integration. Desktop settings menus may require a separate layout registration. Installing system-wide XKB files requires appropriate permissions.
 
-Open the [typing test](https://mnalmahmud.github.io/onnoy-keyman/), focus the editor, and type with a physical keyboard. It uses the compiled KeymanWeb keyboard, not transliteration or a separately implemented keymap. The site does not install a system keyboard.
+**macOS:** Copy `dist/macos/Onnoy.keylayout` to `~/Library/Keyboard Layouts/`, log out and back in if it does not appear, then enable Onnoy in **System Settings → Keyboard → Input Sources**. This is a native layout; Keyman is not required.
 
-### On your computer
+**Windows:** `dist/windows/onnoy.klc` is source for Microsoft Keyboard Layout Creator (MSKLC), **not** an installer. It must be compiled into a Windows keyboard DLL and installer before general Windows deployment. The Windows installer is **not yet available**. Don't treat the `.klc` as a downloadable, ready-to-install keyboard.
 
-1. [Install Keyman](https://keyman.com/) for your operating system.
-2. Open [GitHub Actions](https://github.com/mnalmahmud/onnoy-keyman/actions), select a run with a successful **Compile and verify Keyman artifacts** job, and download its **onnoy-keyman** artifact.
-3. Extract the downloaded ZIP and open `onnoy.kmp` with Keyman.
-4. Select **Onnoy** in Keyman's keyboard list.
+**Web:** The [GitHub Pages test](https://mnalmahmud.github.io/onnoy-keyman/) uses KeymanWeb with the compiled `onnoy.js` keyboard. Keyman is needed for the browser implementation only, not for native macOS and Linux layouts.
 
-The artifact from Actions is a development build, not a stable release. Once a tested release is published, its package will be available under [Releases](https://github.com/mnalmahmud/onnoy-keyman/releases).
+### Keyboard behavior
 
-The `.kmp` file is the installable desktop package. `.kmx` is the compiled desktop keyboard inside it; `.js` is the browser keyboard used by KeymanWeb. Platform-specific installation and AltGr behavior still need real-device testing.
+The 26 letters use their physical US-QWERTY positions and four layers: Base, Shift, AltGr, AltGr+Shift. Use the [canonical layout definition](layout/onnoy.json) for all assignments. In particular, the vowel groups are E (ে এ ৈ ঐ), I (ি ই ী ঈ), U (ু উ ূ ঊ) and O (ো ও ৌ ঔ). F produces virama (্); Shift+F produces nukta (়). The number row yields Bengali digits; AltGr gives ASCII digits. Shift+4 gives ৳ and AltGr+Shift+4 gives $. The period key yields । (base), > (Shift), and . (AltGr).
 
-## Keyboard layout
+On macOS, **Option** corresponds to the third layer; on Linux and Windows, **Right Alt (AltGr)** usually supplies it. Some host shortcuts and modifier handling differ by OS.
 
-There are four layers: **Base**, **Shift**, **AltGr (Right Alt)**, and **AltGr + Shift**. The table follows the physical US-QWERTY letter rows. **—** means the key combination has no output assigned.
+## Build and test
 
-| Key | Base | Shift | AltGr | AltGr + Shift |
-|:---:|:---:|:---:|:---:|:---:|
-| Q | ট | ঠ | — | — |
-| W | ড | ঢ | ড় | ঢ় |
-| E | ে | এ | ৈ | ঐ |
-| R | র | ৃ | ঋ | ৰ |
-| T | ত | থ | ৎ | — |
-| Y | য | য় | — | — |
-| U | ু | উ | ূ | ঊ |
-| I | ি | ই | ী | ঈ |
-| O | ো | ও | ৌ | ঔ |
-| P | প | ফ | — | — |
-| A | া | আ | ঽ | — |
-| S | স | শ | — | — |
-| D | দ | ধ | — | — |
-| F | ্ | ় | — | — |
-| G | গ | ঘ | — | — |
-| H | হ | ঃ | — | — |
-| J | জ | ঝ | — | — |
-| K | ক | খ | — | — |
-| L | ল | — | — | — |
-| Z | ঞ | ঙ | ZWNJ | ZWJ |
-| X | ষ | — | — | — |
-| C | চ | ছ | — | — |
-| V | অ | ৱ | ৗ | — |
-| B | ব | ভ | — | — |
-| N | ন | ণ | — | — |
-| M | ম | ং | ঁ | — |
-
-### Number row and punctuation
-
-- `1`–`0` produce **১ ২ ৩ ৪ ৫ ৬ ৭ ৮ ৯ ০** on the base layer.
-- **AltGr + 1–0** produces the corresponding Latin digits **1–0**.
-- Shift produces the usual US number-row symbols, except **Shift + 4** produces **৳**. **AltGr + Shift + 4** produces **$**.
-- The period key produces **।** (base), **>** (Shift), and **.** (AltGr).
-- Other punctuation follows the host keyboard. Unassigned combinations in the table produce no character.
-
-### Typing examples
-
-| Result | Keystrokes |
-|---|---|
-| বাংলা | `B A Shift+M L A` |
-| ক্ষ | `K F X` |
-| শিক্ষা | `Shift+S I K F X A` |
-| ৳৪.৫০ | `Shift+4 4 AltGr+. 5 0` |
-
-`F` produces the virama (্), used to form conjuncts. `Shift+F` produces the nukta (়). `AltGr+Z` and `AltGr+Shift+Z` produce ZWNJ and ZWJ respectively; these format characters are normally invisible. The appearance of combining signs and conjuncts depends on the application's font and text-shaping support.
-
-## Build from source
-
-Requirements: **Node.js**, **Python 3**, a shell capable of running `bash`, and **Keyman Developer CLI 18**.
+Requirements: Python 3. The KeymanWeb build additionally needs Node.js and Keyman Developer CLI 18.
 
 ```sh
-git clone https://github.com/mnalmahmud/onnoy-keyman.git
-cd onnoy-keyman
+python3 scripts/generate.py
+python3 scripts/generate.py --check
 npm install -g @keymanapp/kmc@18
 bash scripts/build.sh
 python3 scripts/verify_build.py
 ```
 
-The build produces:
+The generator writes:
+- `dist/linux/symbols/onnoy` — Linux XKB
+- `dist/macos/Onnoy.keylayout` — macOS native XML keyboard
+- `dist/windows/onnoy.klc` — Windows native layout source, needs MSKLC compilation
+- `source/onnoy.kmn` — Keyman source for the web keyboard
 
-- `build/onnoy.kmp` — desktop package
-- `build/onnoy.kmx` — compiled desktop keyboard
-- `build/onnoy.js` — compiled KeymanWeb keyboard
+CI compiles the XKB layout, checks the macOS XML, and compiles the Keyman keyboard. Windows native DLL building is not implemented in CI yet. No Windows binary should be advertised until that work is completed and verified.
 
-`source/onnoy.kmn` defines the key mappings, and `source/onnoy.kps` defines the package. `verify_keyman.py` checks the source mappings before compilation; `scripts/verify_build.py` checks the generated files and package.
+## Development
 
-The [CI workflow](.github/workflows/build.yml) runs these checks on pushes and pull requests. It uploads the build artifacts, builds the GitHub Pages site from `web/` on `main`, and attaches compiled files to releases on version-tag pushes.
-
-## Project status
-
-The build pipeline compiles desktop and web targets. That does **not** by itself establish successful typing across Windows, macOS, Linux, and different browser/keyboard configurations. A dedicated mobile touch layout is not provided.
-
-If a key behaves differently on your system, please [report the physical keystrokes, expected output, actual output, and environment](CONTRIBUTING.md).
+Edit **only** `layout/onnoy.json` when changing key assignments, then run the generator and update tests/documentation. Do not make independent edits to platform layouts. Keep OS-specific packaging separate from the shared mapping.
 
 ## License
 
-Copyright © 2026 **Muhtasham Nawr al-Mahmud**. Onnoy is released under the [MIT License](LICENSE).
+MIT. Copyright © 2026 Muhtasham Nawr al-Mahmud. See [LICENSE](LICENSE).
