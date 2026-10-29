@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+"""Generate KeymanWeb, Linux XKB, macOS keylayout, and Windows KLC sources.
+The sole character mapping lives in layout/onnoy.json.
+"""
+from pathlib import Path
+import json
+import sys
+import xml.etree.ElementTree as ET
+
+ROOT = Path(__file__).resolve().parents[1]
+ORDER = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890."
+XKB = dict(zip("QWERTYUIOP", "AD01 AD02 AD03 AD04 AD05 AD06 AD07 AD08 AD09 AD10".split()))
+XKB.update(dict(zip("ASDFGHJKL", "AC01 AC02 AC03 AC04 AC05 AC06 AC07 AC08 AC09".split())))
+XKB.update(dict(zip("ZXCVBNM", "AB01 AB02 AB03 AB04 AB05 AB06 AB07".split())))
+XKB.update(dict(zip("1234567890", "AE01 AE02 AE03 AE04 AE05 AE06 AE07 AE08 AE09 AE10".split())))
+XKB["."] = "AB09"
+SCAN = dict(zip("1234567890", "02 03 04 05 06 07 08 09 0A 0B".split()))
+SCAN.update(dict(zip("QWERTYUIOP", "10 11 12 13 14 15 16 17 18 19".split())))
+SCAN.update(dict(zip("ASDFGHJKL", "1E 1F 20 21 22 23 24 25 26".split())))
+SCAN.update(dict(zip("ZXCVBNM", "2C 2D 2E 2F 30 31 32".split())))
+SCAN["."] = "34"
+MAC = dict(zip("ASDFGHJKL", [0,1,2,3,5,4,38,40,37]))
+MAC.update(dict(zip("QWERTYUIOP", [12,13,14,15,17,16,32,34,31,35])))
+MAC.update(dict(zip("ZXCVBNM", [6,7,8,9,11,45,46])))
+MAC.update(dict(zip("1234567890", [18,19,20,21,23,22,26,28,25,29])))
+MAC["."] = 47
+PUNCT = [
+ ("29","OEM_3",50,"" + chr(96),"~"),
+ ("0C","OEM_MINUS",27,"-","_"),("0D","OEM_PLUS",24,"=","+"),
+ ("1A","OEM_4",33,"[","{"),("1B","OEM_6",30,"]","}"),
+ ("2B","OEM_5",42,"\\","|"),("27","OEM_1",41,";",":"),
+ ("28","OEM_7",39,"'",'"'),("33","OEM_COMMA",43,",","<"),
+ ("35","OEM_2",44,"/","?"),("39","SPACE",49," "," "),
+]
+def mapping():
+    data=json.loads((ROOT/"layout/onnoy.json").read_text(encoding="utf-8"))
+    assert data["layers"]==["base","shift","altgr","shift_altgr"]
+    m=data["keys"]
+    assert set(m)==set(ORDER)
+    assert all(isinstance(v,list) and len(v)==4 and
+               all(x is None or isinstance(x,str) and len(x)==1 for x in v)
+               for v in m.values())
+    assert m["F"][:2]==["্","়"] and m["."][:3]==["।",">","."]
+    assert m["4"][1]=="৳" and m["4"][3]=="$"
+    return m
+
+def keyman(m):
+    s=["c Onnoy (অন্বয়) — generated from layout/onnoy.json; do not edit directly.",
+       "store(&VERSION) '16.0'", "store(&NAME) 'Onnoy (অন্বয়)'",
+       "store(&KEYBOARDVERSION) '1.0'", "store(&TARGETS) 'desktop web'",
+       "", "begin Unicode > use(main)", "", "group(main) using keys"]
+    for k in ORDER:
+        name="PERIOD" if k=="." else k
+        s.append("")
+        for modifier,output in zip(("","SHIFT ","RALT ","SHIFT RALT "),m[k]):
+            symbol="nul" if output is None else "U+%04X"%ord(output)
+            s.append("+ [%sK_%s] > %s"%(modifier,name,symbol))
+    return "\n".join(s)+"\n"
+
+def linux(m):
+    s=["// Generated from layout/onnoy.json",
+       'default partial alphanumeric_keys',
+       'xkb_symbols "basic" {',
+       '    include "us(basic)"',
+       '    name[Group1] = "Bengali (Onnoy)";',
+       '    include "level3(ralt_switch)"']
+    for k in ORDER:
+        vals=", ".join("VoidSymbol" if v is None else "U%04X"%ord(v) for v in m[k])
+        s.append('    key <%s> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ %s ] }; // %s'%(XKB[k],vals,k))
+    return "\n".join(s+["};",""])
+
+def windows(m):
+    s=['KBD\tonnoy\t"Onnoy"','',
+       'COPYRIGHT "(c) 2026 Muhtasham Nawr al-Mahmud"',
+       'COMPANY "Muhtasham Nawr al-Mahmud"','LOCALENAME "bn-BD"',
+       'LOCALEID "00000845"','VERSION 1.0','',
+       'SHIFTSTATE','0\t// Base','1\t// Shift','2\t// Ctrl',
+       '6\t// AltGr','7\t// Shift+AltGr','',
+       'LAYOUT','//SC VK_ Cap 0 1 2 6 7']
+    code=lambda x: '-1' if x is None else "%04x"%ord(x)
+    for k in ORDER:
+        vals=m[k]
+        cols=" ".join(code(x) for x in (vals[0],vals[1],None,vals[2],vals[3]))
+        s.append("%s\t%s\t0\t%s\t// %s"%(SCAN[k],"OEM_PERIOD" if k=="." else k,cols,k))
+    for scan,vk,mac,base,shift in PUNCT:
+        s.append("%s\t%s\t0\t%s %s %s -1 -1"%(scan,vk,code(base),code(shift),"0020" if vk=="SPACE" else "-1"))
+    s+=['','KEYNAME','01\tEsc','0e\tBackspace','0f\tTab','1c\tEnter',
+        '1d\tCtrl','2a\tShift','36\t"Right Shift"','38\tAlt',
+        '39\tSpace','3a\t"Caps Lock"','KEYNAME_EXT',
+        '38\t"Right Alt"','1d\t"Right Ctrl"',
+        'DESCRIPTIONS','0845\tBengali (Onnoy)',
+        'LANGUAGENAMES','0845\tBangla (Bangladesh)','ENDKBD','']
+    return "\r\n".join(s)
+
+def macos(m):
+    root=ET.Element("keyboard",{"group":"126","id":"-15231","name":"Onnoy","maxout":"1"})
+    layouts=ET.SubElement(root,"layouts")
+    ET.SubElement(layouts,"layout",{"first":"0","last":"17","modifiers":"OnnoyModifiers","mapSet":"OnnoyMap"})
+    mods=ET.SubElement(root,"modifierMap",{"id":"OnnoyModifiers","defaultIndex":"0"})
+    conditions=[["","caps"],["anyShift caps?"],["anyOption caps?"],["anyShift anyOption caps?"],
+                ["command anyShift? caps? anyOption? anyControl?"],
+                ["anyControl command? anyShift? caps? anyOption?"]]
+    for i,names in enumerate(conditions):
+        node=ET.SubElement(mods,"keyMapSelect",{"mapIndex":str(i)})
+        for name in names: ET.SubElement(node,"modifier",{"keys":name})
+    maps=ET.SubElement(root,"keyMapSet",{"id":"OnnoyMap"})
+    for index in range(6):
+        node=ET.SubElement(maps,"keyMap",{"index":str(index)})
+        for k in ORDER:
+            v=m[k][index] if index<4 else (k.lower() if k.isalpha() else k)
+            ET.SubElement(node,"key",{"code":str(MAC[k]),"output":v or ""})
+        for scan,vk,code,base,shift in PUNCT:
+            ET.SubElement(node,"key",{"code":str(code),"output":shift if index in (1,3) else base})
+    ET.indent(root,space="  ")
+    return ('<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<!DOCTYPE keyboard SYSTEM "file://localhost/System/Library/DTDs/KeyboardLayout.dtd">\n'
+            +ET.tostring(root,encoding="unicode")+"\n")
+
+def main():
+    m=mapping()
+    outputs={
+      "source/onnoy.kmn":keyman(m),
+      "dist/linux/symbols/onnoy":linux(m),
+      "dist/windows/onnoy.klc":windows(m),
+      "dist/macos/Onnoy.keylayout":macos(m),
+    }
+    check="--check" in sys.argv
+    for path,content in outputs.items():
+        p=ROOT/path
+        raw=content.encode("utf-8")
+        if check:
+            if not p.exists() or p.read_bytes()!=raw: raise SystemExit("Generated file out of date: "+path)
+        else:
+            p.parent.mkdir(parents=True,exist_ok=True)
+            p.write_bytes(raw)
+        print(("Verified " if check else "Generated ")+path)
+if __name__=="__main__": main()
