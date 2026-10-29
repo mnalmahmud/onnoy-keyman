@@ -9,9 +9,9 @@ A fixed, Unicode Bengali-script keyboard layout for physical US-QWERTY keys. **O
 | Platform | Output | Status |
 | --- | --- | --- |
 | Browser | KeymanWeb (`onnoy.js`) | Compiled in CI; physical-key input is intended for desktop browsers |
-| Linux | XKB (`dist/linux/symbols/onnoy`) | Generated and syntax-compiled in CI; desktop integration must be tested |
+| Linux | XKB + XCompose (`dist/linux/Onnoy.XCompose`) | Native shortcuts for multi-character output; application support must be tested |
 | macOS | Native `.keylayout` | Generated and XML-validated in CI; installed input source must be tested |
-| Windows | `.klc` source | Generated only; **not an installer** |
+| Windows | `.klc` source | Includes ligature entries; must be compiled and tested with MSKLC; **not an installer** |
 | Keyman desktop | `.kmp` package | Compiled in CI; requires Keyman and target-OS testing |
 
 CI artifacts are downloadable from a successful [workflow run](https://github.com/mnalmahmud/onnoy-keyman/actions). There are currently no published GitHub Releases. A successful CI build does not certify that a layout installs correctly on every operating system.
@@ -23,6 +23,12 @@ The 26 letter positions, 10 number positions and period key have four layers: Ba
 Key examples:
 
 The 26 letters use their physical US-QWERTY positions and four layers: Base, Shift, AltGr, AltGr+Shift. Use the [canonical layout definition](layout/onnoy.json) for all assignments. Q carries ড/ঢ/ড়/ঢ় and W carries ট/ঠ, keeping each consonant family together while placing the more frequent ট/ঠ on W. In particular, the vowel groups are E (ে এ ৈ ঐ), I (ি ই ী ঈ), U (ু উ ূ ঊ) and O (ো ও ৌ ঔ). F produces virama (্); Shift+F produces nukta (়). The number row yields Bengali digits; AltGr gives ASCII digits. Shift+4 gives ৳ and AltGr+Shift+4 gives $. The period key yields । (base), > (Shift), and . (AltGr).
+
+**Approved shortcuts:** Shift+X → ক্ষ (ক + ্ + ষ), AltGr+G → জ্ঞ (জ + ্ + ঞ), AltGr+Y → য-ফলা (্ + য). The default ya-phala sequence does not include ZWJ.
+
+**Linux, no Keyman required:** The generator creates both `dist/linux/symbols/onnoy` and `dist/linux/Onnoy.XCompose`. The XKB symbols assign internal F13–F15 keysyms to these shortcuts; the Compose file maps them to full Unicode strings. Merge the Onnoy Compose rules into `~/.XCompose` (keeping `include "%L"` if appropriate), and reload/restart applications to make them effective. Compose processing varies among desktop environments, Wayland compositors and applications, so verify on your Linux setup. F13–F15 should be reserved for Onnoy; software using those function keys may conflict.
+
+**Windows:** the KLC contains `%%` entries and corresponding `LIGATURE` rules for these sequences; MSKLC compatibility must be verified on Windows. macOS emits the Unicode strings directly. Keyman supports these sequences, too.
 
 The [browser playground](https://mnalmahmud.github.io/onnoy-keyman/) displays **all four layers** and shows the Unicode code points of text entered into its editor. ZWNJ (U+200C) and ZWJ (U+200D) are invisible characters, not blank assignments.
 
@@ -51,6 +57,7 @@ bash scripts/build.sh
 ```text
 source/onnoy.kmn              Keyman keyboard source
 dist/linux/symbols/onnoy      Linux XKB
+dist/linux/Onnoy.XCompose     Linux Unicode sequence shortcuts
 dist/macos/Onnoy.keylayout    macOS native input source
 dist/windows/onnoy.klc        Windows MSKLC source
 ```
