@@ -57,6 +57,7 @@ jobs:
             build/onnoy.kmx
             build/onnoy.js
             dist/linux/symbols/onnoy
+            dist/linux/Onnoy.XCompose
             dist/macos/Onnoy.keylayout
             dist/windows/onnoy.klc
           if-no-files-found: error
@@ -84,6 +85,7 @@ jobs:
             release-assets/onnoy.kmp
             release-assets/onnoy.kmx
             release-assets/onnoy.js
+            release-assets/Onnoy.XCompose
             release-assets/onnoy.klc
             release-assets/Onnoy.keylayout
             release-assets/onnoy

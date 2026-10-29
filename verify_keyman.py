@@ -1,32 +1,48 @@
 #!/usr/bin/env python3
-from pathlib import Path
+"""Verify the complete generated Keyman keymap against the canonical JSON."""
+import json
 import re
 import xml.etree.ElementTree as ET
-root=Path(__file__).resolve().parent
-src=(root/'source/onnoy.kmn').read_text(encoding='utf-8')
-pattern=re.compile(r'^\+ \[(?:(SHIFT) )?(?:(RALT) )?K_([A-Z0-9]+)\] > (nul|U\+[0-9A-F]{4,6}(?: U\+[0-9A-F]{4,6})*)
-found={}
-for shift,ralt,key,result in pattern.findall(src):
-  token=(key, int(bool(shift))+2*int(bool(ralt)))
-  assert token not in found, f'duplicate key {token}'
-  found[token]=result
-assert len(found)==148, f'Expected 148 alphabet+digit+period rules, got {len(found)}'
-for key,level,value in [('V',0,'U+0985'),('V',1,'U+09F1'),('F',0,'U+09CD'),('F',1,'U+09BC'),('R',2,'U+098B'),('R',3,'U+09F0'),('X',0,'U+09B7'),('X',1,'U+0995 U+09CD U+09B7'),('G',2,'U+099C U+09CD U+099E'),('Y',2,'U+09CD U+09AF'),('Q',0,'U+09A1'),('Q',1,'U+09A2'),('Q',2,'U+09DC'),('Q',3,'U+09DD'),('W',0,'U+099F'),('W',1,'U+09A0'),('W',2,'nul'),('W',3,'nul'),('I',1,'U+0987')]:
-  assert found[key,level]==value, (key,level)
-for key,level,value in [('PERIOD',0,'U+0964'),('PERIOD',2,'U+002E')]:
-  assert found[(key, level)] == value, (key, level)
-ET.parse(root/'source/onnoy.kps')
-print('Onnoy Keyman source checks passed.')
-,re.M)
-found={}
-for shift,ralt,key,result in pattern.findall(src):
-  token=(key, int(bool(shift))+2*int(bool(ralt)))
-  assert token not in found, f'duplicate key {token}'
-  found[token]=result
-assert len(found)==148, f'Expected 148 alphabet+digit+period rules, got {len(found)}'
-for key,level,value in [('V',0,'U+0985'),('V',1,'U+09F1'),('F',0,'U+09CD'),('F',1,'U+09BC'),('R',2,'U+098B'),('R',3,'U+09F0'),('X',0,'U+09B7'),('Q',0,'U+09A1'),('Q',1,'U+09A2'),('Q',2,'U+09DC'),('Q',3,'U+09DD'),('W',0,'U+099F'),('W',1,'U+09A0'),('W',2,'nul'),('W',3,'nul'),('I',1,'U+0987')]:
-  assert found[key,level]==value, (key,level)
-for key,level,value in [('PERIOD',0,'U+0964'),('PERIOD',2,'U+002E')]:
-  assert found[(key, level)] == value, (key, level)
-ET.parse(root/'source/onnoy.kps')
-print('Onnoy Keyman source checks passed.')
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+ORDER = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890."
+mapping = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))["keys"]
+source = (ROOT / "source/onnoy.kmn").read_text(encoding="utf-8")
+
+rule = re.compile(
+    r"^\+ \[(?:(SHIFT) )?(?:(RALT) )?K_([A-Z0-9]+)\] > "
+    r"(nul|U\+[0-9A-F]{4,6}(?: U\+[0-9A-F]{4,6})*)$",
+    re.MULTILINE,
+)
+found = {}
+for shift, altgr, key, output in rule.findall(source):
+    slot = (key, int(bool(shift)) + 2 * int(bool(altgr)))
+    if slot in found:
+        raise SystemExit(f"Duplicate Keyman rule: {slot}")
+    found[slot] = output
+
+if len(found) != 4 * len(ORDER):
+    raise SystemExit(f"Expected {4 * len(ORDER)} rules, got {len(found)}")
+
+for key in ORDER:
+    for layer, value in enumerate(mapping[key]):
+        expected = "nul" if value is None else " ".join(f"U+{ord(c):04X}" for c in value)
+        slot = ("PERIOD" if key == "." else key, layer)
+        if found.get(slot) != expected:
+            raise SystemExit(f"Mismatch at {slot}: expected {expected}, got {found.get(slot)}")
+
+# Guard the deliberate R mapping and the approved family/shortcut decisions.
+for key, expected in {
+    "Q": ["ড", "ঢ", "ড়", "ঢ়"],
+    "W": ["ট", "ঠ", None, None],
+    "R": ["র", "ৃ", "ঋ", "ৰ"],
+    "X": ["ষ", "ক্ষ", None, None],
+    "G": ["গ", "ঘ", "জ্ঞ", None],
+    "Y": ["য", "য়", "্য", None],
+}.items():
+    if mapping[key] != expected:
+        raise SystemExit(f"Unexpected canonical assignment for {key}")
+
+ET.parse(ROOT / "source/onnoy.kps")
+print("Keyman rules and approved Onnoy mapping verified")
