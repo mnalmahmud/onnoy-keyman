@@ -1,9 +1,21 @@
 # Changelog
 
-## Unreleased
-- Keyman is the sole release implementation; removed the bundled XKB alternative.
-- Added GitHub Pages typing playground using the actual compiled KeymanWeb keyboard.
-- Build workflow creates `.kmx`, `.js`, and `.kmp`, uploads CI artifacts, deploys the test site on `main`, and publishes version-tag release artifacts.
+Notable changes to Onnoy are recorded here. This is a prerelease project; an entry in this file is **not** proof that a tagged, tested distribution exists.
 
-## 1.0 — initial Keyman source
-- Onnoy Unicode keyboard source and four-level keymap.
+## Unreleased
+
+### Changed
+- Reworked the repository documentation around real usage, build outputs and the project’s limitations.
+- Improved the GitHub Pages testing interface and keyboard reference.
+- Clarified that the compiled Keyman keyboard, not a separate browser mapping, handles typing.
+
+### Fixed
+- Corrected the mapping validation assertions for the 148 explicit key positions, including the period key.
+
+## Initial development
+
+- Established the Onnoy four-layer Unicode keymap for physical QWERTY keys.
+- Added the Keyman `.kmn` source and `.kps` package definition.
+- Added CI compilation of `.kmx`, `.js` and `.kmp`, plus GitHub Pages deployment.
+
+The first stable release will be recorded after desktop and browser testing.
