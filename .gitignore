@@ -3,11 +3,10 @@ build/
 dist/
 site/
 
-# Local Keyman Developer and compiled outputs
+# Compiled Keyman outputs
 *.kmx
 *.kmp
 *.kvk
-*.kpj.user
 
 # Local environments and tooling
 __pycache__/
