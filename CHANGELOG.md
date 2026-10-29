@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Keyboard layout
+- Swap Z Base/Shift: Z = ঙ, Shift+Z = ঞ; leave AltGr+Z and Shift+AltGr+Z joiners unchanged.
 - Swap entire Q/W families: Q = ড/ঢ/ড়/ঢ়, W = ট/ঠ.
 - Add Shift+X = ক্ষ, AltGr+G = জ্ঞ and AltGr+Y = য-ফলা with explicit Unicode sequences.
 - Keep R = র/ৃ/ঋ/ৰ unchanged.
