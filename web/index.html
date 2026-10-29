@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Type with the Onnoy Bengali Unicode keyboard in your browser using KeymanWeb.">
+  <title>Onnoy · অন্বয় — Try the keyboard</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">ONNOY · KEYMANWEB</p>
+      <h1 lang="bn">অন্বয় <span>Onnoy</span></h1>
+      <p class="lede">A Unicode keyboard layout. Try it with your physical keyboard, directly in the browser.</p>
+    </header>
+    <section class="panel" aria-labelledby="test-heading">
+      <div class="head-row">
+        <h2 id="test-heading">Typing playground</h2>
+        <span id="status" class="status" role="status" aria-live="polite">Loading keyboard…</span>
+      </div>
+      <label for="editor" class="helper">Click the text area and type with your physical keyboard. Shift and Right Alt (AltGr) select other layers.</label>
+      <textarea id="editor" lang="bn" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="এখানে লিখুন…" rows="7" disabled></textarea>
+      <div class="actions">
+        <button id="copy" type="button">Copy text</button>
+        <button id="clear" class="secondary" type="button">Clear</button>
+        <button id="unicode" class="secondary" type="button" aria-expanded="false">Inspect Unicode</button>
+      </div>
+      <pre id="codepoints" hidden aria-live="polite"></pre>
+    </section>
+    <section class="panel" aria-labelledby="try-heading">
+      <h2 id="try-heading">Try these keystrokes</h2>
+      <div class="examples">
+        <p><span lang="bn">বাংলা</span><code>B A Shift+M L A</code></p>
+        <p><span lang="bn">ক্ষ</span><code>K F X</code></p>
+        <p><span lang="bn">শিক্ষা</span><code>Shift+S I K F X A</code></p>
+        <p><span lang="bn">নৌকা</span><code>N AltGr+O K A</code></p>
+        <p><span lang="bn">৳৪.৫০</span><code>Shift+4 4 AltGr+. 5 0</code></p>
+      </div>
+      <p class="note">Onnoy uses the standard US-QWERTY physical key positions. A mobile touch layout is not included in this desktop-focused test.</p>
+    </section>
+    <footer>This page loads the real compiled Keyman keyboard, not a simulated layout. <span>·</span> <a href="https://keyman.com/" rel="noopener noreferrer">Powered by Keyman</a></footer>
+  </main>
+  <script src="https://s.keyman.com/kmw/engine/18.0.252/keymanweb.js"></script>
+  <script src="./app.js" defer></script>
+</body>
+</html>

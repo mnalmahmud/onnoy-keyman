@@ -1,0 +1,90 @@
+name: Build, test and publish Onnoy
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Compile and verify Keyman artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Keyman Developer CLI
+        run: npm install -g @keymanapp/kmc@18
+      - name: Build desktop package and web keyboard
+        run: bash scripts/build.sh
+      - name: Verify compiled artifacts and website
+        run: |
+          python3 scripts/verify_build.py
+          node --check web/app.js
+      - name: Upload downloadable Keyman artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: onnoy-keyman
+          path: |
+            build/onnoy.kmp
+            build/onnoy.kmx
+            build/onnoy.js
+          if-no-files-found: error
+      - name: Prepare Pages deployment
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p site
+          cp web/index.html web/style.css web/app.js build/onnoy.js site/
+          touch site/.nojekyll
+      - name: Upload Pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+    permissions:
+      contents: read
+
+  release:
+    name: Attach compiled files to GitHub Release
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download compiled artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: onnoy-keyman
+          path: release-assets
+      - name: Publish GitHub release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release-assets/onnoy.kmp
+            release-assets/onnoy.kmx
+            release-assets/onnoy.js
+          generate_release_notes: true
+
+  deploy:
+    name: Deploy browser test site
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
