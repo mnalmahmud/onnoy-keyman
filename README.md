@@ -22,16 +22,7 @@ The 26 letter positions, 10 number positions and period key have four layers: Ba
 
 Key examples:
 
-| Key | Base | Shift | AltGr | Shift+AltGr |
-| --- | --- | --- | --- | --- |
-| E | ে | এ | ৈ | ঐ |
-| I | ি | ই | ী | ঈ |
-| U | ু | উ | ূ | ঊ |
-| O | ো | ও | ৌ | ঔ |
-| F | ্ | ় | — | — |
-| Z | ঞ | ঙ | ZWNJ | ZWJ |
-| 4 | ৪ | ৳ | 4 | $ |
-| . | । | > | . | — |
+The 26 letters use their physical US-QWERTY positions and four layers: Base, Shift, AltGr, AltGr+Shift. Use the [canonical layout definition](layout/onnoy.json) for all assignments. Q carries ড/ঢ/ড়/ঢ় and W carries ট/ঠ, keeping each consonant family together while placing the more frequent ট/ঠ on W. In particular, the vowel groups are E (ে এ ৈ ঐ), I (ি ই ী ঈ), U (ু উ ূ ঊ) and O (ো ও ৌ ঔ). F produces virama (্); Shift+F produces nukta (়). The number row yields Bengali digits; AltGr gives ASCII digits. Shift+4 gives ৳ and AltGr+Shift+4 gives $. The period key yields । (base), > (Shift), and . (AltGr).
 
 The [browser playground](https://mnalmahmud.github.io/onnoy-keyman/) displays **all four layers** and shows the Unicode code points of text entered into its editor. ZWNJ (U+200C) and ZWJ (U+200D) are invisible characters, not blank assignments.
 
