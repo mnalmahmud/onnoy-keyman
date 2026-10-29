@@ -1,18 +1,208 @@
-(async function(){
- const editor=document.getElementById('editor'), status=document.getElementById('status');
- try{
-  const res=await fetch('./onnoy.js',{method:'HEAD',cache:'no-store'});
-  if(!res.ok || !window.keyman) throw new Error('KeymanWeb or compiled keyboard unavailable');
-  await keyman.init({attachType:'manual',ui:'float',setActiveOnRegister:false});
-  keyman.attachToControl(editor);
-  await keyman.addKeyboards({id:'onnoy',name:'Onnoy (অন্বয়)',filename:'./onnoy.js',version:'1.0',languages:[{id:'bn',name:'Bangla'}]});
-  await keyman.setActiveKeyboard('onnoy','bn');
-  editor.disabled=false;editor.focus();status.textContent='Keyboard ready';
- }catch(e){status.textContent='Keyboard unavailable';console.error(e);}
- const codes=document.getElementById('codepoints');
- const update=()=>{if(!codes.hidden)codes.textContent=Array.from(editor.value).map(c=>c+' U+'+c.codePointAt(0).toString(16).toUpperCase().padStart(4,'0')).join(' · ');};
- document.getElementById('clear').onclick=()=>{editor.value='';update();editor.focus()};
- document.getElementById('copy').onclick=()=>navigator.clipboard.writeText(editor.value);
- document.getElementById('unicode').onclick=()=>{codes.hidden=!codes.hidden;update()};
- editor.addEventListener('input',update);
+(() => {
+  "use strict";
+
+  const $ = (id) => document.getElementById(id);
+  const editor = $("editor");
+  const status = $("status");
+  const statusLabel = $("status-label");
+  const count = $("count");
+  const copy = $("copy");
+  const clear = $("clear");
+  const inspect = $("inspect");
+  const unicodePanel = $("unicode-panel");
+  const codepoints = $("codepoints");
+  const feedback = $("feedback");
+  const keyboard = $("keyboard");
+  const details = $("key-details");
+  const layerHint = $("layer-hint");
+  const errorHelp = $("error-help");
+  const errorDetail = $("error-detail");
+  const layerButtons = [...document.querySelectorAll("[data-layer]")];
+  const rows = ["1234567890", "QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM."];
+  const layerNames = ["Base", "Shift", "AltGr", "AltGr + Shift"];
+  const layerHints = [
+    "Unmodified keys", "Hold Shift for this layer",
+    "Hold Right Alt (AltGr) for this layer", "Hold Shift + Right Alt for this layer"
+  ];
+
+  let mapping = null;
+  let selectedLayer = 0;
+  let visibleLayer = -1;
+  let selectedKey = null;
+  let shiftDown = false;
+  let altGrDown = false;
+
+  function describe(value) {
+    if (value === null) return "—";
+    if (value === "\u200c") return "ZWNJ";
+    if (value === "\u200d") return "ZWJ";
+    return value;
+  }
+
+  function updateEditor() {
+    const characters = [...editor.value];
+    count.textContent = String(characters.length);
+    copy.disabled = characters.length === 0;
+    if (!unicodePanel.hidden) {
+      codepoints.textContent = characters.map((character) =>
+        character + " U+" + character.codePointAt(0).toString(16).toUpperCase().padStart(4, "0")
+      ).join(" · ") || "Nothing to inspect yet.";
+    }
+  }
+
+  function showDetails(key) {
+    if (!mapping) return;
+    details.textContent = key + "  ·  " +
+      mapping[key].map((value, index) => layerNames[index] + ": " + describe(value)).join("   |   ");
+  }
+
+  function draw(layer) {
+    if (!mapping || layer === visibleLayer && keyboard.childElementCount) return;
+    visibleLayer = layer;
+    const fragment = document.createDocumentFragment();
+    for (const rowKeys of rows) {
+      const row = document.createElement("div");
+      row.className = "keyboard-row";
+      for (const key of rowKeys) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "keyboard-key";
+        button.classList.toggle("selected", key === selectedKey);
+        button.setAttribute("aria-pressed", String(key === selectedKey));
+        button.setAttribute("aria-label", key + ": " + layerNames[layer] + " " + describe(mapping[key][layer]));
+        const symbol = document.createElement("span");
+        symbol.className = "key-symbol";
+        symbol.lang = "bn";
+        symbol.textContent = describe(mapping[key][layer]);
+        if (mapping[key][layer] === null) button.classList.add("unassigned");
+        const label = document.createElement("span");
+        label.className = "key-label";
+        label.textContent = key;
+        button.append(symbol, label);
+        button.addEventListener("click", () => {
+          selectedKey = key;
+          visibleLayer = -1;
+          draw(layer);
+          showDetails(key);
+        });
+        row.append(button);
+      }
+      fragment.append(row);
+    }
+    keyboard.replaceChildren(fragment);
+    layerHint.textContent = layerHints[layer];
+    for (const button of layerButtons) {
+      const active = Number(button.dataset.layer) === layer;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    }
+  }
+
+  function activeLayer() {
+    return shiftDown || altGrDown
+      ? Number(shiftDown) + Number(altGrDown) * 2
+      : selectedLayer;
+  }
+
+  for (const button of layerButtons) {
+    button.addEventListener("click", () => {
+      selectedLayer = Number(button.dataset.layer);
+      shiftDown = false;
+      altGrDown = false;
+      draw(selectedLayer);
+    });
+  }
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Shift") shiftDown = true;
+    if (event.code === "AltRight" || (event.getModifierState && event.getModifierState("AltGraph"))) {
+      altGrDown = true;
+    }
+    draw(activeLayer());
+  });
+  document.addEventListener("keyup", (event) => {
+    if (event.key === "Shift") shiftDown = false;
+    if (event.code === "AltRight" || (event.getModifierState && !event.getModifierState("AltGraph"))) {
+      altGrDown = false;
+    }
+    draw(activeLayer());
+  });
+  window.addEventListener("blur", () => {
+    shiftDown = false;
+    altGrDown = false;
+    draw(selectedLayer);
+  });
+
+  inspect.addEventListener("click", () => {
+    unicodePanel.hidden = !unicodePanel.hidden;
+    inspect.setAttribute("aria-expanded", String(!unicodePanel.hidden));
+    updateEditor();
+  });
+  clear.addEventListener("click", () => {
+    editor.value = "";
+    feedback.textContent = "";
+    updateEditor();
+    editor.focus();
+  });
+  copy.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(editor.value);
+      feedback.textContent = "Copied!";
+    } catch {
+      feedback.textContent = "Copy failed. Select the text to copy manually.";
+    }
+  });
+  editor.addEventListener("input", () => {
+    feedback.textContent = "";
+    updateEditor();
+  });
+  updateEditor();
+
+  async function loadLayout() {
+    try {
+      const response = await fetch("./layout.json");
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      const layout = await response.json();
+      if (!layout.keys || rows.join("").split("").some((key) =>
+        !Array.isArray(layout.keys[key]) || layout.keys[key].length !== 4
+      )) throw new Error("Invalid keyboard mapping");
+      mapping = layout.keys;
+      draw(selectedLayer);
+    } catch (error) {
+      keyboard.textContent = "The key reference could not be loaded.";
+      details.textContent = "Check that layout.json was included in the site deployment.";
+      console.error("Onnoy key reference:", error);
+    }
+  }
+
+  async function startKeyboard() {
+    try {
+      if (!window.keyman) throw new Error("The KeymanWeb engine did not load");
+      const km = window.keyman;
+      await km.init({ attachType: "manual", ui: "float", setActiveOnRegister: false });
+      km.attachToControl(editor);
+      await km.addKeyboards({
+        id: "onnoy",
+        name: "Onnoy (অন্বয়)",
+        filename: "./onnoy.js",
+        version: "1.0",
+        languages: [{ id: "bn", name: "Bangla" }]
+      });
+      await km.setActiveKeyboard("onnoy", "bn");
+      status.classList.remove("loading", "error");
+      status.classList.add("ready");
+      statusLabel.textContent = "Keyboard ready";
+    } catch (error) {
+      status.classList.remove("loading", "ready");
+      status.classList.add("error");
+      statusLabel.textContent = "Keyboard unavailable";
+      errorHelp.hidden = false;
+      errorDetail.textContent = String(error.message || error);
+      console.error("Onnoy KeymanWeb:", error);
+    }
+  }
+
+  // The reference works even if KeymanWeb fails; ordinary typing stays possible.
+  void loadLayout();
+  void startKeyboard();
 })();
