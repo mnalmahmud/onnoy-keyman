@@ -30,7 +30,7 @@ class LayoutTests(unittest.TestCase):
             "F": ["্", "়", None, None],
             "Q": ["ড", "ঢ", "ড়", "ঢ়"],
             "W": ["ট", "ঠ", None, None],
-            "G": ["গ", "ঘ", "জ্ঞ", None],
+            "G": ["গ", "ঘ", None, None],
             "Y": ["য", "য়", "্য", None],
             "X": ["ষ", "ক্ষ", None, None],
             "Z": ["ঞ", "ঙ", "\u200c", "\u200d"],
@@ -41,8 +41,8 @@ class LayoutTests(unittest.TestCase):
             with self.subTest(key=key):
                 self.assertEqual(KEYS[key], values)
         empty = [sum(KEYS[key][i] is None for key in PHYSICAL) for i in range(4)]
-        self.assertEqual(empty, [0, 1, 13, 29])
-        self.assertEqual(sum(empty), 43)
+        self.assertEqual(empty, [0, 1, 14, 29])
+        self.assertEqual(sum(empty), 44)
 
     def test_all_keyman_rules_match_json(self):
         source = (ROOT / "source/onnoy.kmn").read_text(encoding="utf-8")
@@ -70,17 +70,22 @@ class LayoutTests(unittest.TestCase):
         self.assertIn("200d", klc)
         compose = (ROOT / "dist/linux/Onnoy.XCompose").read_text(encoding="utf-8")
         self.assertIn('<F13> : "্য"', compose)
-        self.assertIn('<F14> : "জ্ঞ"', compose)
-        self.assertIn('<F15> : "ক্ষ"', compose)
+        self.assertIn('<F14> : "ক্ষ"', compose)
+        self.assertNotIn("জ্ঞ", compose)
+        self.assertNotIn("<F15>", compose)
         self.assertIn("F13", xkb)
         self.assertIn("F14", xkb)
-        self.assertIn("F15", xkb)
+        self.assertNotIn("F15", xkb)
         self.assertIn("LIGATURE", klc)
         self.assertIn("X\t1\t0995 09cd 09b7", klc)
-        self.assertIn("G\t3\t099c 09cd 099e", klc)
+        self.assertNotIn("G\t3\t099c 09cd 099e", klc)
+        self.assertIn("23\tG\t0\t", klc)
         self.assertIn("Y\t3\t09cd 09af", klc)
         self.assertNotIn(r"\\t", klc)
         self.assertEqual(mac.attrib["maxout"], "3")
+        option_map = mac.find(".//keyMap[@index='2']")
+        self.assertEqual(next(k.attrib["output"] for k in option_map.findall("key")
+                              if k.attrib["code"] == "5"), "")
         self.assertEqual(len(mac.findall(".//keyMap")), 6)
         keymap = mac.find(".//keyMap[@index='0']")
         self.assertIsNotNone(keymap)

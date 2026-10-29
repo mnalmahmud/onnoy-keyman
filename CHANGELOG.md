@@ -4,7 +4,8 @@
 
 ### Keyboard layout
 - Swap entire Q/W families: Q = ড/ঢ/ড়/ঢ়, W = ট/ঠ.
-- Add Shift+X = ক্ষ, AltGr+G = জ্ঞ and AltGr+Y = য-ফলা with explicit Unicode sequences.
+- Add Shift+X = ক্ষ and AltGr+Y = য-ফলা with explicit Unicode sequences.
+- Remove AltGr+G = জ্ঞ; leave AltGr+G unassigned while researching an অ্যা shortcut.
 - Keep R = র/ৃ/ঋ/ৰ unchanged.
 
 ### Platform support
