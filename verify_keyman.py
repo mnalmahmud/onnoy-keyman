@@ -14,6 +14,6 @@ assert len(found)==148, f'Expected 148 alphabet+digit+period rules, got {len(fou
 for key,level,value in [('V',0,'U+0985'),('V',1,'U+09F1'),('F',0,'U+09CD'),('F',1,'U+09BC'),('R',2,'U+098B'),('R',3,'U+09F0'),('X',0,'U+09B7'),('W',2,'U+09DC'),('W',3,'U+09DD'),('I',1,'U+0987')]:
   assert found[key,level]==value, (key,level)
 for key,level,value in [('PERIOD',0,'U+0964'),('PERIOD',2,'U+002E')]:
-  assert re.search(r'^\+ \['+('RALT ' if level==2 else '')+r'K_'+key+r'\] > '+value+r'$',src,re.M),key
+  assert found[(key, level)] == value, (key, level)
 ET.parse(root/'source/onnoy.kps')
 print('Onnoy Keyman source checks passed.')
