@@ -1,0 +1,8 @@
+build/*
+!build/.gitkeep
+site/
+*.kmx
+*.kmp
+*.kvk
+*.kpj.user
+__pycache__/
