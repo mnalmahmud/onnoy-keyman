@@ -1,49 +1,81 @@
 # Onnoy (অন্বয়)
 
-Onnoy is a fixed, Unicode keyboard layout for Bengali script. The character mapping is stored in [`layout/onnoy.json`](layout/onnoy.json). Native desktop layouts and the KeymanWeb keyboard are generated from that same file.
+A fixed, Unicode Bengali-script keyboard layout for physical US-QWERTY keys. **One source of truth:** [`layout/onnoy.json`](layout/onnoy.json). The Linux, macOS, Windows and Keyman sources are all generated from it.
 
-[Try typing online](https://mnalmahmud.github.io/onnoy-keyman/) · [Source mapping](layout/onnoy.json) · [CI builds](https://github.com/mnalmahmud/onnoy-keyman/actions)
+**[Try Onnoy in your browser](https://mnalmahmud.github.io/onnoy-keyman/)** · [Builds](https://github.com/mnalmahmud/onnoy-keyman/actions) · [Issues](https://github.com/mnalmahmud/onnoy-keyman/issues)
 
-## Install
+## What works
 
-**Linux (XKB):** Copy the generated `dist/linux/symbols/onnoy` to your user or system XKB symbols directory, and configure the `onnoy(basic)` variant using your desktop's XKB integration. Desktop settings menus may require a separate layout registration. Installing system-wide XKB files requires appropriate permissions.
+| Platform | Output | Status |
+| --- | --- | --- |
+| Browser | KeymanWeb (`onnoy.js`) | Compiled in CI; physical-key input is intended for desktop browsers |
+| Linux | XKB (`dist/linux/symbols/onnoy`) | Generated and syntax-compiled in CI; desktop integration must be tested |
+| macOS | Native `.keylayout` | Generated and XML-validated in CI; installed input source must be tested |
+| Windows | `.klc` source | Generated only; **not an installer** |
+| Keyman desktop | `.kmp` package | Compiled in CI; requires Keyman and target-OS testing |
 
-**macOS:** Copy `dist/macos/Onnoy.keylayout` to `~/Library/Keyboard Layouts/`, log out and back in if it does not appear, then enable Onnoy in **System Settings → Keyboard → Input Sources**. This is a native layout; Keyman is not required.
+CI artifacts are downloadable from a successful [workflow run](https://github.com/mnalmahmud/onnoy-keyman/actions). There are currently no published GitHub Releases. A successful CI build does not certify that a layout installs correctly on every operating system.
 
-**Windows:** `dist/windows/onnoy.klc` is source for Microsoft Keyboard Layout Creator (MSKLC), **not** an installer. It must be compiled into a Windows keyboard DLL and installer before general Windows deployment. The Windows installer is **not yet available**. Don't treat the `.klc` as a downloadable, ready-to-install keyboard.
+## Keyboard layout
 
-**Web:** The [GitHub Pages test](https://mnalmahmud.github.io/onnoy-keyman/) uses KeymanWeb with the compiled `onnoy.js` keyboard. Keyman is needed for the browser implementation only, not for native macOS and Linux layouts.
+The 26 letter positions, 10 number positions and period key have four layers: Base, Shift, AltGr (Right Alt / macOS Option) and Shift+AltGr. Unassigned outputs are `null` in [the canonical mapping](layout/onnoy.json); they do not imply ASCII fallback on every platform.
 
-### Keyboard behavior
+Key examples:
 
 The 26 letters use their physical US-QWERTY positions and four layers: Base, Shift, AltGr, AltGr+Shift. Use the [canonical layout definition](layout/onnoy.json) for all assignments. Q carries ড/ঢ/ড়/ঢ় and W carries ট/ঠ, keeping each consonant family together while placing the more frequent ট/ঠ on W. In particular, the vowel groups are E (ে এ ৈ ঐ), I (ি ই ী ঈ), U (ু উ ূ ঊ) and O (ো ও ৌ ঔ). F produces virama (্); Shift+F produces nukta (়). The number row yields Bengali digits; AltGr gives ASCII digits. Shift+4 gives ৳ and AltGr+Shift+4 gives $. The period key yields । (base), > (Shift), and . (AltGr).
 
-On macOS, **Option** corresponds to the third layer; on Linux and Windows, **Right Alt (AltGr)** usually supplies it. Some host shortcuts and modifier handling differ by OS.
+The [browser playground](https://mnalmahmud.github.io/onnoy-keyman/) displays **all four layers** and shows the Unicode code points of text entered into its editor. ZWNJ (U+200C) and ZWJ (U+200D) are invisible characters, not blank assignments.
 
-## Build and test
+## Install or test
 
-Requirements: Python 3. The KeymanWeb build additionally needs Node.js and Keyman Developer CLI 18.
+- **Browser:** Open the playground in a desktop browser. It loads the compiled Keyman keyboard; if the remote engine fails, ordinary typing and the visual key reference remain usable.
+- **Linux (XKB):** Copy `dist/linux/symbols/onnoy` into the relevant XKB symbols directory, then register `onnoy(basic)` in your desktop's XKB configuration. Desktop layout registration differs across distributions.
+- **macOS:** Copy `dist/macos/Onnoy.keylayout` to `~/Library/Keyboard Layouts/`, log out and back in if necessary, then enable Onnoy from **System Settings → Keyboard → Input Sources**.
+- **Windows:** `dist/windows/onnoy.klc` is *source* for Microsoft Keyboard Layout Creator (MSKLC). Compile and test it using MSKLC; no native installer is provided.
+- **Keyman desktop:** The generated `build/onnoy.kmp` is a Keyman package, not a native Windows installer. It requires a compatible Keyman runtime.
+
+## Development
+
+Prerequisites: Python 3 and Node.js. Building Keyman additionally requires [Keyman Developer CLI 18](https://keyman.com/developer/). The generator itself has no third-party Python dependencies.
 
 ```sh
 python3 scripts/generate.py
 python3 scripts/generate.py --check
+python3 -m unittest discover -s tests -p 'test_layout.py'
 npm install -g @keymanapp/kmc@18
 bash scripts/build.sh
-python3 scripts/verify_build.py
 ```
 
-The generator writes:
-- `dist/linux/symbols/onnoy` — Linux XKB
-- `dist/macos/Onnoy.keylayout` — macOS native XML keyboard
-- `dist/windows/onnoy.klc` — Windows native layout source, needs MSKLC compilation
-- `source/onnoy.kmn` — Keyman source for the web keyboard
+`generate.py` produces:
 
-CI compiles the XKB layout, checks the macOS XML, and compiles the Keyman keyboard. Windows native DLL building is not implemented in CI yet. No Windows binary should be advertised until that work is completed and verified.
+```text
+source/onnoy.kmn              Keyman keyboard source
+dist/linux/symbols/onnoy      Linux XKB
+dist/macos/Onnoy.keylayout    macOS native input source
+dist/windows/onnoy.klc        Windows MSKLC source
+```
 
-## Development
+`build.sh` compiles `build/onnoy.kmx`, `build/onnoy.js` and `build/onnoy.kmp`. Both `dist/` and `build/` are generated and ignored by Git.
 
-Edit **only** `layout/onnoy.json` when changing key assignments, then run the generator and update tests/documentation. Do not make independent edits to platform layouts. Keep OS-specific packaging separate from the shared mapping.
+To stage the test website locally:
 
-## License
+```sh
+mkdir -p site
+cp web/index.html web/app.js web/style.css build/onnoy.js site/
+cp layout/onnoy.json site/layout.json
+python3 -m http.server 8000 --directory site
+```
 
-MIT. Copyright © 2026 Muhtasham Nawr al-Mahmud. See [LICENSE](LICENSE).
+Browse to http://localhost:8000. Optional real-browser smoke tests use Python Playwright and Chromium:
+
+```sh
+python3 -m pip install playwright==1.56.0
+python3 -m playwright install chromium
+python3 -m unittest discover -s tests -p 'test_browser.py'
+```
+
+## Contributing
+
+Make mapping edits **only** in `layout/onnoy.json`; regenerate and test all affected platforms. Do not edit generated sources directly. See [CONTRIBUTING.md](CONTRIBUTING.md) and [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). When reporting a bug, include the operating system, application, physical key, modifiers, expected Unicode and actual Unicode.
+
+MIT licensed. Copyright © 2026 Muhtasham Nawr al-Mahmud. See [LICENSE](LICENSE).
