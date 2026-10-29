@@ -19,13 +19,12 @@ The four layers are Base, Shift, AltGr (Right Alt; Option on macOS), and Shift+A
 | R | র | ৃ | ঋ | ৰ |
 | F | ্ | ় | — | — |
 | X | ষ | **ক্ষ** | — | — |
-| G | গ | ঘ | **জ্ঞ** | — |
+| G | গ | ঘ | — | — |
 | Y | য | য় | **্য** | — |
 
-The three multi-code-point shortcuts output the exact sequences:
+The two approved multi-code-point shortcuts output the exact sequences:
 
 - **Shift+X:** ক্ষ = `U+0995 U+09CD U+09B7`
-- **AltGr+G:** জ্ঞ = `U+099C U+09CD U+099E`
 - **AltGr+Y:** য-ফলা = `U+09CD U+09AF` (no automatic ZWJ)
 
 The [online keymap](https://mnalmahmud.github.io/onnoy-keyman/#keymap) shows every key and layer. ZWNJ (`U+200C`) and ZWJ (`U+200D`) have their own assignments on Z's AltGr layers.
@@ -41,7 +40,7 @@ The [online keymap](https://mnalmahmud.github.io/onnoy-keyman/#keymap) shows eve
 
 ### Linux shortcut installation
 
-Install and register the generated XKB symbols using your distribution's XKB configuration, then integrate the rules from `dist/linux/Onnoy.XCompose` into `~/.XCompose`. If needed, retain system Compose definitions using `include "%L"`. Restart affected applications. Onnoy maps F13–F15 internal keysyms to full Unicode strings; application, compositor and toolkit support can vary. Do not assume that a passing XKB compilation test proves all three shortcuts work everywhere.
+Install and register the generated XKB symbols using your distribution's XKB configuration, then integrate the rules from `dist/linux/Onnoy.XCompose` into `~/.XCompose`. If needed, retain system Compose definitions using `include "%L"`. Restart affected applications. Onnoy currently maps F13–F14 internal keysyms to full Unicode strings; application, compositor and toolkit support can vary. Do not assume that a passing XKB compilation test proves all three shortcuts work everywhere.
 
 ### Other installation notes
 

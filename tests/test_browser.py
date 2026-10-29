@@ -61,7 +61,10 @@ class BrowserSmokeTests(unittest.TestCase):
         self.page.locator('button[data-layer="1"]').click()
         self.assertIn("ক্ষ", self.page.locator(".keyboard-row").nth(3).inner_text())
         self.page.locator('button[data-layer="2"]').click()
-        self.assertIn("জ্ঞ", self.page.locator(".keyboard-row").nth(2).inner_text())
+        self.assertEqual(
+            self.page.locator(".keyboard-row").nth(2).locator("button").nth(4)
+                     .locator(".key-symbol").inner_text(), "—"
+        )
         self.assertIn("্য", self.page.locator(".keyboard-row").nth(1).inner_text())
 
     def test_editor_inspector_copy_and_failure_fallback(self):
