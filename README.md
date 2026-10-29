@@ -16,7 +16,7 @@ Onnoy is a fixed, Unicode keyboard layout for Bengali script. The character mapp
 
 ### Keyboard behavior
 
-The 26 letters use their physical US-QWERTY positions and four layers: Base, Shift, AltGr, AltGr+Shift. Use the [canonical layout definition](layout/onnoy.json) for all assignments. In particular, the vowel groups are E (ে এ ৈ ঐ), I (ি ই ী ঈ), U (ু উ ূ ঊ) and O (ো ও ৌ ঔ). F produces virama (্); Shift+F produces nukta (়). The number row yields Bengali digits; AltGr gives ASCII digits. Shift+4 gives ৳ and AltGr+Shift+4 gives $. The period key yields । (base), > (Shift), and . (AltGr).
+The 26 letters use their physical US-QWERTY positions and four layers: Base, Shift, AltGr, AltGr+Shift. Use the [canonical layout definition](layout/onnoy.json) for all assignments. Q carries ড/ঢ/ড়/ঢ় and W carries ট/ঠ, keeping each consonant family together while placing the more frequent ট/ঠ on W. In particular, the vowel groups are E (ে এ ৈ ঐ), I (ি ই ী ঈ), U (ু উ ূ ঊ) and O (ো ও ৌ ঔ). F produces virama (্); Shift+F produces nukta (়). The number row yields Bengali digits; AltGr gives ASCII digits. Shift+4 gives ৳ and AltGr+Shift+4 gives $. The period key yields । (base), > (Shift), and . (AltGr).
 
 On macOS, **Option** corresponds to the third layer; on Linux and Windows, **Right Alt (AltGr)** usually supplies it. Some host shortcuts and modifier handling differ by OS.
 
