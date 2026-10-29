@@ -1,44 +1,48 @@
-# Contributing to Onnoy
+# Contributing
 
-Thanks for helping improve Onnoy. The goal is a predictable Unicode keyboard with a coherent physical-key layout, not simply filling every unused key combination.
+Contributions to Onnoy are welcome, especially reproducible typing bugs, corrections to the keymap, and fixes to installation or build problems.
 
-## Before filing a bug
+## Report a problem
 
-Check whether the problem occurs in the [live KeymanWeb test](https://mnalmahmud.github.io/onnoy-keyman/), the installed Keyman keyboard, or both. If possible, test on a physical US-QWERTY keyboard. Please include:
+[Open an issue](https://github.com/mnalmahmud/onnoy-keyman/issues) and include:
 
-- Operating system and version; browser or Keyman version.
-- Physical keys and modifiers pressed, in order (for example, `Shift+S I K F X A`).
-- Expected text and actual text, ideally with Unicode code points.
-- Whether Right Alt / AltGr works in other keyboard layouts.
-- A minimal example, and a screenshot only if visual rendering matters.
+1. **Environment:** operating system, browser (for the website) or Keyman version (for desktop).
+2. **Keystrokes:** physical keys, in order, including Shift and Right Alt/AltGr.
+3. **Expected output** and **actual output**. Include Unicode code points if the characters look identical.
+4. **Reproduction:** whether the problem occurs in the [online test](https://mnalmahmud.github.io/onnoy-keyman/), an installed keyboard, or both.
 
-Use [GitHub Issues](https://github.com/mnalmahmud/onnoy-keyman/issues) to report reproducible bugs.
+For rendering defects, mention the application and font. For broken AltGr behavior, mention the host keyboard layout.
 
-## Proposing changes
+## Change a key assignment
 
-Please open an issue before changing established mappings. Explain the typing problem, proposed assignment, alternatives considered, compatibility impact and any existing assignments that would move. Avoid inventing scores or declaring unused positions inherently problematic. A change should be justified by typing behavior, consistency or clear language coverage.
+Please start with an issue before moving existing assignments. Describe the existing mapping, the proposed mapping, the typing problem it solves, and any compatibility costs. Empty slots do not need to be filled without a practical reason.
 
-## Local development
+The authoritative implementation is `source/onnoy.kmn`. When changing it, update the relevant table and examples in `README.md` and extend `verify_keyman.py` to cover the change. Avoid maintaining an independent JavaScript typing implementation: web input must use the compiled Keyman keyboard.
 
-Install Python 3, Node.js and the Keyman Developer CLI:
+## Build and test
+
+You need Node.js, Python 3, Bash, and Keyman Developer CLI 18.
 
 ```sh
 npm install -g @keymanapp/kmc@18
 python3 verify_keyman.py
 bash scripts/build.sh
 python3 scripts/verify_build.py
+node --check web/app.js
 ```
 
-The authoritative keyboard mapping is [`source/onnoy.kmn`](source/onnoy.kmn); package metadata lives in `source/onnoy.kps`. Update documentation and tests with mapping changes. Do not edit a nonexistent `audit.json` or add a second handwritten typing map.
+The build should produce `build/onnoy.kmx`, `build/onnoy.js`, and `build/onnoy.kmp`. These are generated files; do not commit them.
 
-The browser playground is in `web/`. It must load the **compiled KeymanWeb keyboard**, not replace it with custom JavaScript transliteration. Verify user-facing changes on a desktop and mobile viewport, and check that the editor still accepts genuine Keyman output.
+The source mapping tests are static. For typing or UI changes, also test in Keyman or the deployed website. In particular, check base, Shift, AltGr and AltGr+Shift; conjuncts; numeric and punctuation keys; and behavior after switching keyboards.
 
 ## Pull requests
 
-Keep each PR focused. Include a concise explanation, testing instructions, and screenshots for visible UI changes. Don't commit compiled `.kmx`, `.js` or `.kmp` output; the GitHub Actions workflow produces and publishes those artifacts.
+- Keep changes focused and describe the problem they address.
+- List the tests you ran and the platforms you tested.
+- Include screenshots for visual changes, not for ordinary mapping edits.
+- Add required third-party copyright notices if you incorporate outside material.
+- Don't describe a platform as supported solely because the package compiled.
 
-Contributions are submitted for inclusion under the project's [MIT license](LICENSE). Include third-party attributions where applicable.
+CI runs on pull requests. The maintainer reviews changes before merging to `main`.
 
-## Community expectations
-
-Discuss ideas and defects respectfully. Review the proposal, not the person. Decisions should be based on reproducible behavior, clarity and maintainability.
+By contributing, you agree that your contribution may be distributed under the project's [MIT License](LICENSE).

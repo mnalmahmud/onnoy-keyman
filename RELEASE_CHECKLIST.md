@@ -1,29 +1,41 @@
 # Release checklist
 
-This checklist is for maintainers. **A successful CI build is necessary, but not sufficient, for a release.**
+Use this before publishing a version of Onnoy. **A green build is not a substitute for testing the keyboard.**
 
-## Source and metadata
+## 1. Verify the source
 
-- [x] MIT license present with copyright © 2026 Muhtasham Nawr al-Mahmud.
-- [x] Repository on `main` with an automated Keyman build and Pages deployment.
-- [ ] Review any copied or adapted upstream content and retain legally required notices.
-- [ ] Check name, version and language metadata in `source/onnoy.kmn` and `source/onnoy.kps`.
-- [ ] Check all documentation, example sequences and project URLs.
+- [ ] Confirm the intended mappings in `source/onnoy.kmn` match `README.md`.
+- [ ] Confirm the keyboard name, version, and language metadata in `source/onnoy.kmn` and `source/onnoy.kps`.
+- [ ] Review third-party material and preserve any required license or attribution notices.
+- [ ] Run the source checks and compiler:
 
-## Quality checks
+  ```sh
+  python3 verify_keyman.py
+  bash scripts/build.sh
+  python3 scripts/verify_build.py
+  ```
 
-- [ ] CI builds `onnoy.kmx`, `onnoy.js` and `onnoy.kmp` successfully.
-- [ ] A maintainer opens the deployed website and types real text using KeymanWeb.
-- [ ] Verify base, Shift, AltGr and AltGr+Shift layers with physical keys.
-- [ ] Verify vowels, virama and conjuncts, Bengali/Latin digits, currency, danda, nukta and joiners.
-- [ ] Check clipboard, clear, Unicode inspection and mobile-width layout on the website.
-- [ ] Test `.kmp` installation and typing on each desktop OS claimed as supported.
-- [ ] Confirm Pages does not deploy a stale or mocked keymap.
+- [ ] Confirm the build produced `onnoy.kmx`, `onnoy.js`, and `onnoy.kmp`, and that the `.kmp` includes the compiled keyboard.
 
-## Publish
+## 2. Test typing
 
-- [ ] Inspect the compiled package and CI artifacts.
-- [ ] Update `CHANGELOG.md` with the actual release date and tested platforms.
-- [ ] Create a version tag such as `v1.0.0` only after checks pass.
-- [ ] Confirm the GitHub Release contains the `.kmp`, `.kmx` and `.js` files.
-- [ ] Verify installation and download links from the public release page.
+- [ ] Install `onnoy.kmp` in Keyman on each desktop platform you intend to claim as supported. Record the OS and Keyman versions.
+- [ ] Verify base, Shift, AltGr and AltGr+Shift on a physical keyboard.
+- [ ] Check vowels and vowel signs; virama and conjuncts; nukta; ZWNJ and ZWJ.
+- [ ] Check Bengali and Latin digits, ৳, $, danda, and the literal period.
+- [ ] Verify that unassigned combinations and host punctuation behave as documented.
+- [ ] Open the [GitHub Pages test](https://mnalmahmud.github.io/onnoy-keyman/), confirm the compiled keyboard activates, and type the README examples.
+- [ ] Test copy, clear, the Unicode inspector, and keyboard switching in the browser.
+- [ ] Record known limitations rather than presenting untested combinations as supported.
+
+## 3. Publish
+
+- [ ] Confirm that the final `main` commit builds successfully and GitHub Pages deploys.
+- [ ] Update `CHANGELOG.md` with the version, release date, and user-visible changes.
+- [ ] Match the intended version in Keyman metadata before tagging.
+- [ ] Create and push a version tag (for example, `v1.0.0`).
+- [ ] Check the GitHub Release for the installable `onnoy.kmp` and accompanying compiled artifacts.
+- [ ] Download the published `.kmp` and verify installation from the release asset itself.
+- [ ] Confirm the README's release and testing links work.
+
+Do not publish a stable release while a required platform test is outstanding; either finish the test or narrow the stated support.

@@ -1,21 +1,19 @@
 # Changelog
 
-Notable changes to Onnoy are recorded here. This is a prerelease project; an entry in this file is **not** proof that a tagged, tested distribution exists.
+This file records changes to the Onnoy keyboard and its distribution. No version has been tagged as a stable release yet.
 
 ## Unreleased
 
-### Changed
-- Reworked the repository documentation around real usage, build outputs and the project’s limitations.
-- Improved the GitHub Pages testing interface and keyboard reference.
-- Clarified that the compiled Keyman keyboard, not a separate browser mapping, handles typing.
+### Keyboard
 
-### Fixed
-- Corrected the mapping validation assertions for the 148 explicit key positions, including the period key.
+- Added the four-layer Keyman layout for physical US-QWERTY keys.
+- Defined Bengali digits, Latin digits via AltGr, the taka sign, danda, virama, nukta, ZWNJ, and ZWJ.
 
-## Initial development
+### Build and distribution
 
-- Established the Onnoy four-layer Unicode keymap for physical QWERTY keys.
-- Added the Keyman `.kmn` source and `.kps` package definition.
-- Added CI compilation of `.kmx`, `.js` and `.kmp`, plus GitHub Pages deployment.
+- Added the Keyman desktop package (`onnoy.kmp`), desktop keyboard (`onnoy.kmx`), and web keyboard (`onnoy.js`) build.
+- Added GitHub Actions artifact uploads and version-tag release publishing.
+- Added a GitHub Pages typing test that uses KeymanWeb.
+- Corrected source-validation tests to cover all 148 explicit mappings, including the period key.
 
-The first stable release will be recorded after desktop and browser testing.
+A dated version entry will be added when the first release is actually published.
