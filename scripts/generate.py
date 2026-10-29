@@ -38,7 +38,7 @@ def mapping():
     m=data["keys"]
     assert set(m)==set(ORDER)
     assert all(isinstance(v,list) and len(v)==4 and
-               all(x is None or isinstance(x,str) and len(x)==1 for x in v)
+               all(x is None or isinstance(x,str) and 1<=len(x)<=4 for x in v)
                for v in m.values())
     assert m["F"][:2]==["্","়"] and m["."][:3]==["।",">","."]
     assert m["4"][1]=="৳" and m["4"][3]=="$"
@@ -53,11 +53,16 @@ def keyman(m):
         name="PERIOD" if k=="." else k
         s.append("")
         for modifier,output in zip(("","SHIFT ","RALT ","SHIFT RALT "),m[k]):
-            symbol="nul" if output is None else "U+%04X"%ord(output)
+            symbol="nul" if output is None else " ".join("U+%04X"%ord(ch) for ch in output)
             s.append("+ [%sK_%s] > %s"%(modifier,name,symbol))
     return "\n".join(s)+"\n"
 
 def linux(m):
+    # Single-key XCompose rules translate F13-F15 into Unicode strings on
+    # Linux applications that use libxkbcommon or Xlib Compose processing.
+    # This avoids a Keyman dependency, but individual toolkit support varies.
+    special = {(k,i): v for k in ORDER for i,v in enumerate(m[k]) if v and len(v)>1}
+    triggers = {slot: "F%d"%(13+n) for n,slot in enumerate(special)}
     s=["// Generated from layout/onnoy.json",
        'default partial alphanumeric_keys',
        'xkb_symbols "basic" {',
@@ -65,9 +70,18 @@ def linux(m):
        '    name[Group1] = "Bengali (Onnoy)";',
        '    include "level3(ralt_switch)"']
     for k in ORDER:
-        vals=", ".join("VoidSymbol" if v is None else "U%04X"%ord(v) for v in m[k])
+        vals=", ".join("VoidSymbol" if v is None else (triggers[(k,i)] if len(v)>1 else "U%04X"%ord(v)) for i,v in enumerate(m[k]))
         s.append('    key <%s> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ %s ] }; // %s'%(XKB[k],vals,k))
     return "\n".join(s+["};",""])
+
+def linux_compose(m):
+    """Single-keysym Compose sequences permit UTF-8 string output."""
+    special = [(k,i,v) for k in ORDER for i,v in enumerate(m[k]) if v and len(v)>1]
+    result = ['# Onnoy generated XCompose additions; include in ~/.XCompose',
+              '# This file intentionally contains only Onnoy-specific rules.']
+    for n,(k,i,value) in enumerate(special):
+        result.append('<F%d> : "%s" # %s layer %d'%(13+n,value,k,i))
+    return "\n".join(result)+"\n"
 
 def windows(m):
     s=['KBD\tonnoy\t"Onnoy"','',
@@ -77,14 +91,22 @@ def windows(m):
        'SHIFTSTATE','0\t// Base','1\t// Shift','2\t// Ctrl',
        '6\t// AltGr','7\t// Shift+AltGr','',
        'LAYOUT','//SC VK_ Cap 0 1 2 6 7']
-    code=lambda x: '-1' if x is None else "%04x"%ord(x)
+    code=lambda x: '-1' if x is None else ('%%' if len(x)>1 else '%04x'%ord(x))
+    ligatures=[]
     for k in ORDER:
         vals=m[k]
         cols=" ".join(code(x) for x in (vals[0],vals[1],None,vals[2],vals[3]))
-        s.append("%s\t%s\t0\t%s\t// %s"%(SCAN[k],"OEM_PERIOD" if k=="." else k,cols,k))
+        vk="OEM_PERIOD" if k=="." else k
+        s.append("%s\\t%s\\t0\\t%s\\t// %s"%(SCAN[k],vk,cols,k))
+        for shift_index,value in enumerate((vals[0],vals[1],None,vals[2],vals[3])):
+            if value is not None and len(value)>1:
+                ligatures.append("%s\\t%d\\t%s"%(vk,shift_index," ".join("%04x"%ord(ch) for ch in value)))
     for scan,vk,mac,base,shift in PUNCT:
         s.append("%s\t%s\t0\t%s %s %s -1 -1"%(scan,vk,code(base),code(shift),"0020" if vk=="SPACE" else "-1"))
-    s+=['','KEYNAME','01\tEsc','0e\tBackspace','0f\tTab','1c\tEnter',
+    if ligatures:
+        s+=['','LIGATURE','//VK_ Mod# Char0 Char1 Char2 Char3']
+        s+=ligatures
+    s+=['','KEYNAME','01\\tEsc','0e\tBackspace','0f\tTab','1c\tEnter',
         '1d\tCtrl','2a\tShift','36\t"Right Shift"','38\tAlt',
         '39\tSpace','3a\t"Caps Lock"','KEYNAME_EXT',
         '38\t"Right Alt"','1d\t"Right Ctrl"',
@@ -93,7 +115,7 @@ def windows(m):
     return "\r\n".join(s)
 
 def macos(m):
-    root=ET.Element("keyboard",{"group":"126","id":"-15231","name":"Onnoy","maxout":"1"})
+    root=ET.Element("keyboard",{"group":"126","id":"-15231","name":"Onnoy","maxout":str(max(len(v) for values in m.values() for v in values if v is not None))})
     layouts=ET.SubElement(root,"layouts")
     ET.SubElement(layouts,"layout",{"first":"0","last":"17","modifiers":"OnnoyModifiers","mapSet":"OnnoyMap"})
     mods=ET.SubElement(root,"modifierMap",{"id":"OnnoyModifiers","defaultIndex":"0"})
@@ -121,6 +143,7 @@ def main():
     outputs={
       "source/onnoy.kmn":keyman(m),
       "dist/linux/symbols/onnoy":linux(m),
+      "dist/linux/Onnoy.XCompose":linux_compose(m),
       "dist/windows/onnoy.klc":windows(m),
       "dist/macos/Onnoy.keylayout":macos(m),
     }
