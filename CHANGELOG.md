@@ -2,15 +2,17 @@
 
 ## Unreleased
 
-- Repair CI regression tests and the generated Keyman verifier.
-- Fix Windows KLC tab delimiters and ship the Linux XCompose file in build artifacts.
-- Expand browser smoke tests to cover approved shortcut labels.
+### Keyboard layout
+- Swap entire Q/W families: Q = ড/ঢ/ড়/ঢ়, W = ট/ঠ.
+- Add Shift+X = ক্ষ, AltGr+G = জ্ঞ and AltGr+Y = য-ফলা with explicit Unicode sequences.
+- Keep R = র/ৃ/ঋ/ৰ unchanged.
 
-- Add approved conjunct shortcuts: Shift+X = ক্ষ, AltGr+G = জ্ঞ, AltGr+Y = য-ফলা.
-- Add native Linux XKB + XCompose generation for multi-codepoint strings; other platform generators gain string support.
-- Swap the complete Q and W families: Q = ড/ঢ/ড়/ঢ়, W = ট/ঠ (AltGr positions on W remain unassigned).
+### Platform support
+- Generate one shared mapping for Keyman, Linux XKB/XCompose, macOS `.keylayout`, and Windows MSKLC `.klc`.
+- Generate native Linux Compose rules for multi-code-point shortcuts without requiring Keyman.
+- Generate Windows ligature entries; native Windows compilation and installation are still unverified.
 
-- Defined `layout/onnoy.json` as the authoritative keyboard mapping.
-- Added generation of Linux XKB symbols, macOS `.keylayout`, Windows `.klc` source and Keyman `.kmn` source.
-- Kept KeymanWeb as the browser test implementation.
-- Added native-source checks to CI. Windows DLL and installer builds remain outstanding.
+### Maintenance
+- Restore interactive browser playground and add responsive styling.
+- Add layout, compiled-artifact and browser tests; fix generated Windows tab delimiters.
+- Consolidate verification and release documentation, removing unused project scaffolding.
