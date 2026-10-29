@@ -1,8 +1,17 @@
-build/*
-!build/.gitkeep
+# Compiled layouts and temporary deployment assets
+build/
+dist/
 site/
+
+# Local Keyman Developer and compiled outputs
 *.kmx
 *.kmp
 *.kvk
 *.kpj.user
+
+# Local environments and tooling
 __pycache__/
+*.py[cod]
+.venv/
+node_modules/
+.DS_Store
