@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 KEYS = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))["keys"]
 LAYERS = ("base", "shift", "altgr", "shift_altgr")
-PHYSICAL = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890."
+PHYSICAL = "QWERTYUIOP[]ASDFGHJKLZXCVBNM1234567890."
 ALL_KEYS = PHYSICAL + " "
 
 
@@ -24,21 +24,26 @@ class LayoutTests(unittest.TestCase):
 
     def test_known_assignments_and_empty_slots(self):
         expected = {
-            "E": ["ে", "এ", "ৈ", "ঐ"],
-            "I": ["ি", "ই", "ী", "ঈ"],
-            "U": ["ু", "উ", "ূ", "ঊ"],
-            "O": ["ো", "ও", "ৌ", "ঔ"],
-            "F": ["্", "়", "𑷰", None],
-            "Q": ["ড", "ঢ", "ড়", "ঢ়"],
+            "Q": ["ড", "ঢ", None, None],
             "W": ["ট", "ঠ", "ৱ", None],
-            "V": ["অ", "ৗ", None, None],
-            "G": ["গ", "ঘ", None, None],
-            "Y": ["য়", "য", "্য", None],
-            "X": ["ষ", "ক্ষ", None, None],
-            "Z": ["ং", "ঙ", None, None],
-            "SPACE": [" ", " ", "\u200d", "\u200c"],
+            "E": ["ে", "এ", None, None],
+            "R": ["ৃ", "ঋ", "ৰ", None],
+            "Y": ["ী", "ঈ", None, None],
+            "U": ["ু", "উ", None, None],
+            "I": ["ি", "ই", None, None],
+            "O": ["ও", "ঔ", None, None],
+            "P": ["প", "ঞ", None, None],
+            "F": ["ফ", "ষ", None, None],
+            "L": ["ল", "ং", None, None],
+            "Z": ["য", "ঙ", None, None],
+            "X": ["়", "্", "𑷰", None],
+            "V": ["ভ", "ৗ", None, None],
+            "B": ["ব", "অ", None, None],
+            "N": ["ন", "ণ", None, None],
             "M": ["ম", "ঁ", None, None],
-            "N": ["ন", "ণ", "ঞ", None],
+            "[": ["ৈ", "ঐ", "[", "{"],
+            "]": ["ূ", "ঊ", "]", "}"],
+            "SPACE": [" ", " ", "\u200d", "\u200c"],
             ".": ["।", ">", ".", None],
             "4": ["৪", "৳", "4", "$"],
         }
@@ -46,8 +51,8 @@ class LayoutTests(unittest.TestCase):
             with self.subTest(key=key):
                 self.assertEqual(KEYS[key], values)
         empty = [sum(KEYS[key][i] is None for key in PHYSICAL) for i in range(4)]
-        self.assertEqual(empty, [0, 1, 14, 30])
-        self.assertEqual(sum(empty), 45)
+        self.assertEqual(empty, [0, 0, 21, 36])
+        self.assertEqual(sum(empty), 57)
 
     def test_touch_layout_generated_from_source(self):
         import subprocess
@@ -57,7 +62,7 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(set(layers), {"default", "shift", "altgr", "shift_altgr", "numeric"})
         for name, index in (("default", 0), ("shift", 1), ("altgr", 2), ("shift_altgr", 3)):
             rows = layers[name]["row"]
-            for keys, row in zip(("QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"), rows):
+            for keys, row in zip(("QWERTYUIOP[]", "ASDFGHJKL", "ZXCVBNM"), rows):
                 for key, node in zip(keys, row["key"]):
                     expected = KEYS[key][index]
                     if expected is None:
@@ -73,13 +78,13 @@ class LayoutTests(unittest.TestCase):
             index = int(bool(shift)) + int(bool(alt)) * 2
             self.assertNotIn((key, index), found)
             found[(key, index)] = output
-        self.assertEqual(len(found), 152)
+        self.assertEqual(len(found), 160)
         for key in list(PHYSICAL) + ["SPACE"]:
             for index in range(4):
                 output = KEYS[key][index]
                 expected = "nul" if output is None else " ".join("U+%04X" % ord(c) for c in output)
                 with self.subTest(key=key, layer=LAYERS[index]):
-                    self.assertEqual(found[("PERIOD" if key == "." else key, index)], expected)
+                    self.assertEqual(found[({".": "PERIOD", "[": "LBRKT", "]": "RBRKT"}.get(key, key), index)], expected)
 
     def test_generated_native_layouts_contain_expected_characters(self):
         xkb = (ROOT / "dist/linux/symbols/onnoy").read_text(encoding="utf-8")
@@ -91,24 +96,19 @@ class LayoutTests(unittest.TestCase):
         self.assertIn("U200D", xkb)
         self.assertIn("39\tSPACE\t0\t0020 0020 0020 200d 200c", klc)
         self.assertIn("09cd", klc)
-        self.assertIn("F\t3\td807 ddf0", klc)
+        self.assertIn("X\t3\td807 ddf0", klc)
         self.assertIn("U11DF0", xkb)
         self.assertIn("200d", klc)
         compose = (ROOT / "dist/linux/Onnoy.XCompose").read_text(encoding="utf-8")
-        self.assertIn('<F13> : "্য"', compose)
-        self.assertIn('<F14> : "ক্ষ"', compose)
-        self.assertNotIn("জ্ঞ", compose)
-        self.assertNotIn("<F15>", compose)
-        self.assertIn("F13", xkb)
-        self.assertIn("F14", xkb)
-        self.assertNotIn("F15", xkb)
+        self.assertNotIn("<F13>", compose)
+        self.assertNotIn("F13", xkb)
         self.assertIn("LIGATURE", klc)
-        self.assertIn("X\t1\t0995 09cd 09b7", klc)
+        self.assertIn("1a\tOEM_4\t0\t09c8 0990 -1 005b 007b", klc)
+        self.assertIn("1b\tOEM_6\t0\t09c2 098a -1 005d 007d", klc)
         self.assertNotIn("G\t3\t099c 09cd 099e", klc)
         self.assertIn("22\tG\t0\t", klc)
-        self.assertIn("Y\t3\t09cd 09af", klc)
         self.assertNotIn(r"\\t", klc)
-        self.assertEqual(mac.attrib["maxout"], "3")
+        self.assertEqual(mac.attrib["maxout"], "1")
         option_map = mac.find(".//keyMap[@index='2']")
         self.assertEqual(next(k.attrib["output"] for k in option_map.findall("key")
                               if k.attrib["code"] == "5"), "")
@@ -116,7 +116,9 @@ class LayoutTests(unittest.TestCase):
         keymap = mac.find(".//keyMap[@index='0']")
         self.assertIsNotNone(keymap)
         self.assertEqual(next(node.attrib["output"] for node in keymap.findall("key")
-                              if node.attrib["code"] == "3"), "্")
+                              if node.attrib["code"] == "33"), "ৈ")
+        self.assertEqual(next(node.attrib["output"] for node in keymap.findall("key")
+                              if node.attrib["code"] == "7"), "়")
 
 
 if __name__ == "__main__":
