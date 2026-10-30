@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 KEYS = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))["keys"]
 LAYERS = ("base", "shift", "altgr", "shift_altgr")
-PHYSICAL = "QWERTYUIOP[]ASDFGHJKLZXCVBNM1234567890."
+PHYSICAL = "QWERTYUIOP[]ASDFGHJKL;ZXCVBNM1234567890."
 ALL_KEYS = PHYSICAL + " "
 
 
@@ -31,10 +31,11 @@ class LayoutTests(unittest.TestCase):
             "Y": ["ী", "ঈ", None, None],
             "U": ["ু", "উ", None, None],
             "I": ["ি", "ই", None, None],
-            "O": ["ও", "ঔ", None, None],
+            "O": ["ো", "ও", None, None],
             "P": ["প", "ঞ", None, None],
             "F": ["ফ", "ষ", None, None],
             "L": ["ল", "ং", None, None],
+            ";": ["ৌ", "ঔ", ";", ":"],
             "Z": ["য", "ঙ", None, None],
             "X": ["়", "্", "𑷰", None],
             "V": ["ভ", "ৗ", None, None],
@@ -62,7 +63,7 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(set(layers), {"default", "shift", "altgr", "shift_altgr", "numeric"})
         for name, index in (("default", 0), ("shift", 1), ("altgr", 2), ("shift_altgr", 3)):
             rows = layers[name]["row"]
-            for keys, row in zip(("QWERTYUIOP[]", "ASDFGHJKL", "ZXCVBNM"), rows):
+            for keys, row in zip(("QWERTYUIOP[]", "ASDFGHJKL;", "ZXCVBNM"), rows):
                 for key, node in zip(keys, row["key"]):
                     expected = KEYS[key][index]
                     if expected is None:
@@ -78,13 +79,13 @@ class LayoutTests(unittest.TestCase):
             index = int(bool(shift)) + int(bool(alt)) * 2
             self.assertNotIn((key, index), found)
             found[(key, index)] = output
-        self.assertEqual(len(found), 160)
+        self.assertEqual(len(found), 164)
         for key in list(PHYSICAL) + ["SPACE"]:
             for index in range(4):
                 output = KEYS[key][index]
                 expected = "nul" if output is None else " ".join("U+%04X" % ord(c) for c in output)
                 with self.subTest(key=key, layer=LAYERS[index]):
-                    self.assertEqual(found[({".": "PERIOD", "[": "LBRKT", "]": "RBRKT"}.get(key, key), index)], expected)
+                    self.assertEqual(found[({".": "PERIOD", "[": "LBRKT", "]": "RBRKT", ";": "COLON"}.get(key, key), index)], expected)
 
     def test_generated_native_layouts_contain_expected_characters(self):
         xkb = (ROOT / "dist/linux/symbols/onnoy").read_text(encoding="utf-8")
@@ -105,6 +106,8 @@ class LayoutTests(unittest.TestCase):
         self.assertIn("LIGATURE", klc)
         self.assertIn("1A\tOEM_4\t0\t09c8 0990 -1 005b 007b", klc)
         self.assertIn("1B\tOEM_6\t0\t09c2 098a -1 005d 007d", klc)
+        self.assertIn("27\tOEM_1\t0\t09cc 0994 -1 003b 003a", klc)
+        self.assertIn("18\tO\t0\t09cb 0993 -1 -1 -1", klc)
         self.assertNotIn("G\t3\t099c 09cd 099e", klc)
         self.assertIn("22\tG\t0\t", klc)
         self.assertNotIn(r"\\t", klc)
@@ -117,6 +120,8 @@ class LayoutTests(unittest.TestCase):
         self.assertIsNotNone(keymap)
         self.assertEqual(next(node.attrib["output"] for node in keymap.findall("key")
                               if node.attrib["code"] == "33"), "ৈ")
+        self.assertEqual(next(node.attrib["output"] for node in keymap.findall("key")
+                              if node.attrib["code"] == "41"), "ৌ")
         self.assertEqual(next(node.attrib["output"] for node in keymap.findall("key")
                               if node.attrib["code"] == "7"), "়")
 
