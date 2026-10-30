@@ -147,3 +147,7 @@ footer p { color: var(--muted); font-size: 12px; }
   footer { align-items: flex-start; flex-direction: column; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+.keyboard-row:nth-child(5) { padding: 0; }
+.keyboard-row:nth-child(5) .keyboard-key { flex: 0 1 46%; min-width: 240px; }
+.keyboard-row:nth-child(5) .key-symbol { font: 700 15px/2 "DM Sans", sans-serif; }

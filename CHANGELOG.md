@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Joiner shortcuts
+- Move ZWJ to AltGr+Space and ZWNJ to Shift+AltGr+Space across Keyman, native layouts, and mobile touch.
+- Leave AltGr+Z and Shift+AltGr+Z unassigned, preserving normal Space and Shift+Space.
+
+
 ### Design D
 - Swap Y Base/Shift: Y = য়, Shift+Y = য, while keeping AltGr+Y = ্য and Shift+AltGr+Y unassigned.
 - Keep the change consistent across generated Keyman, native layouts and mobile touch layers.

@@ -9,11 +9,12 @@ ROOT = Path(__file__).resolve().parents[1]
 KEYS = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))["keys"]
 LAYERS = ("base", "shift", "altgr", "shift_altgr")
 PHYSICAL = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890."
+ALL_KEYS = PHYSICAL + " "
 
 
 class LayoutTests(unittest.TestCase):
     def test_all_keys_have_four_layers(self):
-        self.assertEqual(set(KEYS), set(PHYSICAL))
+        self.assertEqual(set(KEYS), set(PHYSICAL) | {"SPACE"})
         for key, values in KEYS.items():
             with self.subTest(key=key):
                 self.assertEqual(len(values), 4)
@@ -33,7 +34,8 @@ class LayoutTests(unittest.TestCase):
             "G": ["গ", "ঘ", None, None],
             "Y": ["য়", "য", "্য", None],
             "X": ["ষ", "ক্ষ", None, None],
-            "Z": ["ং", "ঙ", "\u200d", "\u200c"],
+            "Z": ["ং", "ঙ", None, None],
+            "SPACE": [" ", " ", "\u200d", "\u200c"],
             "M": ["ম", "ঁ", None, None],
             "N": ["ন", "ণ", "ঞ", None],
             ".": ["।", ">", ".", None],
@@ -43,8 +45,8 @@ class LayoutTests(unittest.TestCase):
             with self.subTest(key=key):
                 self.assertEqual(KEYS[key], values)
         empty = [sum(KEYS[key][i] is None for key in PHYSICAL) for i in range(4)]
-        self.assertEqual(empty, [0, 1, 14, 29])
-        self.assertEqual(sum(empty), 44)
+        self.assertEqual(empty, [0, 1, 15, 30])
+        self.assertEqual(sum(empty), 46)
 
     def test_touch_layout_generated_from_source(self):
         import subprocess
@@ -70,8 +72,8 @@ class LayoutTests(unittest.TestCase):
             index = int(bool(shift)) + int(bool(alt)) * 2
             self.assertNotIn((key, index), found)
             found[(key, index)] = output
-        self.assertEqual(len(found), 148)
-        for key in PHYSICAL:
+        self.assertEqual(len(found), 152)
+        for key in list(PHYSICAL) + ["SPACE"]:
             for index in range(4):
                 output = KEYS[key][index]
                 expected = "nul" if output is None else " ".join("U+%04X" % ord(c) for c in output)
@@ -84,6 +86,9 @@ class LayoutTests(unittest.TestCase):
         mac = ET.parse(ROOT / "dist/macos/Onnoy.keylayout").getroot()
         self.assertIn("U09CD", xkb)
         self.assertIn("U200C", xkb)
+        self.assertIn("key <SPCE>", xkb)
+        self.assertIn("U200D", xkb)
+        self.assertIn("39\tSPACE\t0\t0020 0020 0020 200d 200c", klc)
         self.assertIn("09cd", klc)
         self.assertIn("200d", klc)
         compose = (ROOT / "dist/linux/Onnoy.XCompose").read_text(encoding="utf-8")
