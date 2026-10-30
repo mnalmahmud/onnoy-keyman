@@ -60,7 +60,7 @@ class LayoutTests(unittest.TestCase):
                     if expected is None:
                         self.assertEqual(node["sp"], 9)
                     else:
-                        self.assertEqual(node["id"], "U_" + "_".join("%04X" % ord(c) for c in expected))
+                        self.assertEqual(node["id"], ("U_" if len(expected) == 1 else "T_SEQ_") + "_".join("%04X" % ord(c) for c in expected))
 
     def test_all_keyman_rules_match_json(self):
         source = (ROOT / "source/onnoy.kmn").read_text(encoding="utf-8")
