@@ -46,6 +46,22 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(empty, [0, 1, 14, 29])
         self.assertEqual(sum(empty), 44)
 
+    def test_touch_layout_generated_from_source(self):
+        import subprocess
+        subprocess.run(["python3", "scripts/generate.py", "--check"], cwd=ROOT, check=True)
+        touch = json.loads((ROOT / "source/onnoy.keyman-touch-layout").read_text(encoding="utf-8"))
+        layers = {layer["id"]: layer for layer in touch["phone"]["layer"]}
+        self.assertEqual(set(layers), {"default", "shift", "altgr", "shift_altgr", "numeric"})
+        for name, index in (("default", 0), ("shift", 1), ("altgr", 2), ("shift_altgr", 3)):
+            rows = layers[name]["row"]
+            for keys, row in zip(("QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"), rows):
+                for key, node in zip(keys, row["key"]):
+                    expected = KEYS[key][index]
+                    if expected is None:
+                        self.assertEqual(node["sp"], 9)
+                    else:
+                        self.assertEqual(node["id"], "U_" + "_".join("%04X" % ord(c) for c in expected))
+
     def test_all_keyman_rules_match_json(self):
         source = (ROOT / "source/onnoy.kmn").read_text(encoding="utf-8")
         regex = re.compile(r"^\+ \[(?:(SHIFT) )?(?:(RALT) )?K_([A-Z0-9]+)\] > (nul|U\+[0-9A-F]{4,6}(?: U\+[0-9A-F]{4,6})*)$", re.M)
