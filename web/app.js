@@ -17,6 +17,8 @@
   const layerHint = $("layer-hint");
   const errorHelp = $("error-help");
   const errorDetail = $("error-detail");
+  const search = $("key-search");
+  const searchFeedback = $("search-feedback");
   const layerButtons = [...document.querySelectorAll("[data-layer]")];
   const rows = ["1234567890", "QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM.", " "];
   const layerNames = ["Base", "Shift", "AltGr", "AltGr + Shift"];
@@ -37,6 +39,7 @@
     if (value === null) return "—";
     if (value === "\u200c") return "ZWNJ";
     if (value === "\u200d") return "ZWJ";
+    if (value === "𑷰") return "𑷰"; // Keep actual Unicode; font fallback may show a box.
     return value;
   }
 
@@ -68,6 +71,7 @@
         const button = document.createElement("button");
         button.type = "button";
         button.className = "keyboard-key";
+        button.dataset.key = key;
         button.classList.toggle("selected", key === selectedKey);
         button.setAttribute("aria-pressed", String(key === selectedKey));
         button.setAttribute("aria-label", key + ": " + layerNames[layer] + " " + describe(mapping[mapKey(key)][layer]));
@@ -91,12 +95,41 @@
       fragment.append(row);
     }
     keyboard.replaceChildren(fragment);
+    filterKeys();
     layerHint.textContent = layerHints[layer];
     for (const button of layerButtons) {
       const active = Number(button.dataset.layer) === layer;
       button.classList.toggle("active", active);
       button.setAttribute("aria-pressed", String(active));
     }
+  }
+
+  function filterKeys() {
+    if (!mapping || !search) return;
+    const q = search.value.trim().toLocaleLowerCase();
+    let matches = 0;
+    for (const button of keyboard.querySelectorAll(".keyboard-key")) {
+      const key = button.dataset.key;
+      const values = mapping[mapKey(key)];
+      const hit = !q || (key === " " ? "space" : key).toLowerCase().includes(q) ||
+        values.some(value => value && (value.toLocaleLowerCase().includes(q) ||
+          [...value].some(ch => ("u+" + ch.codePointAt(0).toString(16)).includes(q.replace(/^u\+/, "u+")))));
+      button.classList.toggle("search-match", !!q && hit);
+      button.classList.toggle("search-dim", !!q && !hit);
+      if (hit) matches++;
+    }
+    if (searchFeedback) searchFeedback.textContent = q
+      ? matches + " matching keys across all four layers" : "Select a key to inspect all four layers";
+  }
+  if (search) search.addEventListener("input", filterKeys);
+  for (const sample of document.querySelectorAll("[data-sample]")) {
+    sample.addEventListener("click", () => {
+      editor.value = sample.dataset.sample;
+      feedback.textContent = "Example inserted";
+      updateEditor();
+      editor.focus();
+      editor.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
   }
 
   function activeLayer() {
