@@ -17,7 +17,9 @@ The four layers are Base, Shift, AltGr (Right Alt; Option on macOS), and Shift+A
 | U | ু | উ | ূ | ঊ |
 | O | ো | ও | ৌ | ঔ |
 | R | র | ৃ | ঋ | ৰ |
-| Z | ঙ | ঞ | ZWJ | ZWNJ |
+| Z | ং | ঙ | ZWJ | ZWNJ |
+| M | ম | ঁ | — | — |
+| N | ন | ণ | ঞ | — |
 | F | ্ | ় | — | — |
 | X | ষ | **ক্ষ** | — | — |
 | G | গ | ঘ | — | — |
