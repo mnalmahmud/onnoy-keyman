@@ -28,7 +28,7 @@ class LayoutTests(unittest.TestCase):
             "I": ["ি", "ই", "ী", "ঈ"],
             "U": ["ু", "উ", "ূ", "ঊ"],
             "O": ["ো", "ও", "ৌ", "ঔ"],
-            "F": ["্", "়", None, None],
+            "F": ["্", "়", "𑷰", None],
             "Q": ["ড", "ঢ", "ড়", "ঢ়"],
             "W": ["ট", "ঠ", "ৱ", None],
             "V": ["অ", "ৗ", None, None],
@@ -46,8 +46,8 @@ class LayoutTests(unittest.TestCase):
             with self.subTest(key=key):
                 self.assertEqual(KEYS[key], values)
         empty = [sum(KEYS[key][i] is None for key in PHYSICAL) for i in range(4)]
-        self.assertEqual(empty, [0, 1, 15, 30])
-        self.assertEqual(sum(empty), 46)
+        self.assertEqual(empty, [0, 1, 14, 30])
+        self.assertEqual(sum(empty), 45)
 
     def test_touch_layout_generated_from_source(self):
         import subprocess
@@ -91,6 +91,8 @@ class LayoutTests(unittest.TestCase):
         self.assertIn("U200D", xkb)
         self.assertIn("39\tSPACE\t0\t0020 0020 0020 200d 200c", klc)
         self.assertIn("09cd", klc)
+        self.assertIn("F\t3\td807 ddf0", klc)
+        self.assertIn("U11DF0", xkb)
         self.assertIn("200d", klc)
         compose = (ROOT / "dist/linux/Onnoy.XCompose").read_text(encoding="utf-8")
         self.assertIn('<F13> : "্য"', compose)

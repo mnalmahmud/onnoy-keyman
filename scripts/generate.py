@@ -176,6 +176,10 @@ def linux_compose(m):
         result.append('<F%d> : "%s" # %s layer %d'%(13+n,value,k,i))
     return "\n".join(result)+"\n"
 
+def utf16_units(value):
+    raw = value.encode("utf-16-le")
+    return [int.from_bytes(raw[i:i+2], "little") for i in range(0, len(raw), 2)]
+
 def windows(m):
     s=['KBD\tonnoy\t"Onnoy"','',
        'COPYRIGHT "(c) 2026 Muhtasham Nawr al-Mahmud"',
@@ -184,7 +188,7 @@ def windows(m):
        'SHIFTSTATE','0\t// Base','1\t// Shift','2\t// Ctrl',
        '6\t// AltGr','7\t// Shift+AltGr','',
        'LAYOUT','//SC VK_ Cap 0 1 2 6 7']
-    code=lambda x: '-1' if x is None else ('%%' if len(x)>1 else '%04x'%ord(x))
+    code=lambda x: '-1' if x is None else ('%%' if len(utf16_units(x))>1 else '%04x'%ord(x))
     ligatures=[]
     for k in KEY_ORDER:
         vals=m[k]
@@ -192,8 +196,8 @@ def windows(m):
         vk="OEM_PERIOD" if k=="." else k
         s.append("%s\t%s\t0\t%s\t// %s"%(SCAN[k],vk,cols,k))
         for shift_index,value in enumerate((vals[0],vals[1],None,vals[2],vals[3])):
-            if value is not None and len(value)>1:
-                ligatures.append("%s\t%d\t%s"%(vk,shift_index," ".join("%04x"%ord(ch) for ch in value)))
+            if value is not None and len(utf16_units(value))>1:
+                ligatures.append("%s\t%d\t%s"%(vk,shift_index," ".join("%04x"%unit for unit in utf16_units(value))))
     for scan,vk,mac,base,shift in PUNCT:
         s.append("%s\t%s\t0\t%s %s %s -1 -1"%(scan,vk,code(base),code(shift),"0020" if vk=="SPACE" else "-1"))
     if ligatures:

@@ -76,6 +76,11 @@ class BrowserSmokeTests(unittest.TestCase):
         self.assertEqual(w(), "ৱ")
         self.assertEqual(v(), "—")
 
+    def test_altgr_f_combining_anusvara_above(self):
+        self.page.locator('button[data-layer="2"]').click()
+        f = self.page.locator(".keyboard-row").nth(2).locator("button").nth(3)
+        self.assertIn("𑷰", f.get_attribute("aria-label") or "")
+
     def test_design_d_y_layers(self):
         y = lambda: self.page.locator(".keyboard-row").nth(1).locator("button").nth(5).locator(".key-symbol").inner_text()
         self.assertEqual(y(), "য়")

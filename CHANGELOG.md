@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Unicode 18 character
+- Assign AltGr+F to U+11DF0 Bengali Combining Anusvara Above.
+- Generate UTF-16 surrogate pairs for supplementary Unicode characters in native Windows KLC ligatures.
+
+
 ### Multilingual AU length mark
 - Move ৗ (`U+09D7`) from AltGr+V to Shift+V, retaining Base V = অ.
 - Leave AltGr+V unassigned; keep the rest of the Assamese Wa relocation unchanged.
