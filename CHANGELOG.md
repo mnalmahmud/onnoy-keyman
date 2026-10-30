@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Reposition independent অ and AU length mark
+- Swap Shift+V and Shift+B: Shift+V now emits অ (U+0985), Shift+B emits ৗ (U+09D7).
+- Retain unshifted V=ভ and B=ব, plus all other consonant and vowel assignments.
+- Update Keyman/native/mobile generators through the canonical JSON, layout tests, browser tests, and documentation.
+
+
 ### Move joiners off Space
 - Move ZWJ to AltGr+Z and ZWNJ to Shift+AltGr+Z; keep Z=য and Shift+Z=ঙ.
 - Restore Space as ordinary space on every keyboard layer, avoiding OS-level Space shortcut conflicts.

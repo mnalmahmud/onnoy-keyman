@@ -68,6 +68,7 @@ def mapping():
     assert m["4"][1]=="৳" and m["4"][3]=="$"
     assert m["SPACE"]==[" "," "," "," "]
     assert m["Z"]==["য","ঙ","\u200d","\u200c"]
+    assert m["V"][:2]==["ভ","অ"] and m["B"][:2]==["ব","ৗ"]
     return m
 
 def keyman(m):

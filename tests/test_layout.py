@@ -45,8 +45,8 @@ class LayoutTests(unittest.TestCase):
             ";": ["ৌ", "ঔ", ";", ":"],
             "Z": ["য", "ঙ", "\u200d", "\u200c"],
             "X": ["ষ", "়", "𑷰", None],
-            "V": ["ভ", "ৗ", None, None],
-            "B": ["ব", "অ", None, None],
+            "V": ["ভ", "অ", None, None],
+            "B": ["ব", "ৗ", None, None],
             "N": ["ন", "ণ", None, None],
             "M": ["ম", "ঁ", None, None],
             "[": ["ৈ", "ঐ", "[", "{"],
@@ -141,6 +141,8 @@ class LayoutTests(unittest.TestCase):
         self.assertIn("0D\tOEM_PLUS\t0\t09c3 098b -1 003d 002b", klc)
         self.assertIn("13\tR\t0\t09b0 09f0 -1 -1 -1", klc)
         self.assertIn("21\tF\t0\t09ab 09cd -1 -1 -1", klc)
+        self.assertIn("2F\tV\t0\t09ad 0985 -1 -1 -1", klc)
+        self.assertIn("30\tB\t0\t09ac 09d7 -1 -1 -1", klc)
         self.assertNotIn("G\t3\t099c 09cd 099e", klc)
         self.assertIn("22\tG\t0\t", klc)
         self.assertNotIn(r"\\t", klc)
