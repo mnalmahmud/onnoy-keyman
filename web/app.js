@@ -20,7 +20,7 @@
   const search = $("key-search");
   const searchFeedback = $("search-feedback");
   const layerButtons = [...document.querySelectorAll("[data-layer]")];
-  const rows = ["1234567890", "QWERTYUIOP[]", "ASDFGHJKL;", "ZXCVBNM.", " "];
+  const rows = ["1234567890-=", "QWERTYUIOP[]", "ASDFGHJKL;", "ZXCVBNM.", " "];
   const layerNames = ["Base", "Shift", "AltGr", "AltGr + Shift"];
   const mapKey = (key) => key === " " ? "SPACE" : key;
   const layerHints = [
@@ -197,10 +197,12 @@
       const response = await fetch("./layout.json");
       if (!response.ok) throw new Error("HTTP " + response.status);
       const layout = await response.json();
+      // Display the unchanged hyphen key to preserve the physical number-row spacing.
+      const displayed = { ...layout.keys, "-": ["-", "_", null, null] };
       if (!layout.keys || [...rows.join("")].some((key) =>
-        !Array.isArray(layout.keys[mapKey(key)]) || layout.keys[mapKey(key)].length !== 4
+        !Array.isArray(displayed[mapKey(key)]) || displayed[mapKey(key)].length !== 4
       )) throw new Error("Invalid keyboard mapping");
-      mapping = layout.keys;
+      mapping = displayed;
       draw(selectedLayer);
     } catch (error) {
       keyboard.textContent = "The key reference could not be loaded.";
