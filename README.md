@@ -20,7 +20,7 @@ The canonical mapping is in [`layout/onnoy.json`](layout/onnoy.json). Base, Shif
 | Y | ী | ঈ | — | — |
 | U | ু | উ | — | — |
 | I | ি | ই | — | — |
-| O | ও | ঔ | — | — |
+| O | ো | ও | — | — |
 | P | প | ঞ | — | — |
 | A | া | আ | ঽ | — |
 | S | স | শ | — | — |
@@ -45,14 +45,15 @@ The canonical mapping is in [`layout/onnoy.json`](layout/onnoy.json). Base, Shif
 | --- | --- | --- | --- | --- |
 | [ | ৈ | ঐ | [ | { |
 | ] | ূ | ঊ | ] | } |
+| ; | ৌ | ঔ | ; | : |
 | . | । | > | . | — |
 | Space | Space | Space | ZWJ | ZWNJ |
 
-The number row and other punctuation retain their previous assignments. **Square brackets and braces are still available on the original physical keys, now using AltGr.**
+The number row and other punctuation retain their previous assignments. **Square brackets, braces, semicolon, and colon remain on their original physical keys, now using AltGr and Shift+AltGr.** The O-family is split between O = ো/ও and the semicolon key = ৌ/ঔ, producing NFC-composed vowel signs directly with no extra input engine.
 
 ### Explicit composition, without custom conversion rules
 
-Several former shortcuts are no longer dedicated outputs: **ক্ষ**, **্য**, **ড়**, **ঢ়**, **য়**, **ো**, **ৌ**. These may be entered as ordinary code-point sequences: `K → Shift+X → Shift+F` for ক্ষ; `Shift+X → Z` for ্য; `Q → X` for ড়; `Shift+Q → X` for ঢ়; `Z → X` for য়; `E → A` for ো; and `E → Shift+V` for ৌ. The nukta and vowel-sign decompositions are canonically equivalent Unicode strings, although they do not all recompose to a precomposed code point.
+Several former shortcuts are no longer dedicated outputs: **ক্ষ**, **্য**, **ড়**, **ঢ়**, and **য়**. These may be entered as ordinary code-point sequences: `K → Shift+X → Shift+F` for ক্ষ; `Shift+X → Z` for ্য; `Q → X` for ড়; `Shift+Q → X` for ঢ়; and `Z → X` for য়. The nukta decompositions are canonically equivalent Unicode strings, although some of their precomposed forms are excluded from canonical recomposition. **Direct NFC outputs** are now `O → ো` (U+09CB) and `; → ৌ` (U+09CC). The old compositions `E → A` and `E → Shift+V` still produce canonically equivalent decomposed text, but may not be NFC until an application normalizes it.
 
 **Known coverage limitation: Bengali র (U+09B0) has no direct mapping in this proposal.** Typing `B → X` inserts `ব়` (U+09AC U+09BC), **not** র; Unicode does not consider these canonically equivalent. There are **no custom composition rules** converting the two. Assamese ৰ (AltGr+R) and ৱ (AltGr+W) are preserved as distinct characters. This loss of Bengali র makes the proposed layout unsuitable for complete standard Bengali typing until a separately approved solution is provided.
 
