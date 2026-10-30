@@ -49,7 +49,7 @@ class BrowserSmokeTests(unittest.TestCase):
         self.page.close()
 
     def test_reference_and_four_layers(self):
-        self.assertEqual(self.page.locator(".keyboard-key").count(), 40)
+        self.assertEqual(self.page.locator(".keyboard-key").count(), 41)
         self.assertEqual(self.page.locator(".keyboard-row").count(), 5)
         self.page.locator('button[data-layer="2"]').click()
         self.assertIn("ZWJ", self.page.locator(".keyboard-row").nth(4).inner_text())
@@ -104,6 +104,18 @@ class BrowserSmokeTests(unittest.TestCase):
         self.page.locator('button[data-layer="3"]').click()
         self.assertEqual(bracket("["), "{")
         self.assertEqual(bracket("]"), "}")
+
+    def test_direct_nfc_o_and_au_signs(self):
+        key = lambda k: self.page.locator('.keyboard-key[data-key="' + k + '"] .key-symbol').inner_text()
+        self.assertEqual(key("O"), "ো")
+        self.assertEqual(key(";"), "ৌ")
+        self.page.locator('button[data-layer="1"]').click()
+        self.assertEqual(key("O"), "ও")
+        self.assertEqual(key(";"), "ঔ")
+        self.page.locator('button[data-layer="2"]').click()
+        self.assertEqual(key(";"), ";")
+        self.page.locator('button[data-layer="3"]').click()
+        self.assertEqual(key(";"), ":")
 
     def test_redesigned_sections_examples_and_search(self):
         self.assertTrue(self.page.locator("#studio").count() == 1)
