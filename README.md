@@ -17,7 +17,7 @@ The four layers are Base, Shift, AltGr (Right Alt; Option on macOS), and Shift+A
 | U | ু | উ | ূ | ঊ |
 | O | ো | ও | ৌ | ঔ |
 | R | র | ৃ | ঋ | ৰ |
-| Z | ঙ | ঞ | ZWNJ | ZWJ |
+| Z | ঙ | ঞ | ZWJ | ZWNJ |
 | F | ্ | ় | — | — |
 | X | ষ | **ক্ষ** | — | — |
 | G | গ | ঘ | — | — |
@@ -28,7 +28,7 @@ The two approved multi-code-point shortcuts output the exact sequences:
 - **Shift+X:** ক্ষ = `U+0995 U+09CD U+09B7`
 - **AltGr+Y:** য-ফলা = `U+09CD U+09AF` (no automatic ZWJ)
 
-The [online keymap](https://mnalmahmud.github.io/onnoy-keyman/#keymap) shows every key and layer. ZWNJ (`U+200C`) and ZWJ (`U+200D`) have their own assignments on Z's AltGr layers.
+The [online keymap](https://mnalmahmud.github.io/onnoy-keyman/#keymap) shows every key and layer. AltGr+Z produces ZWJ (`U+200D`), useful for explicit র‍্য; Shift+AltGr+Z produces ZWNJ (`U+200C`) to inhibit conjunct formation.
 
 ## Platforms
 
