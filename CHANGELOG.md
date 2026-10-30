@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Direct NFC O/AU vowels
+- Split O family: O = ো/ও and physical semicolon key = ৌ/ঔ. These emit U+09CB and U+09CC directly without a separate input method or Unicode normalization step.
+- Move ASCII semicolon and colon to AltGr+; and Shift+AltGr+; respectively, retaining their physical location.
+- Update the native Keyman/XKB/Windows/macOS generators, touch key rows, browser layout, tests and documentation.
+
+
 ### Proposed vowel and consonant redistribution
 - Promote ী/ঈ to Y, ৈ/ঐ to [ and ূ/ঊ to ]; retain original brackets and braces on their respective AltGr layers.
 - Move virama/nukta/𑷰 to Shift+X/X/AltGr+X, ফ to F, ষ to Shift+F, ঞ to Shift+P, য to Z, ঙ to Shift+Z, ং to Shift+L, ভ to V, অ to Shift+B, and ৗ to Shift+V.
