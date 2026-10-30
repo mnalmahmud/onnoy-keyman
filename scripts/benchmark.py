@@ -17,7 +17,7 @@ ASCII = {"exclam":"!","at":"@","numbersign":"#","dollar":"$","percent":"%","asci
 def onnoy():
     layout = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))
     result = {key: values[:] for key, values in layout["keys"].items()}
-    result.update({key: [*values, None, None] for key, values in layout["passthrough"].items()})
+    result.update({key: values[:] for key, values in layout["passthrough"].items()})
     return result
 
 def xkb(text, name):
@@ -42,8 +42,9 @@ def xkb(text, name):
 
 def variant(base, kind):
     layout = {key: value[:] for key, value in base.items()}
-    if kind == "slash":
-        layout["/"] = ["্", "?", "/", None]
+    if kind == "shift-f":
+        layout["/"] = ["/", "?", None, None]
+        layout["F"][1] = "্"
     if kind == "altgr-f":
         layout["F"][2] = "্"
     return layout
@@ -116,7 +117,7 @@ def main():
         parser.error("Modifier weights must not be negative")
     corpus = args.corpus.read_text(encoding="utf-8")
     ours = onnoy()
-    layouts = {"Onnoy": ours, "Onnoy/slash-virama": variant(ours, "slash"),
+    layouts = {"Onnoy": ours, "Onnoy/legacy-Shift+F": variant(ours, "shift-f"),
                "Onnoy/AltGr+F-virama": variant(ours, "altgr-f")}
     if args.xkb.exists():
         source = args.xkb.read_text(encoding="utf-8")
