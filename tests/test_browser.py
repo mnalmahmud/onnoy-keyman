@@ -67,6 +67,16 @@ class BrowserSmokeTests(unittest.TestCase):
         )
         self.assertIn("্য", self.page.locator(".keyboard-row").nth(1).inner_text())
 
+    def test_design_d_y_layers(self):
+        y = lambda: self.page.locator(".keyboard-row").nth(1).locator("button").nth(5).locator(".key-symbol").inner_text()
+        self.assertEqual(y(), "য়")
+        self.page.locator('button[data-layer="1"]').click()
+        self.assertEqual(y(), "য")
+        self.page.locator('button[data-layer="2"]').click()
+        self.assertEqual(y(), "্য")
+        self.page.locator('button[data-layer="3"]').click()
+        self.assertEqual(y(), "—")
+
     def test_editor_inspector_copy_and_failure_fallback(self):
         self.page.locator("#status-label").get_by_text("Keyboard unavailable").wait_for()
         editor = self.page.locator("#editor")
