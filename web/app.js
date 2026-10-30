@@ -74,7 +74,7 @@
         const symbol = document.createElement("span");
         symbol.className = "key-symbol";
         symbol.lang = "bn";
-        symbol.textContent = describe(mapping[mapKey(key)][layer]);
+        symbol.textContent = key === " " && mapping.SPACE[layer] === " " ? "Space" : describe(mapping[mapKey(key)][layer]);
         if (mapping[mapKey(key)][layer] === null) button.classList.add("unassigned");
         const label = document.createElement("span");
         label.className = "key-label";
