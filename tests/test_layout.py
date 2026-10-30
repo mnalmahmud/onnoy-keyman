@@ -63,53 +63,15 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(empty, [0, 0, 21, 35])
         self.assertEqual(sum(empty), 56)
 
-    def test_touch_layout_generated_from_source(self):
-        import subprocess
-        subprocess.run(["python3", "scripts/generate.py", "--check"], cwd=ROOT, check=True)
-        touch = json.loads((ROOT / "source/onnoy.keyman-touch-layout").read_text(encoding="utf-8"))
-        layers = {layer["id"]: layer for layer in touch["phone"]["layer"]}
-        self.assertEqual(set(layers), {"default", "shift", "altgr", "shift_altgr", "numeric"})
-        for name, index in (("default", 0), ("shift", 1), ("altgr", 2), ("shift_altgr", 3)):
-            rows = layers[name]["row"]
-            for keys, row in zip(("QWERTYUIOP[]", "ASDFGHJKL;", "ZXCVBNM"), rows):
-                for key, node in zip(keys, row["key"]):
-                    expected = KEYS[key][index]
-                    if expected is None:
-                        self.assertEqual(node["sp"], 9)
-                    else:
-                        self.assertEqual(node["id"], ("U_" if len(expected) == 1 else "T_SEQ_") + "_".join("%04X" % ord(c) for c in expected))
+    def test_all_native_outputs_have_scalar_keys(self):
+        for key, values in KEYS.items():
+            for layer, value in enumerate(values):
+                with self.subTest(key=key, layer=layer):
+                    self.assertTrue(value is None or len(value) == 1)
 
-    def test_touch_ri_pair_accessible_without_equals_key(self):
-        touch = json.loads((ROOT / "source/onnoy.keyman-touch-layout").read_text(encoding="utf-8"))
-        layer = next(layer for layer in touch["phone"]["layer"] if layer["id"] == "default")
-        key_r = layer["row"][0]["key"][3]
-        subkeys = {subkey["id"] for subkey in key_r["sk"]}
-        self.assertTrue({"U_09C3", "U_098B", "U_09F0"} <= subkeys)
-
-    def test_touch_joiners_on_z_not_space(self):
-        touch = json.loads((ROOT / "source/onnoy.keyman-touch-layout").read_text(encoding="utf-8"))
-        for layer in touch["phone"]["layer"][:4]:
-            space = layer["row"][3]["key"][3]
-            self.assertEqual(space["id"], "K_SPACE")
-            self.assertFalse(space.get("sk"))
-        z = touch["phone"]["layer"][0]["row"][2]["key"][0]
-        self.assertTrue({"U_200D", "U_200C"} <= {item["id"] for item in z["sk"]})
-
-    def test_all_keyman_rules_match_json(self):
-        source = (ROOT / "source/onnoy.kmn").read_text(encoding="utf-8")
-        regex = re.compile(r"^\+ \[(?:(SHIFT) )?(?:(RALT) )?K_([A-Z0-9]+)\] > (nul|U\+[0-9A-F]{4,6}(?: U\+[0-9A-F]{4,6})*)$", re.M)
-        found = {}
-        for shift, alt, key, output in regex.findall(source):
-            index = int(bool(shift)) + int(bool(alt)) * 2
-            self.assertNotIn((key, index), found)
-            found[(key, index)] = output
-        self.assertEqual(len(found), 168)
-        for key in list(PHYSICAL) + ["SPACE"]:
-            for index in range(4):
-                output = KEYS[key][index]
-                expected = "nul" if output is None else " ".join("U+%04X" % ord(c) for c in output)
-                with self.subTest(key=key, layer=LAYERS[index]):
-                    self.assertEqual(found[({".": "PERIOD", "[": "LBRKT", "]": "RBRKT", ";": "COLON", "=": "EQUAL"}.get(key, key), index)], expected)
+    def test_normal_space_and_joiners(self):
+        self.assertEqual(KEYS["SPACE"], [" ", " ", " ", " "])
+        self.assertEqual(KEYS["Z"][2:], ["\\u200d", "\\u200c"])
 
     def test_generated_native_layouts_contain_expected_characters(self):
         xkb = (ROOT / "dist/linux/symbols/onnoy").read_text(encoding="utf-8")
@@ -130,9 +92,9 @@ class LayoutTests(unittest.TestCase):
         self.assertIn("X\t3\td807 ddf0", klc)
         self.assertIn("U11DF0", xkb)
         self.assertIn("200d", klc)
-        compose = (ROOT / "dist/linux/Onnoy.XCompose").read_text(encoding="utf-8")
-        self.assertNotIn("<F13>", compose)
         self.assertNotIn("F13", xkb)
+        self.assertIn("U200D, U200C", xkb)
+        self.assertNotIn("Onnoy.XCompose", xkb)
         self.assertIn("LIGATURE", klc)
         self.assertIn("1A\tOEM_4\t0\t09c8 0990 -1 005b 007b", klc)
         self.assertIn("1B\tOEM_6\t0\t09c2 098a -1 005d 007d", klc)

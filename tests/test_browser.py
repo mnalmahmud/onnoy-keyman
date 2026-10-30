@@ -1,8 +1,7 @@
 """Real Chromium smoke tests for the GitHub Pages build.
 
-These intentionally block the remote Keyman script: the key reference and
-ordinary editor controls must work even when the network is unavailable.
-The Keyman compiler itself is checked separately by the build workflow.
+The website uses a tiny client-side preview and needs no third-party
+keyboard runtime. The tests run with all external networks unavailable.
 """
 import functools
 import http.server
@@ -41,7 +40,7 @@ class BrowserSmokeTests(unittest.TestCase):
 
     def setUp(self):
         self.page = self.browser.new_page()
-        self.page.route("https://s.keyman.com/**", lambda route: route.abort())
+        self.page.route("https://**/*", lambda route: route.abort())
         self.page.goto(f"http://127.0.0.1:{self.server.server_port}/", wait_until="domcontentloaded")
         self.page.locator(".keyboard-key").first.wait_for()
 
@@ -153,8 +152,8 @@ class BrowserSmokeTests(unittest.TestCase):
         self.page.locator("#key-search").fill("")
         self.assertEqual(self.page.locator(".keyboard-key.search-dim").count(), 0)
 
-    def test_editor_inspector_copy_and_failure_fallback(self):
-        self.page.locator("#status-label").get_by_text("Keyboard unavailable").wait_for()
+    def test_editor_inspector_copy_and_native_preview(self):
+        self.page.locator("#status-label").get_by_text("Preview ready").wait_for()
         editor = self.page.locator("#editor")
         editor.fill("বাংলা")
         self.assertEqual(self.page.locator("#count").inner_text(), "5 code points · 2 graphemes")
@@ -165,6 +164,19 @@ class BrowserSmokeTests(unittest.TestCase):
         self.page.locator("#clear").click()
         self.assertEqual(editor.input_value(), "")
         self.assertFalse(self.page.locator("#copy").is_enabled())
+
+    def test_browser_preview_typing_and_shortcuts(self):
+        editor = self.page.locator("#editor")
+        editor.focus()
+        self.page.keyboard.press("k")
+        self.page.keyboard.press("i")
+        self.assertEqual(editor.input_value(), "কি")
+        self.page.keyboard.press("ControlOrMeta+A")
+        self.assertEqual(editor.input_value(), "কি")
+        self.page.keyboard.press("Backspace")
+        self.assertEqual(editor.input_value(), "")
+        self.page.keyboard.press("Shift+v")
+        self.assertEqual(editor.input_value(), "অ")
 
 
 if __name__ == "__main__":

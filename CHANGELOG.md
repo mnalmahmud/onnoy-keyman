@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Native-first redesign, independent of Keyman
+- Treat Onnoy as an operating-system-native Bengali Unicode layout rather than a Keyman product.
+- Remove Keyman project files, compiled packages, runtime and compiler requirements.
+- Generate Linux XKB symbols, macOS .keylayout, and Windows .klc directly from the canonical layout.
+- Replace KeymanWeb with an optional standalone JavaScript typing preview for the project website.
+- Publish explicit native installation guides and platform-specific CI jobs. Windows DLL and installer builds still require MSKLC on Windows and real-device verification.
+- Proposed public repository rename: `onnoy` (requires separate GitHub settings and Pages migration).
+
+
 ### Reposition independent অ and AU length mark
 - Swap Shift+V and Shift+B: Shift+V now emits অ (U+0985), Shift+B emits ৗ (U+09D7).
 - Retain unshifted V=ভ and B=ব, plus all other consonant and vowel assignments.

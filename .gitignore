@@ -1,14 +1,7 @@
-# Compiled layouts and temporary deployment assets
+# Generated platform layouts, build and website output
 build/
 dist/
 site/
-
-# Compiled Keyman outputs
-*.kmx
-*.kmp
-*.kvk
-
-# Local environments and tooling
 __pycache__/
 *.py[cod]
 .venv/

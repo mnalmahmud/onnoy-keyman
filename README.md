@@ -1,141 +1,65 @@
 # Onnoy (অন্বয়)
 
-A fixed Bengali-script Unicode keyboard for physical US-QWERTY keys. All assignments live in **[`layout/onnoy.json`](layout/onnoy.json)**; platform files are generated, not maintained separately.
+**Bengali Unicode typing, native to your operating system.**
 
-**[Try the keyboard](https://mnalmahmud.github.io/onnoy-keyman/)** · [Latest CI builds](https://github.com/mnalmahmud/onnoy-keyman/actions) · [Report an issue](https://github.com/mnalmahmud/onnoy-keyman/issues)
+A fixed physical-key Bengali layout built for **Linux, macOS and Windows**. Onnoy targets the operating system's native keyboard mechanisms—not Keyman, another input method, or a background keyboard application.
 
-## Layout
+**[Keyboard layout demo](https://mnalmahmud.github.io/onnoy-keyman/)** · **[Native build artifacts](https://github.com/mnalmahmud/onnoy-keyman/actions)** · **[Issues](https://github.com/mnalmahmud/onnoy-keyman/issues)**
 
-The canonical mapping is in [`layout/onnoy.json`](layout/onnoy.json). Base, Shift, AltGr (Right Alt; Option on macOS), and Shift+AltGr each have a dedicated output. An unassigned layer (`null`) does not imply an ASCII fallback.
+> The project is migrating from an older Keyman-first repository structure. The canonical keyboard mapping is preserved. The published repo name is pending change to `onnoy`; links retain the current working repository address.
 
-### Alphabetic keys
+## Download and install
 
-| Key | Base | Shift | AltGr | Shift+AltGr |
-| --- | --- | --- | --- | --- |
-| Q | ড | ঢ | — | — |
-| W | ট | ঠ | ৱ | — |
-| E | ে | এ | — | — |
-| R | র | ৰ | — | — |
-| T | ত | থ | ৎ | — |
-| Y | ী | ঈ | — | — |
-| U | ু | উ | — | — |
-| I | ি | ই | — | — |
-| O | ো | ও | — | — |
-| P | প | ঞ | — | — |
-| A | া | আ | ঽ | — |
-| S | স | শ | — | — |
-| D | দ | ধ | — | — |
-| F | ফ | ্ | — | — |
-| G | গ | ঘ | — | — |
-| H | হ | ঃ | — | — |
-| J | জ | ঝ | — | — |
-| K | ক | খ | — | — |
-| L | ল | ং | — | — |
-| Z | য | ঙ | ZWJ | ZWNJ |
-| X | ষ | ় | 𑷰 | — |
-| C | চ | ছ | — | — |
-| V | ভ | অ | — | — |
-| B | ব | ৗ | — | — |
-| N | ন | ণ | — | — |
-| M | ম | ঁ | — | — |
+| System | Native format | Install route | Status |
+| --- | --- | --- | --- |
+| Linux | XKB symbols | [Linux guide](docs/install-linux.md) | XKB build checked; desktop registration varies |
+| macOS | `.keylayout`, `.pkg` | [macOS guide](docs/install-macos.md) | Unsigned package, device verification needed |
+| Windows | `.klc` → compiled DLL/setup | [Windows guide](docs/install-windows.md) | Source available; verified installer still needed |
 
-### Brackets and remaining inputs
+The native layouts **do not require Keyman** at runtime. Windows developers need MSKLC only while *building* a native installer; ordinary users should install a prebuilt verified keyboard once one is available. No platform is advertised as one-click installable without real testing.
 
-| Key | Base | Shift | AltGr | Shift+AltGr |
-| --- | --- | --- | --- | --- |
-| [ | ৈ | ঐ | [ | { |
-| ] | ূ | ঊ | ] | } |
-| ; | ৌ | ঔ | ; | : |
-| = | ৃ | ঋ | = | + |
-| . | । | > | . | — |
-| Space | Space | Space | Space | Space |
+## Keyboard basics
 
-The Bengali vowel pair ৃ/ঋ is assigned to the physical equals key (Base/Shift); ASCII `=` and `+` remain on `AltGr+=` and `Shift+AltGr+=`. The number row digits and other punctuation retain their previous assignments. **Square brackets, braces, semicolon, and colon remain on their original physical keys, now using AltGr and Shift+AltGr.** The O-family is split between O = ো/ও and the semicolon key = ৌ/ঔ, producing NFC-composed vowel signs directly with no extra input engine.
+Onnoy uses a fixed US-QWERTY physical layout with four levels: Base, Shift, AltGr (Right Alt / macOS Option), and Shift+AltGr.
 
-**Independent অ is on Shift+V**; the AU length mark ৗ (U+09D7) is on **Shift+B**. This keeps the unmodified phonetic V=ভ and B=ব assignments while making অ easier to reach on V.
+The complete, authoritative [layout definition](layout/onnoy.json) can be inspected in the [interactive keymap](https://mnalmahmud.github.io/onnoy-keyman/#keymap).
 
-### Explicit composition, without custom conversion rules
+| Chord | Output | Chord | Output |
+| --- | --- | --- | --- |
+| K / Shift+K | ক / খ | G / Shift+G | গ / ঘ |
+| D / Shift+D | দ / ধ | T / Shift+T | ত / থ |
+| F / Shift+F | ফ / ্ | X / Shift+X | ষ / ় |
+| V / Shift+V | ভ / অ | B / Shift+B | ব / ৗ |
+| E / Shift+E | ে / এ | I / Shift+I | ি / ই |
+| O / Shift+O | ো / ও | Y / Shift+Y | ী / ঈ |
+| [ / Shift+[ | ৈ / ঐ | ] / Shift+] | ূ / ঊ |
+| ; / Shift+; | ৌ / ঔ | = / Shift+= | ৃ / ঋ |
+| AltGr+Z | ZWJ (U+200D) | Shift+AltGr+Z | ZWNJ (U+200C) |
 
-Several former shortcuts are no longer dedicated outputs: **ক্ষ**, **্য**, **ড়**, **ঢ়**, and **য়**. These may be entered as ordinary code-point sequences: `K → Shift+F → X` for ক্ষ; `Shift+F → Z` for ্য; `Q → Shift+X` for ড়; `Shift+Q → Shift+X` for ঢ়; and `Z → Shift+X` for য়. The nukta decompositions are canonically equivalent Unicode strings, although some of their precomposed forms are excluded from canonical recomposition. **Direct NFC outputs** are now `O → ো` (U+09CB) and `; → ৌ` (U+09CC). The old compositions `E → A` and `E → Shift+B` still produce canonically equivalent decomposed text, but may not be NFC until an application normalizes it.
+Space remains Space with every modifier. ASCII bracket, semicolon and equals characters are available through AltGr layers. Number keys produce Bengali digits on the base layer.
 
-**Bengali র (U+09B0) is directly available on Base R**, with Assamese ৰ (U+09F0) on Shift+R and Assamese ৱ (U+09F1) on AltGr+W. There is no need to type ব + nukta as a substitute for র, and no custom composition rule is used.
+**Explicit Unicode typing:** `K → Shift+F → X` produces ক্ষ, `Shift+F → Z` produces ্য, and `Q → Shift+X` produces ড়. No background composition engine is necessary. Apps and fonts handle shaping.
 
-AltGr+X produces 𑷰 (U+11DF0), whose rendering requires font support. Windows MSKLC uses the UTF-16 surrogate pair `D807 DDF0`; native installation needs Windows testing. AltGr+Z and Shift+AltGr+Z produce ZWJ (U+200D) and ZWNJ (U+200C). Space stays a regular space across all four layers.
+## Native architecture
 
-The [online keymap](https://mnalmahmud.github.io/onnoy-keyman/#keymap) displays all four layers, including the bracket vowel pairs.
-
-## Mobile touch layout
-
-On phones, Keyman uses the generated `source/onnoy.keyman-touch-layout`: Base, Shift, AltGr, Shift+AltGr and a Bengali-digit/numeric layer. Long-press a letter to access its assigned alternative characters, including long-press **Z** for ZWJ and ZWNJ. Because phones have no dedicated equals key in the alphabet rows, long-press **R** for ৃ/ঋ as well as ৰ. The touch keyboard is embedded in the compiled Keyman keyboard for supported mobile Keyman apps and mobile web; installation and typing should be tested on real phones before calling mobile support verified.
-
-## Native installer packaging
-
-- **Linux:** Run `bash scripts/package-linux.sh` after generating sources to create `build/onnoy-linux.tar.gz`. Extract and run the included `install.sh` to stage XKB symbols and Compose definitions under your user data folder. Register the XKB symbols and Compose include manually as instructed; the script **does not** change system keyboard rules.
-- **macOS:** On macOS, run `bash scripts/package-macos.sh` to build `build/onnoy-macos.pkg` with `pkgbuild`. This unsigned package installs the native layout under `/Library/Keyboard Layouts`; enable Onnoy in Input Sources after installation.
-- **Windows:** On Windows with Microsoft Keyboard Layout Creator installed, run `powershell -ExecutionPolicy Bypass -File scripts/package-windows.ps1` to invoke `kbdutool.exe` and produce native Windows setup sources. Verify and test the installer generated by MSKLC before distribution. Alternatively use the compiled Keyman `.kmp` with Keyman for Windows.
-
-Native release packages are generated per operating system; their actual installation and typing behavior require platform verification. The `.kmp` is a Keyman keyboard package, not a standalone operating-system installer.
-
-## Platforms
-
-| Platform | Generated artifact | Notes |
-| --- | --- | --- |
-| Web / Keyman | `build/onnoy.js`, `build/onnoy.kmp` | KeymanWeb runs the browser playground; the `.kmp` requires a Keyman runtime |
-| Linux | `dist/linux/symbols/onnoy`, `dist/linux/Onnoy.XCompose` | Native XKB plus Compose; **no Keyman needed**; actual application support needs verification |
-| macOS | `dist/macos/Onnoy.keylayout` | Native input source; XML is validated in CI; must also be tested installed |
-| Windows | `dist/windows/onnoy.klc` | Source for MSKLC with ligatures; **not an installer** and not yet compiled/tested on Windows |
-
-### Linux shortcut installation
-
-Install and register the generated XKB symbols using your distribution's XKB configuration, then integrate the rules from `dist/linux/Onnoy.XCompose` into `~/.XCompose`. If needed, retain system Compose definitions using `include "%L"`. Restart affected applications. The current layout has no multi-code-point direct shortcuts; the generated XCompose file is kept for future extension. Application, compositor and toolkit support for Compose processing can vary.
-
-### Other installation notes
-
-- **macOS:** Install `Onnoy.keylayout` to `~/Library/Keyboard Layouts/`, then enable Onnoy in Keyboard → Input Sources (log out and back in if necessary).
-- **Windows:** Compile `onnoy.klc` with MSKLC and test the resulting layout; no native installer is currently published.
-- **Web:** Open the [typing playground](https://mnalmahmud.github.io/onnoy-keyman/) in a desktop browser.
-
-### Joiner shortcuts and OS conflicts
-
-Use **Right Alt (AltGr)+Z** for ZWJ and **Shift+Right Alt (AltGr)+Z** for ZWNJ. On macOS the native layout uses Option. Both shortcuts avoid reserved combinations involving Space. However, some systems treat AltGr as Ctrl+Alt, so a specific application's Ctrl+Alt+Z shortcut may still take precedence. On mobile, long-press Z to enter the joiners.
-
-## Build and test
-
-Requirements: Python 3 and Node.js. Compiling Keyman additionally requires [Keyman Developer CLI 18](https://keyman.com/developer/).
+A single mapping (`layout/onnoy.json`) generates all three platform formats. There is no Keyman keyboard source in this project and no Keyman compiler in the build.
 
 ```sh
 python3 scripts/generate.py
 python3 scripts/generate.py --check
-npm install -g @keymanapp/kmc@18
 bash scripts/build.sh
 ```
 
-The generator writes `source/onnoy.kmn` and platform sources in `dist/`. The build script verifies the mapping, compiles the Keyman keyboard and package, and checks the outputs. `build/`, `dist/` and `site/` are generated and ignored by Git.
+**Generator requirements:** Python 3. Running a native keyboard after installation does not require Python. Platform-specific packagers such as `pkgbuild` and MSKLC are only needed to build installers.
 
-To test the browser locally:
+The [browser preview](https://mnalmahmud.github.io/onnoy-keyman/) uses a small self-contained JavaScript mapping only inside the demo textarea. It does not install a keyboard, intercept global shortcuts, or replace the OS-native layout.
 
-```sh
-mkdir -p site
-cp web/index.html web/app.js web/style.css build/onnoy.js site/
-cp layout/onnoy.json site/layout.json
-python3 -m http.server 8000 --directory site
-```
+For architecture, format limitations and release quality gates see [docs/architecture.md](docs/architecture.md). For original design experiments and corpus benchmarks see [docs/design-and-research.md](docs/design-and-research.md).
 
-The CI workflow also runs Chromium smoke tests (Python Playwright). See **[CONTRIBUTING.md](CONTRIBUTING.md)** for source-tree structure, development practices and release validation.
+## Naming
 
-## Design rationale, benchmarks and verification
-
-The layout balances phonetic consonants, accessible dependent vowel signs, Unicode interoperability and portable generation. The rationale and the alternative-virama experiment are described in [design and research notes](docs/design-and-research.md).
-
-Run the reproducible workload model on your own licensed corpus (Linux with system XKB files for Probhat and KaGaPa):
-
-```sh
-python3 scripts/benchmark.py --corpus path/to/bengali.txt
-python3 scripts/benchmark.py --corpus path/to/bengali.txt --shift-weight 1 --altgr-weight 1.5
-```
-
-The bundled sample is only a smoke-test fixture. Scores are **not measured typing speed**, and differences in unsupported-character coverage invalidate direct comparisons. The Onnoy layout remains unchanged while the Shift+F virama and alternatives are evaluated. No human typing experiments or native Windows/macOS installations have been verified.
+The recommended repository name is **`onnoy`**. Changing a GitHub repository's public name and its GitHub Pages project URL requires a separate administrator action and link migration. No rename is implied by this code change.
 
 ## License
 
-MIT © 2026 Muhtasham Nawr al-Mahmud. See [LICENSE](LICENSE).
+MIT © 2026 Muhtasham Nawr al-Mahmud.
