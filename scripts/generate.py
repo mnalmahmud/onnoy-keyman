@@ -9,39 +9,44 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 ORDER = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890."
+KEY_ORDER = tuple(ORDER) + ("SPACE",)
 XKB = dict(zip("QWERTYUIOP", "AD01 AD02 AD03 AD04 AD05 AD06 AD07 AD08 AD09 AD10".split()))
 XKB.update(dict(zip("ASDFGHJKL", "AC01 AC02 AC03 AC04 AC05 AC06 AC07 AC08 AC09".split())))
 XKB.update(dict(zip("ZXCVBNM", "AB01 AB02 AB03 AB04 AB05 AB06 AB07".split())))
 XKB.update(dict(zip("1234567890", "AE01 AE02 AE03 AE04 AE05 AE06 AE07 AE08 AE09 AE10".split())))
 XKB["."] = "AB09"
+XKB["SPACE"] = "SPCE"
 SCAN = dict(zip("1234567890", "02 03 04 05 06 07 08 09 0A 0B".split()))
 SCAN.update(dict(zip("QWERTYUIOP", "10 11 12 13 14 15 16 17 18 19".split())))
 SCAN.update(dict(zip("ASDFGHJKL", "1E 1F 20 21 22 23 24 25 26".split())))
 SCAN.update(dict(zip("ZXCVBNM", "2C 2D 2E 2F 30 31 32".split())))
 SCAN["."] = "34"
+SCAN["SPACE"] = "39"
 MAC = dict(zip("ASDFGHJKL", [0,1,2,3,5,4,38,40,37]))
 MAC.update(dict(zip("QWERTYUIOP", [12,13,14,15,17,16,32,34,31,35])))
 MAC.update(dict(zip("ZXCVBNM", [6,7,8,9,11,45,46])))
 MAC.update(dict(zip("1234567890", [18,19,20,21,23,22,26,28,25,29])))
 MAC["."] = 47
+MAC["SPACE"] = 49
 PUNCT = [
  ("29","OEM_3",50,"" + chr(96),"~"),
  ("0C","OEM_MINUS",27,"-","_"),("0D","OEM_PLUS",24,"=","+"),
  ("1A","OEM_4",33,"[","{"),("1B","OEM_6",30,"]","}"),
  ("2B","OEM_5",42,"\\","|"),("27","OEM_1",41,";",":"),
  ("28","OEM_7",39,"'",'"'),("33","OEM_COMMA",43,",","<"),
- ("35","OEM_2",44,"/","?"),("39","SPACE",49," "," "),
+ ("35","OEM_2",44,"/","?"),
 ]
 def mapping():
     data=json.loads((ROOT/"layout/onnoy.json").read_text(encoding="utf-8"))
     assert data["layers"]==["base","shift","altgr","shift_altgr"]
     m=data["keys"]
-    assert set(m)==set(ORDER)
+    assert set(m)==set(KEY_ORDER)
     assert all(isinstance(v,list) and len(v)==4 and
                all(x is None or isinstance(x,str) and 1<=len(x)<=4 for x in v)
                for v in m.values())
     assert m["F"][:2]==["্","়"] and m["."][:3]==["।",">","."]
     assert m["4"][1]=="৳" and m["4"][3]=="$"
+    assert m["SPACE"][:2]==[" "," "]
     return m
 
 def keyman(m):
@@ -50,7 +55,7 @@ def keyman(m):
        "store(&KEYBOARDVERSION) '1.0'", "store(&TARGETS) 'any'",
        "store(&layoutfile) 'onnoy.keyman-touch-layout'",
        "", "begin Unicode > use(main)", "", "group(main) using keys"]
-    for k in ORDER:
+    for k in KEY_ORDER:
         name="PERIOD" if k=="." else k
         s.append("")
         for modifier,output in zip(("","SHIFT ","RALT ","SHIFT RALT "),m[k]):
@@ -95,6 +100,14 @@ def touch(m):
             ("shift", "altgr"), ("default", "shift_altgr"),
             ("shift_altgr", "default"), ("altgr", "shift"))
         shift_target, altgr_target = states[index]
+        if index in (0, 1):
+            space_key = {"id": "K_SPACE", "text": "*Sp*", "width": 270}
+            if index == 0:
+                space_key["sk"] = [{"id": direct(value), "text": label(value)}
+                                   for value in m["SPACE"][2:]]
+        else:
+            space_key = {"id": direct(m["SPACE"][index]),
+                         "text": label(m["SPACE"][index]), "width": 270}
         return [
             {"id": "K_SHIFT", "text": "*Shifted*" if index in (1, 3)
              else "*Shift*", "sp": 2 if index in (1, 3) else 1,
@@ -103,7 +116,7 @@ def touch(m):
              else 1, "nextlayer": altgr_target, "width": 115},
             {"id": "K_NUMERALS", "text": "*123*", "sp": 1,
              "nextlayer": "numeric", "width": 100},
-            {"id": "K_SPACE", "text": "*Sp*", "width": 270},
+            space_key,
             letter(".", index),
             {"id": "K_BKSP", "text": "*BkSp*", "sp": 1, "width": 115},
             {"id": "K_ENTER", "text": "*Enter*", "sp": 1, "width": 115},
@@ -149,8 +162,8 @@ def linux(m):
        '    include "us(basic)"',
        '    name[Group1] = "Bengali (Onnoy)";',
        '    include "level3(ralt_switch)"']
-    for k in ORDER:
-        vals=", ".join("VoidSymbol" if v is None else (triggers[(k,i)] if len(v)>1 else "U%04X"%ord(v)) for i,v in enumerate(m[k]))
+    for k in KEY_ORDER:
+        vals=", ".join("VoidSymbol" if v is None else ("space" if v==" " else (triggers[(k,i)] if len(v)>1 else "U%04X"%ord(v))) for i,v in enumerate(m[k]))
         s.append('    key <%s> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ %s ] }; // %s'%(XKB[k],vals,k))
     return "\n".join(s+["};",""])
 
@@ -173,9 +186,9 @@ def windows(m):
        'LAYOUT','//SC VK_ Cap 0 1 2 6 7']
     code=lambda x: '-1' if x is None else ('%%' if len(x)>1 else '%04x'%ord(x))
     ligatures=[]
-    for k in ORDER:
+    for k in KEY_ORDER:
         vals=m[k]
-        cols=" ".join(code(x) for x in (vals[0],vals[1],None,vals[2],vals[3]))
+        cols=" ".join(code(x) for x in (vals[0],vals[1]," " if k=="SPACE" else None,vals[2],vals[3]))
         vk="OEM_PERIOD" if k=="." else k
         s.append("%s\t%s\t0\t%s\t// %s"%(SCAN[k],vk,cols,k))
         for shift_index,value in enumerate((vals[0],vals[1],None,vals[2],vals[3])):
@@ -208,8 +221,8 @@ def macos(m):
     maps=ET.SubElement(root,"keyMapSet",{"id":"OnnoyMap"})
     for index in range(6):
         node=ET.SubElement(maps,"keyMap",{"index":str(index)})
-        for k in ORDER:
-            v=m[k][index] if index<4 else (k.lower() if k.isalpha() else k)
+        for k in KEY_ORDER:
+            v=m[k][index] if index<4 else (" " if k=="SPACE" else (k.lower() if k.isalpha() else k))
             ET.SubElement(node,"key",{"code":str(MAC[k]),"output":v or ""})
         for scan,vk,code,base,shift in PUNCT:
             ET.SubElement(node,"key",{"code":str(code),"output":shift if index in (1,3) else base})
