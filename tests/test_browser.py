@@ -49,7 +49,7 @@ class BrowserSmokeTests(unittest.TestCase):
         self.page.close()
 
     def test_reference_and_four_layers(self):
-        self.assertEqual(self.page.locator(".keyboard-key").count(), 38)
+        self.assertEqual(self.page.locator(".keyboard-key").count(), 40)
         self.assertEqual(self.page.locator(".keyboard-row").count(), 5)
         self.page.locator('button[data-layer="2"]').click()
         self.assertIn("ZWJ", self.page.locator(".keyboard-row").nth(4).inner_text())
@@ -59,13 +59,13 @@ class BrowserSmokeTests(unittest.TestCase):
         self.assertIn("AltGr + Shift: —", self.page.locator("#key-details").inner_text())
         # The renderer must display the complete approved sequences.
         self.page.locator('button[data-layer="1"]').click()
-        self.assertIn("ক্ষ", self.page.locator(".keyboard-row").nth(3).inner_text())
+        self.assertIn("ঈ", self.page.locator(".keyboard-row").nth(1).inner_text())
         self.page.locator('button[data-layer="2"]').click()
         self.assertEqual(
             self.page.locator(".keyboard-row").nth(2).locator("button").nth(4)
                      .locator(".key-symbol").inner_text(), "—"
         )
-        self.assertIn("্য", self.page.locator(".keyboard-row").nth(1).inner_text())
+        self.assertIn("ৰ", self.page.locator(".keyboard-row").nth(1).inner_text())
 
     def test_assamese_wa_on_altgr_w(self):
         w = lambda: self.page.locator(".keyboard-row").nth(1).locator("button").nth(1).locator(".key-symbol").inner_text()
@@ -78,18 +78,32 @@ class BrowserSmokeTests(unittest.TestCase):
 
     def test_altgr_f_combining_anusvara_above(self):
         self.page.locator('button[data-layer="2"]').click()
-        f = self.page.locator(".keyboard-row").nth(2).locator("button").nth(3)
+        f = self.page.locator(".keyboard-row").nth(3).locator("button").nth(1)
         self.assertIn("𑷰", f.get_attribute("aria-label") or "")
 
     def test_design_d_y_layers(self):
         y = lambda: self.page.locator(".keyboard-row").nth(1).locator("button").nth(5).locator(".key-symbol").inner_text()
-        self.assertEqual(y(), "য়")
+        self.assertEqual(y(), "ী")
         self.page.locator('button[data-layer="1"]').click()
-        self.assertEqual(y(), "য")
+        self.assertEqual(y(), "ঈ")
         self.page.locator('button[data-layer="2"]').click()
-        self.assertEqual(y(), "্য")
+        self.assertEqual(y(), "—")
         self.page.locator('button[data-layer="3"]').click()
         self.assertEqual(y(), "—")
+
+    def test_bracket_vowels_and_original_brace_shortcuts(self):
+        bracket = lambda key: self.page.locator('.keyboard-key[data-key="' + key + '"] .key-symbol').inner_text()
+        self.assertEqual(bracket("["), "ৈ")
+        self.assertEqual(bracket("]"), "ূ")
+        self.page.locator('button[data-layer="1"]').click()
+        self.assertEqual(bracket("["), "ঐ")
+        self.assertEqual(bracket("]"), "ঊ")
+        self.page.locator('button[data-layer="2"]').click()
+        self.assertEqual(bracket("["), "[")
+        self.assertEqual(bracket("]"), "]")
+        self.page.locator('button[data-layer="3"]').click()
+        self.assertEqual(bracket("["), "{")
+        self.assertEqual(bracket("]"), "}")
 
     def test_redesigned_sections_examples_and_search(self):
         self.assertTrue(self.page.locator("#studio").count() == 1)
