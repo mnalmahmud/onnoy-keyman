@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Design C and packaging
+- Apply Design C: Z = ং, Shift+Z = ঙ, Shift+M = ঁ, AltGr+N = ঞ, AltGr+M unassigned.
+- Correct the web playground's বাংলা example to B · A · Z · L · A.
+- Generate a mobile Keyman touch layout (four alphabetic layers, long-press alternatives and numeric layer).
+- Provide OS-specific native packaging scripts for Linux, macOS, and Windows (MSKLC required).
+
+
 ### Keyboard layout
 - Swap Z Base/Shift: Z = ঙ, Shift+Z = ঞ.
 - Put ZWJ (`U+200D`) on AltGr+Z and ZWNJ (`U+200C`) on Shift+AltGr+Z.

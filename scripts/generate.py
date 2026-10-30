@@ -47,7 +47,8 @@ def mapping():
 def keyman(m):
     s=["c Onnoy (অন্বয়) — generated from layout/onnoy.json; do not edit directly.",
        "store(&VERSION) '16.0'", "store(&NAME) 'Onnoy (অন্বয়)'",
-       "store(&KEYBOARDVERSION) '1.0'", "store(&TARGETS) 'desktop web'",
+       "store(&KEYBOARDVERSION) '1.0'", "store(&TARGETS) 'any'",
+       "store(&layoutfile) 'onnoy.keyman-touch-layout'",
        "", "begin Unicode > use(main)", "", "group(main) using keys"]
     for k in ORDER:
         name="PERIOD" if k=="." else k
@@ -56,6 +57,81 @@ def keyman(m):
             symbol="nul" if output is None else " ".join("U+%04X"%ord(ch) for ch in output)
             s.append("+ [%sK_%s] > %s"%(modifier,name,symbol))
     return "\n".join(s)+"\n"
+
+
+def touch(m):
+    """Generate a compact phone/tablet layout from the canonical four layers.
+
+    U_ virtual keys emit their Unicode string directly on touch devices; this
+    avoids relying on desktop AltGr modifier emulation on phones.
+    """
+    alpha_rows = ("QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM")
+    layer_names = ("default", "shift", "altgr", "shift_altgr")
+
+    def direct(value):
+        return "U_" + "_".join("%04X" % ord(c) for c in value)
+
+    def label(value):
+        return {"\\u200d": "ZWJ", "\\u200c": "ZWNJ"}.get(value, value)
+
+    def letter(key, index):
+        value = m[key][index]
+        if value is None:
+            return {"id": "T_EMPTY_%s_%d" % (key, index), "text": "", "sp": 9}
+        item = {"id": direct(value), "text": label(value)}
+        if index == 0:
+            subkeys = [{"id": direct(other), "text": label(other)}
+                       for other in m[key][1:] if other and other != value]
+            if subkeys:
+                item["sk"] = subkeys
+        return item
+
+    def frame(index):
+        states = (
+            ("shift", "altgr"), ("default", "shift_altgr"),
+            ("shift_altgr", "default"), ("altgr", "shift"))
+        shift_target, altgr_target = states[index]
+        return [
+            {"id": "K_SHIFT", "text": "*Shifted*" if index in (1, 3)
+             else "*Shift*", "sp": 2 if index in (1, 3) else 1,
+             "nextlayer": shift_target, "width": 115},
+            {"id": "K_ALTGR", "text": "AltGr", "sp": 2 if index in (2, 3)
+             else 1, "nextlayer": altgr_target, "width": 115},
+            {"id": "K_NUMERALS", "text": "*123*", "sp": 1,
+             "nextlayer": "numeric", "width": 100},
+            {"id": "K_SPACE", "text": "*Sp*", "width": 270},
+            letter(".", index),
+            {"id": "K_BKSP", "text": "*BkSp*", "sp": 1, "width": 115},
+            {"id": "K_ENTER", "text": "*Enter*", "sp": 1, "width": 115},
+        ]
+
+    layers = []
+    for index, name in enumerate(layer_names):
+        rows = [{"id": rownum + 1, "key": [letter(k, index) for k in row]}
+                for rownum, row in enumerate(alpha_rows)]
+        rows.append({"id": 4, "key": frame(index)})
+        layers.append({"id": name, "row": rows})
+
+    digits = []
+    for key in "1234567890":
+        digits.append({"id": direct(m[key][0]), "text": m[key][0],
+                       "sk": [{"id": direct(m[key][2]), "text": m[key][2]}]})
+    symbols = ["৳", "।", ".", ",", "?", "!", ":", ";", "-", "/", "(", ")"]
+    numeric_rows = [
+        {"id": 1, "key": digits},
+        {"id": 2, "key": [{"id": direct(v), "text": v} for v in symbols]},
+        {"id": 3, "key": [
+            {"id": "K_NUMERALS", "text": "*abc*", "sp": 1,
+             "nextlayer": "default", "width": 130},
+            {"id": "K_SPACE", "text": "*Sp*", "width": 350},
+            {"id": "K_BKSP", "text": "*BkSp*", "sp": 1, "width": 130},
+            {"id": "K_ENTER", "text": "*Enter*", "sp": 1, "width": 130},
+        ]},
+    ]
+    layers.append({"id": "numeric", "row": numeric_rows})
+    return json.dumps({"phone": {"displayUnderlying": False,
+                                  "layer": layers}}, ensure_ascii=False,
+                      indent=2) + "\\n"
 
 def linux(m):
     # Single-key XCompose rules translate F13-F15 into Unicode strings on
@@ -142,6 +218,7 @@ def main():
     m=mapping()
     outputs={
       "source/onnoy.kmn":keyman(m),
+      "source/onnoy.keyman-touch-layout":touch(m),
       "dist/linux/symbols/onnoy":linux(m),
       "dist/linux/Onnoy.XCompose":linux_compose(m),
       "dist/windows/onnoy.klc":windows(m),
