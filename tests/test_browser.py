@@ -49,7 +49,7 @@ class BrowserSmokeTests(unittest.TestCase):
         self.page.close()
 
     def test_reference_and_four_layers(self):
-        self.assertEqual(self.page.locator(".keyboard-key").count(), 41)
+        self.assertEqual(self.page.locator(".keyboard-key").count(), 43)
         self.assertEqual(self.page.locator(".keyboard-row").count(), 5)
         self.page.locator('button[data-layer="2"]').click()
         self.assertIn("ZWJ", self.page.locator(".keyboard-row").nth(4).inner_text())
@@ -60,12 +60,12 @@ class BrowserSmokeTests(unittest.TestCase):
         # The renderer must display the complete approved sequences.
         self.page.locator('button[data-layer="1"]').click()
         self.assertIn("ঈ", self.page.locator(".keyboard-row").nth(1).inner_text())
+        self.assertIn("ৰ", self.page.locator(".keyboard-row").nth(1).inner_text())
         self.page.locator('button[data-layer="2"]').click()
         self.assertEqual(
             self.page.locator(".keyboard-row").nth(2).locator("button").nth(4)
                      .locator(".key-symbol").inner_text(), "—"
         )
-        self.assertIn("ৰ", self.page.locator(".keyboard-row").nth(1).inner_text())
 
     def test_assamese_wa_on_altgr_w(self):
         w = lambda: self.page.locator(".keyboard-row").nth(1).locator("button").nth(1).locator(".key-symbol").inner_text()
@@ -76,10 +76,10 @@ class BrowserSmokeTests(unittest.TestCase):
         self.assertEqual(w(), "ৱ")
         self.assertEqual(v(), "—")
 
-    def test_altgr_f_combining_anusvara_above(self):
+    def test_altgr_x_combining_anusvara_above(self):
         self.page.locator('button[data-layer="2"]').click()
-        f = self.page.locator(".keyboard-row").nth(3).locator("button").nth(1)
-        self.assertIn("𑷰", f.get_attribute("aria-label") or "")
+        x = self.page.locator(".keyboard-row").nth(3).locator("button").nth(1)
+        self.assertIn("𑷰", x.get_attribute("aria-label") or "")
 
     def test_design_d_y_layers(self):
         y = lambda: self.page.locator(".keyboard-row").nth(1).locator("button").nth(5).locator(".key-symbol").inner_text()
@@ -104,6 +104,24 @@ class BrowserSmokeTests(unittest.TestCase):
         self.page.locator('button[data-layer="3"]').click()
         self.assertEqual(bracket("["), "{")
         self.assertEqual(bracket("]"), "}")
+
+    def test_ra_ri_virama_nukta_and_ascii_equals(self):
+        key = lambda k: self.page.locator('.keyboard-key[data-key="' + k + '"] .key-symbol').inner_text()
+        self.assertEqual(key("R"), "র")
+        self.assertEqual(key("="), "ৃ")
+        self.assertEqual(key("F"), "ফ")
+        self.assertEqual(key("X"), "ষ")
+        self.assertEqual(key("-"), "-")
+        self.page.locator('button[data-layer="1"]').click()
+        self.assertEqual(key("R"), "ৰ")
+        self.assertEqual(key("="), "ঋ")
+        self.assertEqual(key("F"), "্")
+        self.assertEqual(key("X"), "়")
+        self.assertEqual(key("-"), "_")
+        self.page.locator('button[data-layer="2"]').click()
+        self.assertEqual(key("="), "=")
+        self.page.locator('button[data-layer="3"]').click()
+        self.assertEqual(key("="), "+")
 
     def test_direct_nfc_o_and_au_signs(self):
         key = lambda k: self.page.locator('.keyboard-key[data-key="' + k + '"] .key-symbol').inner_text()

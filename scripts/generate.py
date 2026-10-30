@@ -8,7 +8,7 @@ import sys
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
-ORDER = "QWERTYUIOP[]ASDFGHJKL;ZXCVBNM1234567890."
+ORDER = "QWERTYUIOP[]ASDFGHJKL;ZXCVBNM1234567890=."
 KEY_ORDER = tuple(ORDER) + ("SPACE",)
 XKB = dict(zip("QWERTYUIOP", "AD01 AD02 AD03 AD04 AD05 AD06 AD07 AD08 AD09 AD10".split()))
 XKB.update(dict(zip("ASDFGHJKL", "AC01 AC02 AC03 AC04 AC05 AC06 AC07 AC08 AC09".split())))
@@ -17,6 +17,7 @@ XKB.update(dict(zip("1234567890", "AE01 AE02 AE03 AE04 AE05 AE06 AE07 AE08 AE09 
 XKB["["] = "AD11"
 XKB["]"] = "AD12"
 XKB[";"] = "AC10"
+XKB["="] = "AE12"
 XKB["."] = "AB09"
 XKB["SPACE"] = "SPCE"
 SCAN = dict(zip("1234567890", "02 03 04 05 06 07 08 09 0A 0B".split()))
@@ -26,6 +27,7 @@ SCAN.update(dict(zip("ZXCVBNM", "2C 2D 2E 2F 30 31 32".split())))
 SCAN["["] = "1A"
 SCAN["]"] = "1B"
 SCAN[";"] = "27"
+SCAN["="] = "0D"
 SCAN["."] = "34"
 SCAN["SPACE"] = "39"
 MAC = dict(zip("ASDFGHJKL", [0,1,2,3,5,4,38,40,37]))
@@ -35,11 +37,12 @@ MAC.update(dict(zip("1234567890", [18,19,20,21,23,22,26,28,25,29])))
 MAC["["] = 33
 MAC["]"] = 30
 MAC[";"] = 41
+MAC["="] = 24
 MAC["."] = 47
 MAC["SPACE"] = 49
 PUNCT = [
  ("29","OEM_3",50,"" + chr(96),"~"),
- ("0C","OEM_MINUS",27,"-","_"),("0D","OEM_PLUS",24,"=","+"),
+ ("0C","OEM_MINUS",27,"-","_"),
  ("2B","OEM_5",42,"\\","|"),
  ("28","OEM_7",39,"'",'"'),("33","OEM_COMMA",43,",","<"),
  ("35","OEM_2",44,"/","?"),
@@ -52,7 +55,9 @@ def mapping():
     assert all(isinstance(v,list) and len(v)==4 and
                all(x is None or isinstance(x,str) and 1<=len(x)<=4 for x in v)
                for v in m.values())
-    assert m["X"][:3]==["়","্","𑷰"] and m["."][:3]==["।",">","."]
+    assert m["X"][:3]==["ষ","়","𑷰"] and m["F"][:2]==["ফ","্"]
+    assert m["R"][:2]==["র","ৰ"] and m["="]==["ৃ","ঋ","=","+"]
+    assert m["."][:3]==["।",">","."]
     assert m["["]==["ৈ","ঐ","[","{"] and m["]"]==["ূ","ঊ","]","}"]
     assert m["O"][:2]==["ো","ও"] and m[";"]==["ৌ","ঔ",";",":"]
     assert m["4"][1]=="৳" and m["4"][3]=="$"
@@ -66,7 +71,7 @@ def keyman(m):
        "store(&layoutfile) 'onnoy.keyman-touch-layout'",
        "", "begin Unicode > use(main)", "", "group(main) using keys"]
     for k in KEY_ORDER:
-        name={".": "PERIOD", "[": "LBRKT", "]": "RBRKT", ";": "COLON"}.get(k, k)
+        name={".": "PERIOD", "[": "LBRKT", "]": "RBRKT", ";": "COLON", "=": "EQUAL"}.get(k, k)
         s.append("")
         for modifier,output in zip(("","SHIFT ","RALT ","SHIFT RALT "),m[k]):
             symbol="nul" if output is None else " ".join("U+%04X"%ord(ch) for ch in output)
@@ -101,6 +106,11 @@ def touch(m):
         if index == 0:
             subkeys = [{"id": direct(other), "text": label(other)}
                        for other in m[key][1:] if other and other != value]
+            if key == "R":
+                # A phone has no dedicated physical equals key: keep the Ri pair
+                # reachable by long-pressing R, derived from the canonical map.
+                subkeys.extend({"id": direct(other), "text": label(other)}
+                               for other in m["="][:2])
             if subkeys:
                 item["sk"] = subkeys
         return item
@@ -203,7 +213,7 @@ def windows(m):
     for k in KEY_ORDER:
         vals=m[k]
         cols=" ".join(code(x) for x in (vals[0],vals[1]," " if k=="SPACE" else None,vals[2],vals[3]))
-        vk={".": "OEM_PERIOD", "[": "OEM_4", "]": "OEM_6", ";": "OEM_1"}.get(k, k)
+        vk={".": "OEM_PERIOD", "[": "OEM_4", "]": "OEM_6", ";": "OEM_1", "=": "OEM_PLUS"}.get(k, k)
         s.append("%s\t%s\t0\t%s\t// %s"%(SCAN[k],vk,cols,k))
         for shift_index,value in enumerate((vals[0],vals[1],None,vals[2],vals[3])):
             if value is not None and len(utf16_units(value))>1:
