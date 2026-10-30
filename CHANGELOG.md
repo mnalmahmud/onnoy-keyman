@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Design D
+- Swap Y Base/Shift: Y = য়, Shift+Y = য, while keeping AltGr+Y = ্য and Shift+AltGr+Y unassigned.
+- Keep the change consistent across generated Keyman, native layouts and mobile touch layers.
+
 ### Design C and packaging
 - Apply Design C: Z = ং, Shift+Z = ঙ, Shift+M = ঁ, AltGr+N = ঞ, AltGr+M unassigned.
 - Correct the web playground's বাংলা example to B · A · Z · L · A.
