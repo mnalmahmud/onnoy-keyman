@@ -91,6 +91,20 @@ class BrowserSmokeTests(unittest.TestCase):
         self.page.locator('button[data-layer="3"]').click()
         self.assertEqual(y(), "—")
 
+    def test_redesigned_sections_examples_and_search(self):
+        self.assertTrue(self.page.locator("#studio").count() == 1)
+        self.assertTrue(self.page.locator("#install").count() == 1)
+        self.assertEqual(self.page.locator(".install-card").count(), 3)
+        self.page.locator('[data-sample="বাংলা"]').click()
+        self.assertEqual(self.page.locator("#editor").input_value(), "বাংলা")
+        self.page.locator("#key-search").fill("11df0")
+        self.assertIn("matching keys", self.page.locator("#search-feedback").inner_text())
+        self.assertEqual(self.page.locator(".keyboard-key.search-match").count(), 1)
+        self.page.locator("#key-search").fill("ZZNOTFOUND")
+        self.assertEqual(self.page.locator(".keyboard-key.search-match").count(), 0)
+        self.page.locator("#key-search").fill("")
+        self.assertEqual(self.page.locator(".keyboard-key.search-dim").count(), 0)
+
     def test_editor_inspector_copy_and_failure_fallback(self):
         self.page.locator("#status-label").get_by_text("Keyboard unavailable").wait_for()
         editor = self.page.locator("#editor")
