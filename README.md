@@ -6,39 +6,59 @@ A fixed Bengali-script Unicode keyboard for physical US-QWERTY keys. All assignm
 
 ## Layout
 
-The four layers are Base, Shift, AltGr (Right Alt; Option on macOS), and Shift+AltGr. A `null` mapping is unassigned, not necessarily an ASCII fallback.
+The canonical mapping is in [`layout/onnoy.json`](layout/onnoy.json). Base, Shift, AltGr (Right Alt; Option on macOS), and Shift+AltGr each have a dedicated output. An unassigned layer (`null`) does not imply an ASCII fallback.
+
+### Alphabetic keys
 
 | Key | Base | Shift | AltGr | Shift+AltGr |
 | --- | --- | --- | --- | --- |
-| Q | ড | ঢ | ড় | ঢ় |
+| Q | ড | ঢ | — | — |
 | W | ট | ঠ | ৱ | — |
-| E | ে | এ | ৈ | ঐ |
-| I | ি | ই | ী | ঈ |
-| U | ু | উ | ূ | ঊ |
-| O | ো | ও | ৌ | ঔ |
-| R | র | ৃ | ঋ | ৰ |
-| Z | ং | ঙ | — | — |
-| V | অ | ৗ | — | — |
-| Space | Space | Space | ZWJ | ZWNJ |
-| M | ম | ঁ | — | — |
-| N | ন | ণ | ঞ | — |
-| F | ্ | ় | 𑷰 (U+11DF0) | — |
-| X | ষ | **ক্ষ** | — | — |
+| E | ে | এ | — | — |
+| R | ৃ | ঋ | ৰ | — |
+| T | ত | থ | ৎ | — |
+| Y | ী | ঈ | — | — |
+| U | ু | উ | — | — |
+| I | ি | ই | — | — |
+| O | ও | ঔ | — | — |
+| P | প | ঞ | — | — |
+| A | া | আ | ঽ | — |
+| S | স | শ | — | — |
+| D | দ | ধ | — | — |
+| F | ফ | ষ | — | — |
 | G | গ | ঘ | — | — |
-| Y | য় | য | **্য** | — |
+| H | হ | ঃ | — | — |
+| J | জ | ঝ | — | — |
+| K | ক | খ | — | — |
+| L | ল | ং | — | — |
+| Z | য | ঙ | — | — |
+| X | ় | ্ | 𑷰 | — |
+| C | চ | ছ | — | — |
+| V | ভ | ৗ | — | — |
+| B | ব | অ | — | — |
+| N | ন | ণ | — | — |
+| M | ম | ঁ | — | — |
 
-Design D places **য় on Y** and **য on Shift+Y** for more efficient standalone-letter typing, while keeping **AltGr+Y = ্য** for য-ফলা. This changes the earlier Design C Y/Shift+Y assignments.
+### Brackets and remaining inputs
 
-Assamese **ৱ** (`U+09F1`) is assigned to **AltGr+W**; **Shift+V** produces **ৗ** (`U+09D7`), useful for Kokborok and other orthographies that require the AU length mark; **AltGr+V** is unassigned.
+| Key | Base | Shift | AltGr | Shift+AltGr |
+| --- | --- | --- | --- | --- |
+| [ | ৈ | ঐ | [ | { |
+| ] | ূ | ঊ | ] | } |
+| . | । | > | . | — |
+| Space | Space | Space | ZWJ | ZWNJ |
 
-**AltGr+F** inserts Bengali Combining Anusvara Above (`U+11DF0`) after a letter. Its rendering depends on a supporting font. Windows MSKLC uses the UTF-16 surrogate pair `D807 DDF0`; native installation needs Windows testing.
+The number row and other punctuation retain their previous assignments. **Square brackets and braces are still available on the original physical keys, now using AltGr.**
 
-The two approved multi-code-point shortcuts output the exact sequences:
+### Explicit composition, without custom conversion rules
 
-- **Shift+X:** ক্ষ = `U+0995 U+09CD U+09B7`
-- **AltGr+Y:** য-ফলা = `U+09CD U+09AF` (no automatic ZWJ)
+Several former shortcuts are no longer dedicated outputs: **ক্ষ**, **্য**, **ড়**, **ঢ়**, **য়**, **ো**, **ৌ**. These may be entered as ordinary code-point sequences: `K → Shift+X → Shift+F` for ক্ষ; `Shift+X → Z` for ্য; `Q → X` for ড়; `Shift+Q → X` for ঢ়; `Z → X` for য়; `E → A` for ো; and `E → Shift+V` for ৌ. The nukta and vowel-sign decompositions are canonically equivalent Unicode strings, although they do not all recompose to a precomposed code point.
 
-The [online keymap](https://mnalmahmud.github.io/onnoy-keyman/#keymap) shows every key and layer. AltGr+Space produces ZWJ (`U+200D`), useful for explicit র‍্য; Shift+AltGr+Space produces ZWNJ (`U+200C`) to inhibit conjunct formation.
+**Known coverage limitation: Bengali র (U+09B0) has no direct mapping in this proposal.** Typing `B → X` inserts `ব়` (U+09AC U+09BC), **not** র; Unicode does not consider these canonically equivalent. There are **no custom composition rules** converting the two. Assamese ৰ (AltGr+R) and ৱ (AltGr+W) are preserved as distinct characters. This loss of Bengali র makes the proposed layout unsuitable for complete standard Bengali typing until a separately approved solution is provided.
+
+AltGr+X produces 𑷰 (U+11DF0), whose rendering requires font support. Windows MSKLC uses the UTF-16 surrogate pair `D807 DDF0`; native installation needs Windows testing. AltGr+Space and Shift+AltGr+Space produce ZWJ (U+200D) and ZWNJ (U+200C).
+
+The [online keymap](https://mnalmahmud.github.io/onnoy-keyman/#keymap) displays all four layers, including the bracket vowel pairs.
 
 ## Mobile touch layout
 
@@ -63,7 +83,7 @@ Native release packages are generated per operating system; their actual install
 
 ### Linux shortcut installation
 
-Install and register the generated XKB symbols using your distribution's XKB configuration, then integrate the rules from `dist/linux/Onnoy.XCompose` into `~/.XCompose`. If needed, retain system Compose definitions using `include "%L"`. Restart affected applications. Onnoy currently maps F13–F14 internal keysyms to full Unicode strings; application, compositor and toolkit support can vary. Do not assume that a passing XKB compilation test proves all three shortcuts work everywhere.
+Install and register the generated XKB symbols using your distribution's XKB configuration, then integrate the rules from `dist/linux/Onnoy.XCompose` into `~/.XCompose`. If needed, retain system Compose definitions using `include "%L"`. Restart affected applications. The current layout has no multi-code-point direct shortcuts; the generated XCompose file is kept for future extension. Application, compositor and toolkit support for Compose processing can vary.
 
 ### Other installation notes
 
