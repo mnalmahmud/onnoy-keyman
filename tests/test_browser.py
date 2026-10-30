@@ -71,10 +71,10 @@ class BrowserSmokeTests(unittest.TestCase):
         w = lambda: self.page.locator(".keyboard-row").nth(1).locator("button").nth(1).locator(".key-symbol").inner_text()
         v = lambda: self.page.locator(".keyboard-row").nth(3).locator("button").nth(3).locator(".key-symbol").inner_text()
         self.page.locator('button[data-layer="1"]').click()
-        self.assertEqual(v(), "—")
+        self.assertEqual(v(), "ৗ")
         self.page.locator('button[data-layer="2"]').click()
         self.assertEqual(w(), "ৱ")
-        self.assertEqual(v(), "ৗ")
+        self.assertEqual(v(), "—")
 
     def test_design_d_y_layers(self):
         y = lambda: self.page.locator(".keyboard-row").nth(1).locator("button").nth(5).locator(".key-symbol").inner_text()
