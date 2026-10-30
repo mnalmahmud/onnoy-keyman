@@ -43,9 +43,14 @@
     return value;
   }
 
+  const segmenter = typeof Intl.Segmenter === "function" ? new Intl.Segmenter("bn", { granularity: "grapheme" }) : null;
+  function graphemeCount(value) {
+    return segmenter ? [...segmenter.segment(value)].length : [...value].length;
+  }
+
   function updateEditor() {
     const characters = [...editor.value];
-    count.textContent = String(characters.length);
+    count.textContent = characters.length + " code points · " + graphemeCount(editor.value) + " graphemes";
     copy.disabled = characters.length === 0;
     if (!unicodePanel.hidden) {
       codepoints.textContent = characters.map((character) =>
@@ -198,7 +203,9 @@
       if (!response.ok) throw new Error("HTTP " + response.status);
       const layout = await response.json();
       // Display the unchanged hyphen key to preserve the physical number-row spacing.
-      const displayed = { ...layout.keys, "-": ["-", "_", null, null] };
+      const displayed = { ...layout.keys, ...Object.fromEntries(
+        Object.entries(layout.passthrough || {}).map(([key, pair]) => [key, [pair[0], pair[1], null, null]])
+      ) };
       if (!layout.keys || [...rows.join("")].some((key) =>
         !Array.isArray(displayed[mapKey(key)]) || displayed[mapKey(key)].length !== 4
       )) throw new Error("Invalid keyboard mapping");

@@ -117,6 +117,19 @@ python3 -m http.server 8000 --directory site
 
 The CI workflow also runs Chromium smoke tests (Python Playwright). See **[CONTRIBUTING.md](CONTRIBUTING.md)** for source-tree structure, development practices and release validation.
 
+## Design rationale, benchmarks and verification
+
+The layout balances phonetic consonants, accessible dependent vowel signs, Unicode interoperability and portable generation. The rationale and the alternative-virama experiment are described in [design and research notes](docs/design-and-research.md).
+
+Run the reproducible workload model on your own licensed corpus (Linux with system XKB files for Probhat and KaGaPa):
+
+```sh
+python3 scripts/benchmark.py --corpus path/to/bengali.txt
+python3 scripts/benchmark.py --corpus path/to/bengali.txt --shift-weight 1 --altgr-weight 1.5
+```
+
+The bundled sample is only a smoke-test fixture. Scores are **not measured typing speed**, and differences in unsupported-character coverage invalidate direct comparisons. The Onnoy layout remains unchanged while the Shift+F virama and alternatives are evaluated. No human typing experiments or native Windows/macOS installations have been verified.
+
 ## License
 
 MIT © 2026 Muhtasham Nawr al-Mahmud. See [LICENSE](LICENSE).

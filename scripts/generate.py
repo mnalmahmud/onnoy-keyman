@@ -40,16 +40,21 @@ MAC[";"] = 41
 MAC["="] = 24
 MAC["."] = 47
 MAC["SPACE"] = 49
-PUNCT = [
- ("29","OEM_3",50,"" + chr(96),"~"),
- ("0C","OEM_MINUS",27,"-","_"),
- ("2B","OEM_5",42,"\\","|"),
- ("28","OEM_7",39,"'",'"'),("33","OEM_COMMA",43,",","<"),
- ("35","OEM_2",44,"/","?"),
+# Physical scan codes remain platform metadata; printable outputs live in layout/onnoy.json.
+PUNCT_META = [
+ ("29", "OEM_3", 50, "`"), ("0C", "OEM_MINUS", 27, "-"),
+ ("2B", "OEM_5", 42, "\\"), ("28", "OEM_7", 39, "'"),
+ ("33", "OEM_COMMA", 43, ","), ("35", "OEM_2", 44, "/"),
 ]
+LAYOUT = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))
+PUNCT = [(scan, vk, mac, *LAYOUT["passthrough"][key])
+         for scan, vk, mac, key in PUNCT_META]
 def mapping():
-    data=json.loads((ROOT/"layout/onnoy.json").read_text(encoding="utf-8"))
+    data=LAYOUT
     assert data["layers"]==["base","shift","altgr","shift_altgr"]
+    assert set(data["passthrough"]) == {entry[3] for entry in PUNCT_META}
+    assert all(len(pair) == 2 and all(isinstance(v, str) and len(v) == 1 for v in pair)
+               for pair in data["passthrough"].values())
     m=data["keys"]
     assert set(m)==set(KEY_ORDER)
     assert all(isinstance(v,list) and len(v)==4 and

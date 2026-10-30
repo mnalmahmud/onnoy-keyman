@@ -153,7 +153,7 @@ class BrowserSmokeTests(unittest.TestCase):
         self.page.locator("#status-label").get_by_text("Keyboard unavailable").wait_for()
         editor = self.page.locator("#editor")
         editor.fill("বাংলা")
-        self.assertEqual(self.page.locator("#count").inner_text(), "5")
+        self.assertEqual(self.page.locator("#count").inner_text(), "5 code points · 2 graphemes")
         self.assertTrue(self.page.locator("#copy").is_enabled())
         self.page.locator("#inspect").click()
         self.assertFalse(self.page.locator("#unicode-panel").is_hidden())

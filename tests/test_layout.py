@@ -6,7 +6,8 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-KEYS = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))["keys"]
+LAYOUT = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))
+KEYS = LAYOUT["keys"]
 LAYERS = ("base", "shift", "altgr", "shift_altgr")
 PHYSICAL = "QWERTYUIOP[]ASDFGHJKL;ZXCVBNM1234567890=."
 ALL_KEYS = PHYSICAL + " "
@@ -21,6 +22,12 @@ class LayoutTests(unittest.TestCase):
                 self.assertTrue(all(value is None or
                                     isinstance(value, str) and 1 <= len(value) <= 4
                                     for value in values))
+
+    def test_passthrough_keys_are_in_canonical_source(self):
+        self.assertEqual(LAYOUT["passthrough"], {
+            "`": ["`", "~"], "-": ["-", "_"], "\\": ["\\", "|"],
+            "'": ["'", '"'], ",": [",", "<"], "/": ["/", "?"],
+        })
 
     def test_known_assignments_and_empty_slots(self):
         expected = {

@@ -33,6 +33,11 @@ jobs:
           sudo apt-get install -y -qq x11-xkb-utils xkb-data
           printf 'xkb_keymap { xkb_keycodes { include "evdev+aliases(qwerty)" }; xkb_types { include "complete" }; xkb_compat { include "complete" }; xkb_symbols { include "pc+onnoy(basic)+inet(evdev)" }; xkb_geometry { include "pc(pc105)" }; };' > /tmp/onnoy-test.xkb
           xkbcomp -w 0 -I"$PWD/dist/linux" /tmp/onnoy-test.xkb /tmp/onnoy-test.xkm
+      - name: Verify Unicode typing examples and benchmark
+        run: |
+          python3 -m unittest discover -s tests -p 'test_typing.py'
+          python3 scripts/benchmark.py --corpus tests/data/demo-bengali.txt > /tmp/onnoy-benchmark.json
+          python3 -m json.tool /tmp/onnoy-benchmark.json > /dev/null
       - name: Verify mapping, compile Keyman and check package
         run: bash scripts/build.sh
       - name: Stage browser site
