@@ -168,14 +168,14 @@ class BrowserSmokeTests(unittest.TestCase):
     def test_browser_preview_typing_and_shortcuts(self):
         editor = self.page.locator("#editor")
         editor.focus()
-        self.page.keyboard.press("KeyK")
-        self.page.keyboard.press("KeyI")
+        self.page.keyboard.press("k")
+        self.page.keyboard.press("i")
         self.assertEqual(editor.input_value(), "কি")
         self.page.keyboard.press("ControlOrMeta+A")
         self.assertEqual(editor.input_value(), "কি")
         self.page.keyboard.press("Backspace")
         self.assertEqual(editor.input_value(), "")
-        self.page.keyboard.press("Shift+KeyV")
+        self.page.keyboard.press("Shift+v")
         self.assertEqual(editor.input_value(), "অ")
 
 
