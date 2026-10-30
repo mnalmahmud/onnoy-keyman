@@ -3,12 +3,12 @@
 Onnoy is a fixed Unicode keyboard intended to address specific limitations of Probhat and KaGaPa. The canonical mapping is layout/onnoy.json.
 
 ## Why these key positions exist
-- F emits ফ; Shift+F emits virama. This retains the phonetic consonant assignment at the cost of shifted conjunct entry.
+- F emits ফ; Shift+F is intentionally unassigned. The physical slash key emits virama (্) unshifted, following Probhat; AltGr+/ restores literal /. This reduces modifier use in conjuncts at the cost of easy slash punctuation.
 - Y emits ী; O emits ো; [ emits ৈ; ] emits ূ; ; emits ৌ. Frequent dependent vowel signs avoid modifiers, trading off vowel-family regularity and ASCII punctuation.
 - Assamese letters and Bengali Unicode decompositions are intentional. Bengali র is direct. O and ; emit precomposed NFC signs.
 
 ## Virama research and experiments
-Current Shift+F is the default. An experimental slash-virama variant reduces Shift use but displaces ASCII slash to AltGr+/. An alternative AltGr+F shortcut preserves base assignments but uses a less universally reliable modifier. Neither variant should replace the default without actual evidence.
+Current base / is virama. Historical Shift+F is retained only as a benchmark scenario; it is **not** an alternative key in the active layout. AltGr+` and Shift+AltGr+` emit ZWJ and ZWNJ; base ` and Shift+` preserve ASCII backtick and tilde. Test OS/application shortcut interception for the new combinations. The generator remains native and does not use a context-sensitive input method.
 
 Run the mechanical experiment using:
 python3 scripts/benchmark.py --corpus path/to/licensed-bengali-corpus.txt

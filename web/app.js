@@ -20,7 +20,7 @@
   const search = $("key-search");
   const searchFeedback = $("search-feedback");
   const layerButtons = [...document.querySelectorAll("[data-layer]")];
-  const rows = ["1234567890-=", "QWERTYUIOP[]", "ASDFGHJKL;", "ZXCVBNM.", " "];
+  const rows = ["`1234567890-=", "QWERTYUIOP[]", "ASDFGHJKL;", "ZXCVBNM,./", " "];
   const layerNames = ["Base", "Shift", "AltGr", "AltGr + Shift"];
   const mapKey = (key) => key === " " ? "SPACE" : key;
   const layerHints = [
@@ -204,7 +204,7 @@
       const layout = await response.json();
       // Display the unchanged hyphen key to preserve the physical number-row spacing.
       const displayed = { ...layout.keys, ...Object.fromEntries(
-        Object.entries(layout.passthrough || {}).map(([key, pair]) => [key, [pair[0], pair[1], null, null]])
+        Object.entries(layout.passthrough || {}).map(([key, pair]) => [key, pair])
       ) };
       if (!layout.keys || [...rows.join("")].some((key) =>
         !Array.isArray(displayed[mapKey(key)]) || displayed[mapKey(key)].length !== 4

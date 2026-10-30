@@ -47,27 +47,29 @@ PUNCT_META = [
  ("33", "OEM_COMMA", 43, ","), ("35", "OEM_2", 44, "/"),
 ]
 LAYOUT = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))
-PUNCT = [(scan, vk, mac, *LAYOUT["passthrough"][key])
+PUNCT = [(scan, vk, mac, key, LAYOUT["passthrough"][key])
          for scan, vk, mac, key in PUNCT_META]
 def mapping():
     data=LAYOUT
     assert data["layers"]==["base","shift","altgr","shift_altgr"]
     assert set(data["passthrough"]) == {entry[3] for entry in PUNCT_META}
-    assert all(len(pair) == 2 and all(isinstance(v, str) and len(v) == 1 for v in pair)
+    assert all(len(pair) == 4 and all(v is None or isinstance(v, str) and len(v) == 1 for v in pair)
                for pair in data["passthrough"].values())
     m=data["keys"]
     assert set(m)==set(KEY_ORDER)
     assert all(isinstance(v,list) and len(v)==4 and
                all(x is None or isinstance(x,str) and 1<=len(x)<=4 for x in v)
                for v in m.values())
-    assert m["X"][:3]==["ষ","়","𑷰"] and m["F"][:2]==["ফ","্"]
+    assert m["X"][:3]==["ষ","়","𑷰"] and m["F"]==["ফ",None,None,None]
     assert m["R"][:2]==["র","ৰ"] and m["="]==["ৃ","ঋ","=","+"]
     assert m["."][:3]==["।",">","."]
     assert m["["]==["ৈ","ঐ","[","{"] and m["]"]==["ূ","ঊ","]","}"]
     assert m["O"][:2]==["ো","ও"] and m[";"]==["ৌ","ঔ",";",":"]
     assert m["4"][1]=="৳" and m["4"][3]=="$"
     assert m["SPACE"]==[" "," "," "," "]
-    assert m["Z"]==["য","ঙ","\u200d","\u200c"]
+    assert m["Z"]==["য","ঙ",None,None]
+    assert data["passthrough"]["/"]==["্","?","/",None]
+    assert data["passthrough"]["`"]==["`","~","\u200d","\u200c"]
     assert m["V"][:2]==["ভ","অ"] and m["B"][:2]==["ব","ৗ"]
     return m
 
@@ -83,11 +85,11 @@ def linux(m):
         '    name[Group1] = "Bengali (Onnoy)";',
         '    include "level3(ralt_switch)"',
     ]
-    for key in KEY_ORDER:
+    for key in KEY_ORDER + tuple(x[3] for x in PUNCT_META):
         symbols = ", ".join("VoidSymbol" if value is None else (
-            "space" if value == " " else "U%04X" % ord(value)) for value in m[key])
+            "space" if value == " " else "U%04X" % ord(value)) for value in (m[key] if key in m else LAYOUT["passthrough"][key]))
         s.append('    key <%s> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ %s ] }; // %s'
-                 % (XKB[key], symbols, key))
+                 % ((XKB[key] if key in XKB else {"`": "TLDE", "-": "AE11", "\\": "BKSL", "\'": "AC11", ",": "AB08", "/": "AB10"}[key]), symbols, key))
     return "\n".join(s + ["};", ""])
 
 
@@ -99,7 +101,7 @@ def windows(m):
     s=['KBD\tonnoy\t"Onnoy"','',
        'COPYRIGHT "(c) 2026 Muhtasham Nawr al-Mahmud"',
        'COMPANY "Muhtasham Nawr al-Mahmud"','LOCALENAME "bn-BD"',
-       'LOCALEID "00000845"','VERSION 1.1','',
+       'LOCALEID "00000845"','VERSION 1.2','',
        'SHIFTSTATE','0\t// Base','1\t// Shift','2\t// Ctrl',
        '6\t// AltGr','7\t// Shift+AltGr','',
        'LAYOUT','//SC VK_ Cap 0 1 2 6 7']
@@ -113,8 +115,8 @@ def windows(m):
         for shift_index,value in enumerate((vals[0],vals[1],None,vals[2],vals[3])):
             if value is not None and len(utf16_units(value))>1:
                 ligatures.append("%s\t%d\t%s"%(vk,shift_index," ".join("%04x"%unit for unit in utf16_units(value))))
-    for scan,vk,mac,base,shift in PUNCT:
-        s.append("%s\t%s\t0\t%s %s %s -1 -1"%(scan,vk,code(base),code(shift),"0020" if vk=="SPACE" else "-1"))
+    for scan,vk,mac,key,values in PUNCT:
+        s.append("%s\t%s\t0\t%s"%(scan,vk," ".join(code(x) for x in (values[0],values[1],None,values[2],values[3]))))
     if ligatures:
         s+=['','LIGATURE','//VK_ Mod# Char0 Char1 Char2 Char3']
         s+=ligatures
@@ -143,8 +145,9 @@ def macos(m):
         for k in KEY_ORDER:
             v=m[k][index] if index<4 else (" " if k=="SPACE" else (k.lower() if k.isalpha() else k))
             ET.SubElement(node,"key",{"code":str(MAC[k]),"output":v or ""})
-        for scan,vk,code,base,shift in PUNCT:
-            ET.SubElement(node,"key",{"code":str(code),"output":shift if index in (1,3) else base})
+        for scan,vk,code,key,values in PUNCT:
+            value = values[index] if index < 4 else key
+            ET.SubElement(node,"key",{"code":str(code),"output":value or ""})
     ET.indent(root,space="  ")
     return ('<?xml version="1.0" encoding="UTF-8"?>\n'
             '<!DOCTYPE keyboard SYSTEM "file://localhost/System/Library/DTDs/KeyboardLayout.dtd">\n'

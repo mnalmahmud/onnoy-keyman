@@ -31,11 +31,12 @@ def emit(sequence):
 class TypingTests(unittest.TestCase):
     def test_words(self):
         samples = {"K I": "কি", "K O": "কো", "K ;": "কৌ",
-                   "K Shift+F X": "ক্ষ", "Q Shift+X": "ড়",
+                   "K / X": "ক্ষ", "Q Shift+X": "ড়",
                    "B A Shift+L L A": "বাংলা",
-                   "Shift+S I K Shift+F X A": "শিক্ষা",
+                   "Shift+S I K / X A": "শিক্ষা",
                    "Shift+4 4 AltGr+. 5 0": "৳৪.৫০",
-                   "AltGr+Z": "\u200d", "Shift+AltGr+Z": "\u200c",
+                   "AltGr+`": "\u200d", "Shift+AltGr+`": "\u200c",
+                   "/": "্", "Shift+/": "?", "AltGr+/": "/",
                    "AltGr+SPACE": " ", "Shift+AltGr+SPACE": " "}
         for keys, expected in samples.items():
             with self.subTest(keys=keys):
@@ -50,10 +51,13 @@ class TypingTests(unittest.TestCase):
                              unicodedata.normalize("NFD", expected))
     def test_variants_not_default(self):
         mapping = onnoy()
-        self.assertEqual(mapping["F"][:2], ["ফ", "্"])
-        self.assertEqual(mapping["/"][0], "/")
-        self.assertEqual(variant(mapping, "slash")["/"][0], "্")
+        self.assertEqual(mapping["F"][:2], ["ফ", None])
+        self.assertEqual(mapping["/"], ["্", "?", "/", None])
+        self.assertEqual(mapping["`"][2:], ["\u200d", "\u200c"])
+        self.assertEqual(mapping["Z"][2:], [None, None])
+        self.assertEqual(variant(mapping, "shift-f")["F"][1], "্")
         self.assertEqual(variant(mapping, "altgr-f")["F"][2], "্")
+        self.assertIsNone(mapping["F"][1])
     def test_reference_parser_and_ascii(self):
         self.assertEqual(ASCII["space"], " ")
         self.assertEqual(ASCII["quotedbl"], '"')

@@ -28,17 +28,18 @@ The complete, authoritative [layout definition](layout/onnoy.json) can be inspec
 | --- | --- | --- | --- |
 | K / Shift+K | ক / খ | G / Shift+G | গ / ঘ |
 | D / Shift+D | দ / ধ | T / Shift+T | ত / থ |
-| F / Shift+F | ফ / ্ | X / Shift+X | ষ / ় |
+| F / Shift+F | ফ / — | X / Shift+X | ষ / ় |
 | V / Shift+V | ভ / অ | B / Shift+B | ব / ৗ |
 | E / Shift+E | ে / এ | I / Shift+I | ি / ই |
 | O / Shift+O | ো / ও | Y / Shift+Y | ী / ঈ |
 | [ / Shift+[ | ৈ / ঐ | ] / Shift+] | ূ / ঊ |
 | ; / Shift+; | ৌ / ঔ | = / Shift+= | ৃ / ঋ |
-| AltGr+Z | ZWJ (U+200D) | Shift+AltGr+Z | ZWNJ (U+200C) |
+| / / Shift+/ | ্ / ? | AltGr+/ | / |
+| AltGr+` | ZWJ (U+200D) | Shift+AltGr+` | ZWNJ (U+200C) |
 
-Space remains Space with every modifier. ASCII bracket, semicolon and equals characters are available through AltGr layers. Number keys produce Bengali digits on the base layer.
+Space remains Space with every modifier. The ordinary slash character is on **AltGr+/**; **Shift+F is deliberately unassigned** rather than providing a duplicate virama shortcut. Backtick and tilde remain on their unmodified/Shift positions; ZWJ and ZWNJ use AltGr modifiers on the backtick key. ASCII bracket, semicolon and equals characters are available through AltGr layers. Number keys produce Bengali digits on the base layer.
 
-**Explicit Unicode typing:** `K → Shift+F → X` produces ক্ষ, `Shift+F → Z` produces ্য, and `Q → Shift+X` produces ড়. No background composition engine is necessary. Apps and fonts handle shaping.
+**Explicit Unicode typing:** `K → / → X` produces ক্ষ, `/ → Z` produces ্য, and `Q → Shift+X` produces ড়. No background composition engine is necessary. Apps and fonts handle shaping.
 
 ## Native architecture
 

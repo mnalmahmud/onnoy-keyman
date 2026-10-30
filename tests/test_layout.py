@@ -25,8 +25,8 @@ class LayoutTests(unittest.TestCase):
 
     def test_passthrough_keys_are_in_canonical_source(self):
         self.assertEqual(LAYOUT["passthrough"], {
-            "`": ["`", "~"], "-": ["-", "_"], "\\": ["\\", "|"],
-            "'": ["'", '"'], ",": [",", "<"], "/": ["/", "?"],
+            "`": ["`", "~", "\u200d", "\u200c"], "-": ["-", "_", None, None], "\\": ["\\", "|", None, None],
+            "'": ["'", '"', None, None], ",": [",", "<", None, None], "/": ["্", "?", "/", None],
         })
 
     def test_known_assignments_and_empty_slots(self):
@@ -40,10 +40,10 @@ class LayoutTests(unittest.TestCase):
             "I": ["ি", "ই", None, None],
             "O": ["ো", "ও", None, None],
             "P": ["প", "ঞ", None, None],
-            "F": ["ফ", "্", None, None],
+            "F": ["ফ", None, None, None],
             "L": ["ল", "ং", None, None],
             ";": ["ৌ", "ঔ", ";", ":"],
-            "Z": ["য", "ঙ", "\u200d", "\u200c"],
+            "Z": ["য", "ঙ", None, None],
             "X": ["ষ", "়", "𑷰", None],
             "V": ["ভ", "অ", None, None],
             "B": ["ব", "ৗ", None, None],
@@ -60,8 +60,8 @@ class LayoutTests(unittest.TestCase):
             with self.subTest(key=key):
                 self.assertEqual(KEYS[key], values)
         empty = [sum(KEYS[key][i] is None for key in PHYSICAL) for i in range(4)]
-        self.assertEqual(empty, [0, 0, 21, 35])
-        self.assertEqual(sum(empty), 56)
+        self.assertEqual(empty, [0, 1, 22, 36])
+        self.assertEqual(sum(empty), 59)
 
     def test_all_native_outputs_have_scalar_keys(self):
         for key, values in KEYS.items():
@@ -71,7 +71,10 @@ class LayoutTests(unittest.TestCase):
 
     def test_normal_space_and_joiners(self):
         self.assertEqual(KEYS["SPACE"], [" ", " ", " ", " "])
-        self.assertEqual(KEYS["Z"][2:], ["\u200d", "\u200c"])
+        self.assertEqual(KEYS["Z"][2:], [None, None])
+        self.assertEqual(LAYOUT["passthrough"]["`"][2:], ["\u200d", "\u200c"])
+        self.assertEqual(LAYOUT["passthrough"]["/"], ["্", "?", "/", None])
+        self.assertIsNone(KEYS["F"][1])
 
     def test_generated_native_layouts_contain_expected_characters(self):
         xkb = (ROOT / "dist/linux/symbols/onnoy").read_text(encoding="utf-8")
@@ -84,10 +87,14 @@ class LayoutTests(unittest.TestCase):
         self.assertIn("U200C", xkb)
         self.assertIn("key <SPCE>", xkb)
         self.assertIn("U200D", xkb)
-        self.assertRegex(xkb, r"key <AB01>.*U200D, U200C")
+        self.assertRegex(xkb, r"key <TLDE>.*U200D, U200C")
+        self.assertRegex(xkb, r"key <AB10>.*U09CD, U003F, U002F, VoidSymbol")
+        self.assertRegex(xkb, r"key <AB01>.*VoidSymbol, VoidSymbol")
         self.assertRegex(xkb, r"key <SPCE>.*space, space, space, space")
         self.assertIn("39\tSPACE\t0\t0020 0020 0020 0020 0020", klc)
-        self.assertIn("2C\tZ\t0\t09af 0999 -1 200d 200c", klc)
+        self.assertIn("2C\tZ\t0\t09af 0999 -1 -1 -1", klc)
+        self.assertIn("35\tOEM_2\t0\t09cd 003f -1 002f -1", klc)
+        self.assertIn("29\tOEM_3\t0\t0060 007e -1 200d 200c", klc)
         self.assertIn("09cd", klc)
         self.assertIn("X\t3\td807 ddf0", klc)
         self.assertIn("U11DF0", xkb)
@@ -102,7 +109,7 @@ class LayoutTests(unittest.TestCase):
         self.assertIn("18\tO\t0\t09cb 0993 -1 -1 -1", klc)
         self.assertIn("0D\tOEM_PLUS\t0\t09c3 098b -1 003d 002b", klc)
         self.assertIn("13\tR\t0\t09b0 09f0 -1 -1 -1", klc)
-        self.assertIn("21\tF\t0\t09ab 09cd -1 -1 -1", klc)
+        self.assertIn("21\tF\t0\t09ab -1 -1 -1 -1", klc)
         self.assertIn("2F\tV\t0\t09ad 0985 -1 -1 -1", klc)
         self.assertIn("30\tB\t0\t09ac 09d7 -1 -1 -1", klc)
         self.assertNotIn("G\t3\t099c 09cd 099e", klc)
@@ -115,8 +122,16 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(len(mac.findall(".//keyMap")), 6)
         for index, char in ((2, "\u200d"), (3, "\u200c")):
             layer = mac.find(f".//keyMap[@index='{index}']")
-            self.assertEqual(next(k.attrib["output"] for k in layer.findall("key") if k.attrib["code"] == "6"), char)
+            self.assertEqual(next(k.attrib["output"] for k in layer.findall("key") if k.attrib["code"] == "50"), char)
             self.assertEqual(next(k.attrib["output"] for k in layer.findall("key") if k.attrib["code"] == "49"), " ")
+            self.assertEqual(next(k.attrib["output"] for k in layer.findall("key") if k.attrib["code"] == "6"), "")
+        base = mac.find(".//keyMap[@index='0']")
+        shift = mac.find(".//keyMap[@index='1']")
+        option = mac.find(".//keyMap[@index='2']")
+        self.assertEqual(next(k.attrib["output"] for k in base.findall("key") if k.attrib["code"] == "44"), "্")
+        self.assertEqual(next(k.attrib["output"] for k in shift.findall("key") if k.attrib["code"] == "44"), "?")
+        self.assertEqual(next(k.attrib["output"] for k in option.findall("key") if k.attrib["code"] == "44"), "/")
+        self.assertEqual(next(k.attrib["output"] for k in shift.findall("key") if k.attrib["code"] == "3"), "")
         keymap = mac.find(".//keyMap[@index='0']")
         self.assertIsNotNone(keymap)
         self.assertEqual(next(node.attrib["output"] for node in keymap.findall("key")

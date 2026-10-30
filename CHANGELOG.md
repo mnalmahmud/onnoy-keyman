@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Unshifted virama and reserved joiner shortcuts
+- Assign the physical slash key to virama (্), retaining question mark on Shift+/ and moving ASCII slash to AltGr+/.
+- Remove the former Shift+F virama assignment entirely; Base F remains ফ.
+- Move ZWJ and ZWNJ from AltGr+Z to AltGr+backtick and Shift+AltGr+backtick, preserving ordinary backtick and tilde.
+- Keep Base Z=য, Shift+Z=ঙ; AltGr Z layers are unassigned.
+- Extend all native platform generators and website keymap to support four-layer punctuation, update tests and documentation.
+
+
 ### Native-first redesign, independent of Keyman
 - Treat Onnoy as an operating-system-native Bengali Unicode layout rather than a Keyman product.
 - Remove Keyman project files, compiled packages, runtime and compiler requirements.
