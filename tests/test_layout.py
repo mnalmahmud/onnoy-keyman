@@ -71,7 +71,7 @@ class LayoutTests(unittest.TestCase):
 
     def test_normal_space_and_joiners(self):
         self.assertEqual(KEYS["SPACE"], [" ", " ", " ", " "])
-        self.assertEqual(KEYS["Z"][2:], ["\\u200d", "\\u200c"])
+        self.assertEqual(KEYS["Z"][2:], ["\u200d", "\u200c"])
 
     def test_generated_native_layouts_contain_expected_characters(self):
         xkb = (ROOT / "dist/linux/symbols/onnoy").read_text(encoding="utf-8")
