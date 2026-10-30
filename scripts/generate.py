@@ -56,6 +56,10 @@ def keyman(m):
         for modifier,output in zip(("","SHIFT ","RALT ","SHIFT RALT "),m[k]):
             symbol="nul" if output is None else " ".join("U+%04X"%ord(ch) for ch in output)
             s.append("+ [%sK_%s] > %s"%(modifier,name,symbol))
+    for value in sorted({v for values in m.values() for v in values if v and len(v)>1}):
+        ident = "T_SEQ_" + "_".join("%04X" % ord(c) for c in value)
+        output = " ".join("U+%04X" % ord(c) for c in value)
+        s.append("+ [%s] > %s" % (ident, output))
     return "\n".join(s)+"\n"
 
 
@@ -69,10 +73,10 @@ def touch(m):
     layer_names = ("default", "shift", "altgr", "shift_altgr")
 
     def direct(value):
-        return "U_" + "_".join("%04X" % ord(c) for c in value)
+        return ("U_" if len(value) == 1 else "T_SEQ_") + "_".join("%04X" % ord(c) for c in value)
 
     def label(value):
-        return {"\\u200d": "ZWJ", "\\u200c": "ZWNJ"}.get(value, value)
+        return {"\u200d": "ZWJ", "\u200c": "ZWNJ"}.get(value, value)
 
     def letter(key, index):
         value = m[key][index]
@@ -131,7 +135,7 @@ def touch(m):
     layers.append({"id": "numeric", "row": numeric_rows})
     return json.dumps({"phone": {"displayUnderlying": False,
                                   "layer": layers}}, ensure_ascii=False,
-                      indent=2) + "\\n"
+                      indent=2) + "\n"
 
 def linux(m):
     # Single-key XCompose rules translate F13-F15 into Unicode strings on
