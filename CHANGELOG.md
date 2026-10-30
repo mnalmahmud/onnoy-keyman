@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Restore Bengali Ra and consolidate Ri/virama/nukta
+- Base R now emits Bengali র (U+09B0), and Shift+R emits Assamese ৰ (U+09F0); Assamese ৱ remains AltGr+W.
+- Assign the dependent/independent Ri pair to physical equals: Base `=` → ৃ and Shift+`=` → ঋ, preserving ASCII `=`/`+` on the corresponding AltGr layers.
+- Keep phonetic Base F = ফ, move virama to Shift+F; Base X = ষ, Shift+X = nukta, AltGr+X = 𑷰.
+- Preserve V = ভ/ৗ and B = ব/অ, including the existing vowel and punctuation arrangements.
+- Include the equals key in native generators and website keyboard; on touch, expose the Ri pair via long-press R.
+- Restore direct standard-Unicode Bengali র, superseding the previous compatibility limitation.
+
 ### Direct NFC O/AU vowels
 - Split O family: O = ো/ও and physical semicolon key = ৌ/ঔ. These emit U+09CB and U+09CC directly without a separate input method or Unicode normalization step.
 - Move ASCII semicolon and colon to AltGr+; and Shift+AltGr+; respectively, retaining their physical location.
@@ -12,7 +20,7 @@
 - Promote ী/ঈ to Y, ৈ/ঐ to [ and ূ/ঊ to ]; retain original brackets and braces on their respective AltGr layers.
 - Move virama/nukta/𑷰 to Shift+X/X/AltGr+X, ফ to F, ষ to Shift+F, ঞ to Shift+P, য to Z, ঙ to Shift+Z, ং to Shift+L, ভ to V, অ to Shift+B, and ৗ to Shift+V.
 - Drop direct ক্ষ, ্য, ড়, ঢ়, য়, ো, and ৌ shortcuts in favor of normal Unicode sequences.
-- **Compatibility warning:** direct Bengali র is deliberately removed without an equivalent Unicode decomposition or a custom conversion rule. The layout cannot type U+09B0 at present; Assamese ৰ and ৱ remain distinct and available.
+- **Historical note, superseded by the restoration above:** this version temporarily removed direct Bengali র, which was not canonically replaceable with ব + nukta.
 - Update web keymap, touch keyboard, tests, and documentation; bracket and brace symbols move to AltGr layers.
 
 
