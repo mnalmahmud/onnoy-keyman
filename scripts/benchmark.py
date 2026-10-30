@@ -12,11 +12,7 @@ for row, prefix in (("QWERTYUIOP", "AD"), ("ASDFGHJKL", "AC"), ("ZXCVBNM", "AB")
     PHYSICAL.update({f"{prefix}{i:02}": key for i, key in enumerate(row, 1)})
 PHYSICAL.update({"AD11": "[", "AD12": "]", "AC10": ";", "AC11": "'", "AB08": ",",
                  "AB09": ".", "AB10": "/", "AE11": "-", "AE12": "=", "BKSL": "\\", "TLDE": chr(96)})
-ASCII = dict(zip(("exclam at numbersign dollar percent asciicircum ampersand asterisk "
-                  "parenleft parenright minus underscore equal plus bracketleft bracketright "
-                  "braceleft braceright semicolon colon apostrophe quotedbl comma less period "
-                  "greater slash question backslash bar grave asciitilde space").split(),
-                 list("!@#$%^&*()-_=+[]{};:'\",<.>/?\\|" + chr(96) + "~ ")))
+ASCII = {"exclam":"!","at":"@","numbersign":"#","dollar":"$","percent":"%","asciicircum":"^","ampersand":"&","asterisk":"*","parenleft":"(","parenright":")","minus":"-","underscore":"_","equal":"=","plus":"+","bracketleft":"[","bracketright":"]","braceleft":"{","braceright":"}","semicolon":";","colon":":","apostrophe":"'","quotedbl":"\"","comma":",","less":"<","period":".","greater":">","slash":"/","question":"?","backslash":"\\","bar":"|","grave":"`","asciitilde":"~","space":" "}
 
 def onnoy():
     layout = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))
@@ -61,25 +57,53 @@ def measure(text, layout, shift_weight=.5, altgr_weight=1):
                 output = unicodedata.normalize("NFD", value)
                 cost = 1 + shift_weight * (level in (1, 3)) + altgr_weight * (level in (2, 3))
                 outputs.setdefault(output, []).append((cost, key, level))
-    dp = [(float("inf"), float("inf"), ()) for _ in range(len(text) + 1)]
-    dp[-1] = (0, 0, ())
-    for i in range(len(text) - 1, -1, -1):
-        tail = dp[i + 1]
-        best = (tail[0] + 1, tail[1], tail[2])
+    size = len(text)
+    scores = [(float("inf"), float("inf"))] * (size + 1)
+    scores[size] = (0, 0)
+    chosen = [None] * size
+    for i in range(size - 1, -1, -1):
+        scores[i] = (scores[i + 1][0] + 1, scores[i + 1][1])
+        chosen[i] = (i + 1, None)
         for output, candidates in outputs.items():
             if text.startswith(output, i):
-                following = dp[i + len(output)]
-                for cost, key, layer in candidates:
-                    score = (following[0], following[1] + cost, ((key, layer),) + following[2])
-                    if score[:2] < best[:2]:
-                        best = score
-        dp[i] = best
-    unavailable, effort, strokes = dp[0]
-    return {"unavailable_codepoints": unavailable, "nfd_codepoints": len(text),
+                j = i + len(output)
+                for cost, key, level in candidates:
+                    score = (scores[j][0], scores[j][1] + cost)
+                    if score < scores[i]:
+                        scores[i], chosen[i] = score, (j, (key, level))
+    strokes = []
+    i = 0
+    while i < size:
+        i, stroke = chosen[i]
+        if stroke:
+            strokes.append(stroke)
+    physical = [key for key, _ in strokes]
+    positions = {}
+    for rownum, row in enumerate(("1234567890-=", "QWERTYUIOP[]", "ASDFGHJKL;'", "ZXCVBNM,./")):
+        for x, key in enumerate(row):
+            positions[key] = (x + rownum * .25, rownum)
+    finger_rows = ("1234567890", "QWERTYUIOP", "ASDFGHJKL;", "ZXCVBNM,./")
+    fingers = {}
+    for row in finger_rows:
+        for x, key in enumerate(row):
+            fingers[key] = ("L" if x < len(row) / 2 else "R",
+                            min(x, len(row) - 1 - x, 3))
+    same_finger = sum(fingers.get(a) == fingers.get(b) for a, b in zip(physical, physical[1:])
+                      if a in fingers and b in fingers)
+    hand_alternation = sum(fingers[a][0] != fingers[b][0] for a, b in zip(physical, physical[1:])
+                           if a in fingers and b in fingers)
+    travel = sum(((positions[a][0] - positions[b][0]) ** 2
+                  + (positions[a][1] - positions[b][1]) ** 2) ** .5
+                 for a, b in zip(physical, physical[1:])
+                 if a in positions and b in positions)
+    return {"unavailable_codepoints": scores[0][0], "nfd_codepoints": size,
             "physical_chords": len(strokes),
             "shift_chords": sum(layer in (1, 3) for _, layer in strokes),
             "altgr_chords": sum(layer in (2, 3) for _, layer in strokes),
-            "weighted_effort": round(effort, 2)}
+            "same_finger_pairs_approx": same_finger,
+            "hand_alternations_approx": hand_alternation,
+            "sequential_key_distance_approx": round(travel, 1),
+            "weighted_effort": round(scores[0][1], 2)}
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)

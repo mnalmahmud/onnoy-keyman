@@ -8,7 +8,7 @@ import unicodedata
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from benchmark import onnoy, variant, measure
+from benchmark import onnoy, variant, measure, ASCII, xkb
 
 class Samples(HTMLParser):
     def __init__(self):
@@ -52,6 +52,12 @@ class TypingTests(unittest.TestCase):
         self.assertEqual(mapping["/"][0], "/")
         self.assertEqual(variant(mapping, "slash")["/"][0], "্")
         self.assertEqual(variant(mapping, "altgr-f")["F"][2], "্")
+    def test_reference_parser_and_ascii(self):
+        self.assertEqual(ASCII["space"], " ")
+        self.assertEqual(ASCII["quotedbl"], '"')
+        reference = 'xkb_symbols "ben-kagapa" {\n key <AC08> { [ U0995, U0996 ] };\n};'
+        self.assertEqual(xkb(reference, "ben-kagapa")["K"][:2], ["ক", "খ"])
+
     def test_uncovered_codepoints_not_silently_dropped(self):
         self.assertEqual(measure("ক্", onnoy())["unavailable_codepoints"], 0)
         self.assertGreater(measure("𐀀", onnoy())["unavailable_codepoints"], 0)

@@ -13,7 +13,7 @@ Current Shift+F is the default. An experimental slash-virama variant reduces Shi
 Run the mechanical experiment using:
 python3 scripts/benchmark.py --corpus path/to/licensed-bengali-corpus.txt
 
-The script reads installed Linux XKB symbol definitions (Probhat and KaGaPa) from /usr/share/X11/xkb/symbols/in by default. Use --xkb to supply a different XKB revision. Reports show coverage, physical chords and modifier workload. Normalization uses NFD when comparing output. The demo corpus is NOT representative. Do not compare scores across layouts with different coverage. Try multiple --shift-weight and --altgr-weight choices.
+The script reads installed Linux XKB symbol definitions (Probhat and KaGaPa) from /usr/share/X11/xkb/symbols/in by default. Use --xkb to supply a different XKB revision. Reports show coverage, physical chords, modifier workload, and approximate same-finger, hand-alternation and travel measures. Normalization uses NFD when comparing output. The demo corpus is NOT representative. Do not compare scores across layouts with different coverage. Try multiple --shift-weight and --altgr-weight choices.
 
 Research supports studying conjuncts carefully rather than assuming that all Bengali words contain one. Different genres have different cluster frequency. Corpus measurements should be published with source, license, size, genre breakdown and normalization. Do not infer actual typing speed from the model alone.
 
