@@ -20,7 +20,7 @@
   const search = $("key-search");
   const searchFeedback = $("search-feedback");
   const layerButtons = [...document.querySelectorAll("[data-layer]")];
-  const rows = ["1234567890", "QWERTYUIOP[]", "ASDFGHJKL", "ZXCVBNM.", " "];
+  const rows = ["1234567890", "QWERTYUIOP[]", "ASDFGHJKL;", "ZXCVBNM.", " "];
   const layerNames = ["Base", "Shift", "AltGr", "AltGr + Shift"];
   const mapKey = (key) => key === " " ? "SPACE" : key;
   const layerHints = [
