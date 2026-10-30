@@ -47,6 +47,8 @@ jobs:
           python3 -m pip install playwright==1.56.0
           python3 -m playwright install --with-deps chromium
           python3 -m unittest discover -s tests -p 'test_browser.py'
+      - name: Package Linux native layout archive
+        run: bash scripts/package-linux.sh
       - name: Upload downloadable keyboard artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -55,6 +57,7 @@ jobs:
             build/onnoy.kmp
             build/onnoy.kmx
             build/onnoy.js
+            build/onnoy-linux.tar.gz
             dist/linux/symbols/onnoy
             dist/linux/Onnoy.XCompose
             dist/macos/Onnoy.keylayout
@@ -84,6 +87,7 @@ jobs:
             release-assets/onnoy.kmp
             release-assets/onnoy.kmx
             release-assets/onnoy.js
+            release-assets/onnoy-linux.tar.gz
             release-assets/Onnoy.XCompose
             release-assets/onnoy.klc
             release-assets/Onnoy.keylayout
