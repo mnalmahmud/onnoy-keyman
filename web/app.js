@@ -18,8 +18,9 @@
   const errorHelp = $("error-help");
   const errorDetail = $("error-detail");
   const layerButtons = [...document.querySelectorAll("[data-layer]")];
-  const rows = ["1234567890", "QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM."];
+  const rows = ["1234567890", "QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM.", " "];
   const layerNames = ["Base", "Shift", "AltGr", "AltGr + Shift"];
+  const mapKey = (key) => key === " " ? "SPACE" : key;
   const layerHints = [
     "Unmodified keys", "Hold Shift for this layer",
     "Hold Right Alt (AltGr) for this layer", "Hold Shift + Right Alt for this layer"
@@ -53,7 +54,7 @@
   function showDetails(key) {
     if (!mapping) return;
     details.textContent = key + "  ·  " +
-      mapping[key].map((value, index) => layerNames[index] + ": " + describe(value)).join("   |   ");
+      mapping[mapKey(key)].map((value, index) => layerNames[index] + ": " + describe(value)).join("   |   ");
   }
 
   function draw(layer) {
@@ -69,15 +70,15 @@
         button.className = "keyboard-key";
         button.classList.toggle("selected", key === selectedKey);
         button.setAttribute("aria-pressed", String(key === selectedKey));
-        button.setAttribute("aria-label", key + ": " + layerNames[layer] + " " + describe(mapping[key][layer]));
+        button.setAttribute("aria-label", key + ": " + layerNames[layer] + " " + describe(mapping[mapKey(key)][layer]));
         const symbol = document.createElement("span");
         symbol.className = "key-symbol";
         symbol.lang = "bn";
-        symbol.textContent = describe(mapping[key][layer]);
-        if (mapping[key][layer] === null) button.classList.add("unassigned");
+        symbol.textContent = describe(mapping[mapKey(key)][layer]);
+        if (mapping[mapKey(key)][layer] === null) button.classList.add("unassigned");
         const label = document.createElement("span");
         label.className = "key-label";
-        label.textContent = key;
+        label.textContent = key === " " ? "Space" : key;
         button.append(symbol, label);
         button.addEventListener("click", () => {
           selectedKey = key;
@@ -163,8 +164,8 @@
       const response = await fetch("./layout.json");
       if (!response.ok) throw new Error("HTTP " + response.status);
       const layout = await response.json();
-      if (!layout.keys || rows.join("").split("").some((key) =>
-        !Array.isArray(layout.keys[key]) || layout.keys[key].length !== 4
+      if (!layout.keys || [...rows.join("")].some((key) =>
+        !Array.isArray(layout.keys[mapKey(key)]) || layout.keys[mapKey(key)].length !== 4
       )) throw new Error("Invalid keyboard mapping");
       mapping = layout.keys;
       draw(selectedLayer);
