@@ -79,7 +79,7 @@ class LayoutTests(unittest.TestCase):
         self.assertIn("LIGATURE", klc)
         self.assertIn("X\t1\t0995 09cd 09b7", klc)
         self.assertNotIn("G\t3\t099c 09cd 099e", klc)
-        self.assertIn("23\tG\t0\t", klc)
+        self.assertIn("22\tG\t0\t", klc)
         self.assertIn("Y\t3\t09cd 09af", klc)
         self.assertNotIn(r"\\t", klc)
         self.assertEqual(mac.attrib["maxout"], "3")
