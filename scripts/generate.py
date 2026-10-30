@@ -88,7 +88,7 @@ def linux(m):
             "space" if value == " " else "U%04X" % ord(value)) for value in m[key])
         s.append('    key <%s> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ %s ] }; // %s'
                  % (XKB[key], symbols, key))
-    return "\\n".join(s + ["};", ""])
+    return "\n".join(s + ["};", ""])
 
 
 def utf16_units(value):
