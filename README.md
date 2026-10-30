@@ -11,13 +11,14 @@ The four layers are Base, Shift, AltGr (Right Alt; Option on macOS), and Shift+A
 | Key | Base | Shift | AltGr | Shift+AltGr |
 | --- | --- | --- | --- | --- |
 | Q | ড | ঢ | ড় | ঢ় |
-| W | ট | ঠ | — | — |
+| W | ট | ঠ | ৱ | — |
 | E | ে | এ | ৈ | ঐ |
 | I | ি | ই | ী | ঈ |
 | U | ু | উ | ূ | ঊ |
 | O | ো | ও | ৌ | ঔ |
 | R | র | ৃ | ঋ | ৰ |
 | Z | ং | ঙ | — | — |
+| V | অ | — | ৗ | — |
 | Space | Space | Space | ZWJ | ZWNJ |
 | M | ম | ঁ | — | — |
 | N | ন | ণ | ঞ | — |
@@ -27,6 +28,8 @@ The four layers are Base, Shift, AltGr (Right Alt; Option on macOS), and Shift+A
 | Y | য় | য | **্য** | — |
 
 Design D places **য় on Y** and **য on Shift+Y** for more efficient standalone-letter typing, while keeping **AltGr+Y = ্য** for য-ফলা. This changes the earlier Design C Y/Shift+Y assignments.
+
+Assamese **ৱ** (`U+09F1`) is assigned to **AltGr+W**; **Shift+V** is unassigned.
 
 The two approved multi-code-point shortcuts output the exact sequences:
 

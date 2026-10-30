@@ -30,7 +30,8 @@ class LayoutTests(unittest.TestCase):
             "O": ["ো", "ও", "ৌ", "ঔ"],
             "F": ["্", "়", None, None],
             "Q": ["ড", "ঢ", "ড়", "ঢ়"],
-            "W": ["ট", "ঠ", None, None],
+            "W": ["ট", "ঠ", "ৱ", None],
+            "V": ["অ", None, "ৗ", None],
             "G": ["গ", "ঘ", None, None],
             "Y": ["য়", "য", "্য", None],
             "X": ["ষ", "ক্ষ", None, None],
@@ -45,7 +46,7 @@ class LayoutTests(unittest.TestCase):
             with self.subTest(key=key):
                 self.assertEqual(KEYS[key], values)
         empty = [sum(KEYS[key][i] is None for key in PHYSICAL) for i in range(4)]
-        self.assertEqual(empty, [0, 1, 15, 30])
+        self.assertEqual(empty, [0, 2, 14, 30])
         self.assertEqual(sum(empty), 46)
 
     def test_touch_layout_generated_from_source(self):
