@@ -34,7 +34,9 @@ class TypingTests(unittest.TestCase):
                    "K Shift+F X": "ক্ষ", "Q Shift+X": "ড়",
                    "B A Shift+L L A": "বাংলা",
                    "Shift+S I K Shift+F X A": "শিক্ষা",
-                   "Shift+4 4 AltGr+. 5 0": "৳৪.৫০"}
+                   "Shift+4 4 AltGr+. 5 0": "৳৪.৫০",
+                   "AltGr+Z": "\u200d", "Shift+AltGr+Z": "\u200c",
+                   "AltGr+SPACE": " ", "Shift+AltGr+SPACE": " "}
         for keys, expected in samples.items():
             with self.subTest(keys=keys):
                 self.assertEqual(unicodedata.normalize("NFD", emit(keys)),

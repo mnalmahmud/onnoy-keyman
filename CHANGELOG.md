@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Move joiners off Space
+- Move ZWJ to AltGr+Z and ZWNJ to Shift+AltGr+Z; keep Z=য and Shift+Z=ঙ.
+- Restore Space as ordinary space on every keyboard layer, avoiding OS-level Space shortcut conflicts.
+- Mobile joiners are available via long-press Z, not Space.
+- Bump compiled keyboard and package version to 1.1; native layouts, tests and documentation are regenerated.
+- Platform-specific AltGr+Z collisions still require end-user verification.
+
+
 ### Restore Bengali Ra and consolidate Ri/virama/nukta
 - Base R now emits Bengali র (U+09B0), and Shift+R emits Assamese ৰ (U+09F0); Assamese ৱ remains AltGr+W.
 - Assign the dependent/independent Ri pair to physical equals: Base `=` → ৃ and Shift+`=` → ঋ, preserving ASCII `=`/`+` on the corresponding AltGr layers.

@@ -31,7 +31,7 @@ The canonical mapping is in [`layout/onnoy.json`](layout/onnoy.json). Base, Shif
 | J | জ | ঝ | — | — |
 | K | ক | খ | — | — |
 | L | ল | ং | — | — |
-| Z | য | ঙ | — | — |
+| Z | য | ঙ | ZWJ | ZWNJ |
 | X | ষ | ় | 𑷰 | — |
 | C | চ | ছ | — | — |
 | V | ভ | ৗ | — | — |
@@ -48,7 +48,7 @@ The canonical mapping is in [`layout/onnoy.json`](layout/onnoy.json). Base, Shif
 | ; | ৌ | ঔ | ; | : |
 | = | ৃ | ঋ | = | + |
 | . | । | > | . | — |
-| Space | Space | Space | ZWJ | ZWNJ |
+| Space | Space | Space | Space | Space |
 
 The Bengali vowel pair ৃ/ঋ is assigned to the physical equals key (Base/Shift); ASCII `=` and `+` remain on `AltGr+=` and `Shift+AltGr+=`. The number row digits and other punctuation retain their previous assignments. **Square brackets, braces, semicolon, and colon remain on their original physical keys, now using AltGr and Shift+AltGr.** The O-family is split between O = ো/ও and the semicolon key = ৌ/ঔ, producing NFC-composed vowel signs directly with no extra input engine.
 
@@ -58,13 +58,13 @@ Several former shortcuts are no longer dedicated outputs: **ক্ষ**, **্�
 
 **Bengali র (U+09B0) is directly available on Base R**, with Assamese ৰ (U+09F0) on Shift+R and Assamese ৱ (U+09F1) on AltGr+W. There is no need to type ব + nukta as a substitute for র, and no custom composition rule is used.
 
-AltGr+X produces 𑷰 (U+11DF0), whose rendering requires font support. Windows MSKLC uses the UTF-16 surrogate pair `D807 DDF0`; native installation needs Windows testing. AltGr+Space and Shift+AltGr+Space produce ZWJ (U+200D) and ZWNJ (U+200C).
+AltGr+X produces 𑷰 (U+11DF0), whose rendering requires font support. Windows MSKLC uses the UTF-16 surrogate pair `D807 DDF0`; native installation needs Windows testing. AltGr+Z and Shift+AltGr+Z produce ZWJ (U+200D) and ZWNJ (U+200C). Space stays a regular space across all four layers.
 
 The [online keymap](https://mnalmahmud.github.io/onnoy-keyman/#keymap) displays all four layers, including the bracket vowel pairs.
 
 ## Mobile touch layout
 
-On phones, Keyman uses the generated `source/onnoy.keyman-touch-layout`: Base, Shift, AltGr, Shift+AltGr and a Bengali-digit/numeric layer. Long-press a letter to access its assigned alternative characters. Because phones have no dedicated equals key in the alphabet rows, long-press **R** for ৃ/ঋ as well as ৰ. The touch keyboard is embedded in the compiled Keyman keyboard for supported mobile Keyman apps and mobile web; installation and typing should be tested on real phones before calling mobile support verified.
+On phones, Keyman uses the generated `source/onnoy.keyman-touch-layout`: Base, Shift, AltGr, Shift+AltGr and a Bengali-digit/numeric layer. Long-press a letter to access its assigned alternative characters, including long-press **Z** for ZWJ and ZWNJ. Because phones have no dedicated equals key in the alphabet rows, long-press **R** for ৃ/ঋ as well as ৰ. The touch keyboard is embedded in the compiled Keyman keyboard for supported mobile Keyman apps and mobile web; installation and typing should be tested on real phones before calling mobile support verified.
 
 ## Native installer packaging
 
@@ -92,6 +92,10 @@ Install and register the generated XKB symbols using your distribution's XKB con
 - **macOS:** Install `Onnoy.keylayout` to `~/Library/Keyboard Layouts/`, then enable Onnoy in Keyboard → Input Sources (log out and back in if necessary).
 - **Windows:** Compile `onnoy.klc` with MSKLC and test the resulting layout; no native installer is currently published.
 - **Web:** Open the [typing playground](https://mnalmahmud.github.io/onnoy-keyman/) in a desktop browser.
+
+### Joiner shortcuts and OS conflicts
+
+Use **Right Alt (AltGr)+Z** for ZWJ and **Shift+Right Alt (AltGr)+Z** for ZWNJ. On macOS the native layout uses Option. Both shortcuts avoid reserved combinations involving Space. However, some systems treat AltGr as Ctrl+Alt, so a specific application's Ctrl+Alt+Z shortcut may still take precedence. On mobile, long-press Z to enter the joiners.
 
 ## Build and test
 

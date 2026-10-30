@@ -43,7 +43,7 @@ class LayoutTests(unittest.TestCase):
             "F": ["ফ", "্", None, None],
             "L": ["ল", "ং", None, None],
             ";": ["ৌ", "ঔ", ";", ":"],
-            "Z": ["য", "ঙ", None, None],
+            "Z": ["য", "ঙ", "\u200d", "\u200c"],
             "X": ["ষ", "়", "𑷰", None],
             "V": ["ভ", "ৗ", None, None],
             "B": ["ব", "অ", None, None],
@@ -51,7 +51,7 @@ class LayoutTests(unittest.TestCase):
             "M": ["ম", "ঁ", None, None],
             "[": ["ৈ", "ঐ", "[", "{"],
             "]": ["ূ", "ঊ", "]", "}"],
-            "SPACE": [" ", " ", "\u200d", "\u200c"],
+            "SPACE": [" ", " ", " ", " "],
             ".": ["।", ">", ".", None],
             "4": ["৪", "৳", "4", "$"],
             "=": ["ৃ", "ঋ", "=", "+"],
@@ -60,8 +60,8 @@ class LayoutTests(unittest.TestCase):
             with self.subTest(key=key):
                 self.assertEqual(KEYS[key], values)
         empty = [sum(KEYS[key][i] is None for key in PHYSICAL) for i in range(4)]
-        self.assertEqual(empty, [0, 0, 22, 36])
-        self.assertEqual(sum(empty), 58)
+        self.assertEqual(empty, [0, 0, 21, 35])
+        self.assertEqual(sum(empty), 56)
 
     def test_touch_layout_generated_from_source(self):
         import subprocess
@@ -85,6 +85,15 @@ class LayoutTests(unittest.TestCase):
         key_r = layer["row"][0]["key"][3]
         subkeys = {subkey["id"] for subkey in key_r["sk"]}
         self.assertTrue({"U_09C3", "U_098B", "U_09F0"} <= subkeys)
+
+    def test_touch_joiners_on_z_not_space(self):
+        touch = json.loads((ROOT / "source/onnoy.keyman-touch-layout").read_text(encoding="utf-8"))
+        for layer in touch["phone"]["layer"][:4]:
+            space = layer["row"][3]["key"][3]
+            self.assertEqual(space["id"], "K_SPACE")
+            self.assertFalse(space.get("sk"))
+        z = touch["phone"]["layer"][0]["row"][2]["key"][0]
+        self.assertTrue({"U_200D", "U_200C"} <= {item["id"] for item in z["sk"]})
 
     def test_all_keyman_rules_match_json(self):
         source = (ROOT / "source/onnoy.kmn").read_text(encoding="utf-8")
@@ -113,7 +122,10 @@ class LayoutTests(unittest.TestCase):
         self.assertIn("U200C", xkb)
         self.assertIn("key <SPCE>", xkb)
         self.assertIn("U200D", xkb)
-        self.assertIn("39\tSPACE\t0\t0020 0020 0020 200d 200c", klc)
+        self.assertRegex(xkb, r"key <AB01>.*U200D, U200C")
+        self.assertRegex(xkb, r"key <SPCE>.*space, space, space, space")
+        self.assertIn("39\tSPACE\t0\t0020 0020 0020 0020 0020", klc)
+        self.assertIn("2C\tZ\t0\t09af 0999 -1 200d 200c", klc)
         self.assertIn("09cd", klc)
         self.assertIn("X\t3\td807 ddf0", klc)
         self.assertIn("U11DF0", xkb)
@@ -137,6 +149,10 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(next(k.attrib["output"] for k in option_map.findall("key")
                               if k.attrib["code"] == "5"), "")
         self.assertEqual(len(mac.findall(".//keyMap")), 6)
+        for index, char in ((2, "\u200d"), (3, "\u200c")):
+            layer = mac.find(f".//keyMap[@index='{index}']")
+            self.assertEqual(next(k.attrib["output"] for k in layer.findall("key") if k.attrib["code"] == "6"), char)
+            self.assertEqual(next(k.attrib["output"] for k in layer.findall("key") if k.attrib["code"] == "49"), " ")
         keymap = mac.find(".//keyMap[@index='0']")
         self.assertIsNotNone(keymap)
         self.assertEqual(next(node.attrib["output"] for node in keymap.findall("key")
