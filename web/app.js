@@ -211,41 +211,52 @@
       )) throw new Error("Invalid keyboard mapping");
       mapping = displayed;
       draw(selectedLayer);
+      status.classList.remove("loading", "error");
+      status.classList.add("ready");
+      statusLabel.textContent = "Preview ready";
     } catch (error) {
       keyboard.textContent = "The key reference could not be loaded.";
       details.textContent = "Check that layout.json was included in the site deployment.";
+      status.classList.remove("loading", "ready");
+      status.classList.add("error");
+      statusLabel.textContent = "Preview unavailable";
+      errorHelp.hidden = false;
+      errorDetail.textContent = String(error.message || error);
       console.error("Onnoy key reference:", error);
     }
   }
 
-  async function startKeyboard() {
-    try {
-      if (!window.keyman) throw new Error("The KeymanWeb engine did not load");
-      const km = window.keyman;
-      await km.init({ attachType: "manual", ui: "float", setActiveOnRegister: false });
-      km.attachToControl(editor);
-      await km.addKeyboards({
-        id: "onnoy",
-        name: "Onnoy (অন্বয়)",
-        filename: "./onnoy.js",
-        version: "1.1",
-        languages: [{ id: "bn", name: "Bangla" }]
-      });
-      await km.setActiveKeyboard("onnoy", "bn");
-      status.classList.remove("loading", "error");
-      status.classList.add("ready");
-      statusLabel.textContent = "Keyboard ready";
-    } catch (error) {
-      status.classList.remove("loading", "ready");
-      status.classList.add("error");
-      statusLabel.textContent = "Keyboard unavailable";
-      errorHelp.hidden = false;
-      errorDetail.textContent = String(error.message || error);
-      console.error("Onnoy KeymanWeb:", error);
-    }
+  // Browser-only preview. Desktop typing is handled by the OS-native layout.
+  // Do not promise to intercept OS/application shortcuts: browser listeners cannot.
+  function translateKey(event) {
+    if (!mapping || event.isComposing || event.key === "Dead" || event.metaKey) return null;
+    const altgr = event.getModifierState?.("AltGraph") || event.code === "AltRight" || event.altKey;
+    // Ctrl without AltGr is a host shortcut (copy, save, etc.) and must pass through.
+    if (event.ctrlKey && !altgr) return null;
+    const key = event.code === "Space" ? "SPACE" :
+      event.code.startsWith("Key") ? event.code.slice(3) :
+      event.code.startsWith("Digit") ? event.code.slice(5) :
+      ({
+        BracketLeft: "[", BracketRight: "]", Semicolon: ";",
+        Equal: "=", Period: ".", Minus: "-", Backquote: "`",
+        Backslash: "\\", Quote: "'", Comma: ",", Slash: "/"
+      })[event.code];
+    if (!key || !mapping[key]) return null;
+    const layer = Number(event.shiftKey) + Number(Boolean(altgr)) * 2;
+    return mapping[key][layer] ?? null;
   }
 
-  // The reference works even if KeymanWeb fails; ordinary typing stays possible.
+  editor.addEventListener("keydown", (event) => {
+    // A browser demo can be preempted by the OS; see native installation guides.
+    const replacement = translateKey(event);
+    if (replacement === null) return;
+    if (event.ctrlKey && !event.getModifierState?.("AltGraph")) return;
+    event.preventDefault();
+    editor.setRangeText(replacement, editor.selectionStart, editor.selectionEnd, "end");
+    editor.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+
+  // A browser preview cannot replace OS-native input. A click on a keymap key
+  // inspects its Unicode mapping; it never installs an input method.
   void loadLayout();
-  void startKeyboard();
 })();
