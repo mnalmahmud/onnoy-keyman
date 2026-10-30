@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Assamese Wa placement
+- Move Assamese ৱ (`U+09F1`) from Shift+V to AltGr+W.
+- Leave Shift+V unassigned; retain V = অ, AltGr+V = ৗ and W = ট, Shift+W = ঠ.
+
+
 ### Joiner shortcuts
 - Move ZWJ to AltGr+Space and ZWNJ to Shift+AltGr+Space across Keyman, native layouts, and mobile touch.
 - Leave AltGr+Z and Shift+AltGr+Z unassigned, preserving normal Space and Shift+Space.
