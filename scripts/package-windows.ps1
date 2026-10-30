@@ -1,4 +1,4 @@
-# Build a native Windows keyboard setup using Microsoft Keyboard Layout Creator 1.4.
+# Build a system-native Windows keyboard installer (build-time tool only) using Microsoft Keyboard Layout Creator 1.4.
 # Run on Windows with MSKLC and its command-line kbdutool.exe installed.
 $ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..")

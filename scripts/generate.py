@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate KeymanWeb, Linux XKB, macOS keylayout, and Windows KLC sources.
+"""Generate native Linux XKB, macOS keylayout, and Windows KLC sources.
 The sole character mapping lives in layout/onnoy.json.
 """
 from pathlib import Path
@@ -71,131 +71,25 @@ def mapping():
     assert m["V"][:2]==["ভ","অ"] and m["B"][:2]==["ব","ৗ"]
     return m
 
-def keyman(m):
-    s=["c Onnoy (অন্বয়) — generated from layout/onnoy.json; do not edit directly.",
-       "store(&VERSION) '16.0'", "store(&NAME) 'Onnoy (অন্বয়)'",
-       "store(&KEYBOARDVERSION) '1.1'", "store(&TARGETS) 'any'",
-       "store(&layoutfile) 'onnoy.keyman-touch-layout'",
-       "", "begin Unicode > use(main)", "", "group(main) using keys"]
-    for k in KEY_ORDER:
-        name={".": "PERIOD", "[": "LBRKT", "]": "RBRKT", ";": "COLON", "=": "EQUAL"}.get(k, k)
-        s.append("")
-        for modifier,output in zip(("","SHIFT ","RALT ","SHIFT RALT "),m[k]):
-            symbol="nul" if output is None else " ".join("U+%04X"%ord(ch) for ch in output)
-            s.append("+ [%sK_%s] > %s"%(modifier,name,symbol))
-    for value in sorted({v for values in m.values() for v in values if v and len(v)>1}):
-        ident = "T_SEQ_" + "_".join("%04X" % ord(c) for c in value)
-        output = " ".join("U+%04X" % ord(c) for c in value)
-        s.append("+ [%s] > %s" % (ident, output))
-    return "\n".join(s)+"\n"
-
-
-def touch(m):
-    """Generate a compact phone/tablet layout from the canonical four layers.
-
-    U_ virtual keys emit their Unicode string directly on touch devices; this
-    avoids relying on desktop AltGr modifier emulation on phones.
-    """
-    alpha_rows = ("QWERTYUIOP[]", "ASDFGHJKL;", "ZXCVBNM")
-    layer_names = ("default", "shift", "altgr", "shift_altgr")
-
-    def direct(value):
-        return ("U_" if len(value) == 1 else "T_SEQ_") + "_".join("%04X" % ord(c) for c in value)
-
-    def label(value):
-        return {"\u200d": "ZWJ", "\u200c": "ZWNJ"}.get(value, value)
-
-    def letter(key, index):
-        value = m[key][index]
-        if value is None:
-            return {"id": "T_EMPTY_%s_%d" % (key, index), "text": "", "sp": 9}
-        item = {"id": direct(value), "text": label(value)}
-        if index == 0:
-            subkeys = [{"id": direct(other), "text": label(other)}
-                       for other in m[key][1:] if other and other != value]
-            if key == "R":
-                # A phone has no dedicated physical equals key: keep the Ri pair
-                # reachable by long-pressing R, derived from the canonical map.
-                subkeys.extend({"id": direct(other), "text": label(other)}
-                               for other in m["="][:2])
-            if subkeys:
-                item["sk"] = subkeys
-        return item
-
-    def frame(index):
-        states = (
-            ("shift", "altgr"), ("default", "shift_altgr"),
-            ("shift_altgr", "default"), ("altgr", "shift"))
-        shift_target, altgr_target = states[index]
-        # Joiners are on Z, including mobile long-press Z; Space always stays Space.
-        space_key = {"id": "K_SPACE", "text": "*Sp*", "width": 270}
-        return [
-            {"id": "K_SHIFT", "text": "*Shifted*" if index in (1, 3)
-             else "*Shift*", "sp": 2 if index in (1, 3) else 1,
-             "nextlayer": shift_target, "width": 115},
-            {"id": "K_ALTGR", "text": "AltGr", "sp": 2 if index in (2, 3)
-             else 1, "nextlayer": altgr_target, "width": 115},
-            {"id": "K_NUMERALS", "text": "*123*", "sp": 1,
-             "nextlayer": "numeric", "width": 100},
-            space_key,
-            letter(".", index),
-            {"id": "K_BKSP", "text": "*BkSp*", "sp": 1, "width": 115},
-            {"id": "K_ENTER", "text": "*Enter*", "sp": 1, "width": 115},
-        ]
-
-    layers = []
-    for index, name in enumerate(layer_names):
-        rows = [{"id": rownum + 1, "key": [letter(k, index) for k in row]}
-                for rownum, row in enumerate(alpha_rows)]
-        rows.append({"id": 4, "key": frame(index)})
-        layers.append({"id": name, "row": rows})
-
-    digits = []
-    for key in "1234567890":
-        digits.append({"id": direct(m[key][0]), "text": m[key][0],
-                       "sk": [{"id": direct(m[key][2]), "text": m[key][2]}]})
-    symbols = ["৳", "।", ".", ",", "?", "!", ":", ";", "-", "/", "(", ")"]
-    numeric_rows = [
-        {"id": 1, "key": digits},
-        {"id": 2, "key": [{"id": direct(v), "text": v} for v in symbols]},
-        {"id": 3, "key": [
-            {"id": "K_NUMERALS", "text": "*abc*", "sp": 1,
-             "nextlayer": "default", "width": 130},
-            {"id": "K_SPACE", "text": "*Sp*", "width": 350},
-            {"id": "K_BKSP", "text": "*BkSp*", "sp": 1, "width": 130},
-            {"id": "K_ENTER", "text": "*Enter*", "sp": 1, "width": 130},
-        ]},
-    ]
-    layers.append({"id": "numeric", "row": numeric_rows})
-    return json.dumps({"phone": {"displayUnderlying": False,
-                                  "layer": layers}}, ensure_ascii=False,
-                      indent=2) + "\n"
-
 def linux(m):
-    # Single-key XCompose rules translate F13-F15 into Unicode strings on
-    # Linux applications that use libxkbcommon or Xlib Compose processing.
-    # This avoids a Keyman dependency, but individual toolkit support varies.
-    special = {(k,i): v for k in ORDER for i,v in enumerate(m[k]) if v and len(v)>1}
-    triggers = {slot: "F%d"%(13+n) for n,slot in enumerate(special)}
-    s=["// Generated from layout/onnoy.json",
-       'default partial alphanumeric_keys',
-       'xkb_symbols "basic" {',
-       '    include "us(basic)"',
-       '    name[Group1] = "Bengali (Onnoy)";',
-       '    include "level3(ralt_switch)"']
-    for k in KEY_ORDER:
-        vals=", ".join("VoidSymbol" if v is None else ("space" if v==" " else (triggers[(k,i)] if len(v)>1 else "U%04X"%ord(v))) for i,v in enumerate(m[k]))
-        s.append('    key <%s> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ %s ] }; // %s'%(XKB[k],vals,k))
-    return "\n".join(s+["};",""])
+    """Native XKB symbols: no input method, compose engine, or custom runtime."""
+    if any(value is not None and len(value) != 1 for values in m.values() for value in values):
+        raise ValueError("Native XKB needs one Unicode scalar per key; multi-codepoint output unsupported")
+    s = [
+        "// Generated from layout/onnoy.json; do not edit.",
+        "default partial alphanumeric_keys",
+        'xkb_symbols "basic" {',
+        '    include "us(basic)"',
+        '    name[Group1] = "Bengali (Onnoy)";',
+        '    include "level3(ralt_switch)"',
+    ]
+    for key in KEY_ORDER:
+        symbols = ", ".join("VoidSymbol" if value is None else (
+            "space" if value == " " else "U%04X" % ord(value)) for value in m[key])
+        s.append('    key <%s> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ %s ] }; // %s'
+                 % (XKB[key], symbols, key))
+    return "\\n".join(s + ["};", ""])
 
-def linux_compose(m):
-    """Single-keysym Compose sequences permit UTF-8 string output."""
-    special = [(k,i,v) for k in ORDER for i,v in enumerate(m[k]) if v and len(v)>1]
-    result = ['# Onnoy generated XCompose additions; include in ~/.XCompose',
-              '# This file intentionally contains only Onnoy-specific rules.']
-    for n,(k,i,value) in enumerate(special):
-        result.append('<F%d> : "%s" # %s layer %d'%(13+n,value,k,i))
-    return "\n".join(result)+"\n"
 
 def utf16_units(value):
     raw = value.encode("utf-16-le")
@@ -259,10 +153,7 @@ def macos(m):
 def main():
     m=mapping()
     outputs={
-      "source/onnoy.kmn":keyman(m),
-      "source/onnoy.keyman-touch-layout":touch(m),
       "dist/linux/symbols/onnoy":linux(m),
-      "dist/linux/Onnoy.XCompose":linux_compose(m),
       "dist/windows/onnoy.klc":windows(m),
       "dist/macos/Onnoy.keylayout":macos(m),
     }
