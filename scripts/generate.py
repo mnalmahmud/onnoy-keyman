@@ -80,7 +80,7 @@ def touch(m):
     U_ virtual keys emit their Unicode string directly on touch devices; this
     avoids relying on desktop AltGr modifier emulation on phones.
     """
-    alpha_rows = ("QWERTYUIOP", "ASDFGHJKL[]", "ZXCVBNM")
+    alpha_rows = ("QWERTYUIOP[]", "ASDFGHJKL", "ZXCVBNM")
     layer_names = ("default", "shift", "altgr", "shift_altgr")
 
     def direct(value):
