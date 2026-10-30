@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Multilingual AU length mark
+- Move ৗ (`U+09D7`) from AltGr+V to Shift+V, retaining Base V = অ.
+- Leave AltGr+V unassigned; keep the rest of the Assamese Wa relocation unchanged.
+
+
 ### Assamese Wa placement
 - Move Assamese ৱ (`U+09F1`) from Shift+V to AltGr+W.
 - Leave Shift+V unassigned; retain V = অ, AltGr+V = ৗ and W = ট, Shift+W = ঠ.
