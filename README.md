@@ -15,7 +15,7 @@ The canonical mapping is in [`layout/onnoy.json`](layout/onnoy.json). Base, Shif
 | Q | ড | ঢ | — | — |
 | W | ট | ঠ | ৱ | — |
 | E | ে | এ | — | — |
-| R | ৃ | ঋ | ৰ | — |
+| R | র | ৰ | — | — |
 | T | ত | থ | ৎ | — |
 | Y | ী | ঈ | — | — |
 | U | ু | উ | — | — |
@@ -25,14 +25,14 @@ The canonical mapping is in [`layout/onnoy.json`](layout/onnoy.json). Base, Shif
 | A | া | আ | ঽ | — |
 | S | স | শ | — | — |
 | D | দ | ধ | — | — |
-| F | ফ | ষ | — | — |
+| F | ফ | ্ | — | — |
 | G | গ | ঘ | — | — |
 | H | হ | ঃ | — | — |
 | J | জ | ঝ | — | — |
 | K | ক | খ | — | — |
 | L | ল | ং | — | — |
 | Z | য | ঙ | — | — |
-| X | ় | ্ | 𑷰 | — |
+| X | ষ | ় | 𑷰 | — |
 | C | চ | ছ | — | — |
 | V | ভ | ৗ | — | — |
 | B | ব | অ | — | — |
@@ -46,16 +46,17 @@ The canonical mapping is in [`layout/onnoy.json`](layout/onnoy.json). Base, Shif
 | [ | ৈ | ঐ | [ | { |
 | ] | ূ | ঊ | ] | } |
 | ; | ৌ | ঔ | ; | : |
+| = | ৃ | ঋ | = | + |
 | . | । | > | . | — |
 | Space | Space | Space | ZWJ | ZWNJ |
 
-The number row and other punctuation retain their previous assignments. **Square brackets, braces, semicolon, and colon remain on their original physical keys, now using AltGr and Shift+AltGr.** The O-family is split between O = ো/ও and the semicolon key = ৌ/ঔ, producing NFC-composed vowel signs directly with no extra input engine.
+The Bengali vowel pair ৃ/ঋ is assigned to the physical equals key (Base/Shift); ASCII `=` and `+` remain on `AltGr+=` and `Shift+AltGr+=`. The number row digits and other punctuation retain their previous assignments. **Square brackets, braces, semicolon, and colon remain on their original physical keys, now using AltGr and Shift+AltGr.** The O-family is split between O = ো/ও and the semicolon key = ৌ/ঔ, producing NFC-composed vowel signs directly with no extra input engine.
 
 ### Explicit composition, without custom conversion rules
 
-Several former shortcuts are no longer dedicated outputs: **ক্ষ**, **্য**, **ড়**, **ঢ়**, and **য়**. These may be entered as ordinary code-point sequences: `K → Shift+X → Shift+F` for ক্ষ; `Shift+X → Z` for ্য; `Q → X` for ড়; `Shift+Q → X` for ঢ়; and `Z → X` for য়. The nukta decompositions are canonically equivalent Unicode strings, although some of their precomposed forms are excluded from canonical recomposition. **Direct NFC outputs** are now `O → ো` (U+09CB) and `; → ৌ` (U+09CC). The old compositions `E → A` and `E → Shift+V` still produce canonically equivalent decomposed text, but may not be NFC until an application normalizes it.
+Several former shortcuts are no longer dedicated outputs: **ক্ষ**, **্য**, **ড়**, **ঢ়**, and **য়**. These may be entered as ordinary code-point sequences: `K → Shift+F → X` for ক্ষ; `Shift+F → Z` for ্য; `Q → Shift+X` for ড়; `Shift+Q → Shift+X` for ঢ়; and `Z → Shift+X` for য়. The nukta decompositions are canonically equivalent Unicode strings, although some of their precomposed forms are excluded from canonical recomposition. **Direct NFC outputs** are now `O → ো` (U+09CB) and `; → ৌ` (U+09CC). The old compositions `E → A` and `E → Shift+V` still produce canonically equivalent decomposed text, but may not be NFC until an application normalizes it.
 
-**Known coverage limitation: Bengali র (U+09B0) has no direct mapping in this proposal.** Typing `B → X` inserts `ব়` (U+09AC U+09BC), **not** র; Unicode does not consider these canonically equivalent. There are **no custom composition rules** converting the two. Assamese ৰ (AltGr+R) and ৱ (AltGr+W) are preserved as distinct characters. This loss of Bengali র makes the proposed layout unsuitable for complete standard Bengali typing until a separately approved solution is provided.
+**Bengali র (U+09B0) is directly available on Base R**, with Assamese ৰ (U+09F0) on Shift+R and Assamese ৱ (U+09F1) on AltGr+W. There is no need to type ব + nukta as a substitute for র, and no custom composition rule is used.
 
 AltGr+X produces 𑷰 (U+11DF0), whose rendering requires font support. Windows MSKLC uses the UTF-16 surrogate pair `D807 DDF0`; native installation needs Windows testing. AltGr+Space and Shift+AltGr+Space produce ZWJ (U+200D) and ZWNJ (U+200C).
 
@@ -63,7 +64,7 @@ The [online keymap](https://mnalmahmud.github.io/onnoy-keyman/#keymap) displays 
 
 ## Mobile touch layout
 
-On phones, Keyman uses the generated `source/onnoy.keyman-touch-layout`: Base, Shift, AltGr, Shift+AltGr and a Bengali-digit/numeric layer. Long-press a letter to access its assigned alternative characters. The touch keyboard is embedded in the compiled Keyman keyboard for supported mobile Keyman apps and mobile web; installation and typing should be tested on real phones before calling mobile support verified.
+On phones, Keyman uses the generated `source/onnoy.keyman-touch-layout`: Base, Shift, AltGr, Shift+AltGr and a Bengali-digit/numeric layer. Long-press a letter to access its assigned alternative characters. Because phones have no dedicated equals key in the alphabet rows, long-press **R** for ৃ/ঋ as well as ৰ. The touch keyboard is embedded in the compiled Keyman keyboard for supported mobile Keyman apps and mobile web; installation and typing should be tested on real phones before calling mobile support verified.
 
 ## Native installer packaging
 
