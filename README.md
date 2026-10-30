@@ -23,7 +23,9 @@ The four layers are Base, Shift, AltGr (Right Alt; Option on macOS), and Shift+A
 | F | ্ | ় | — | — |
 | X | ষ | **ক্ষ** | — | — |
 | G | গ | ঘ | — | — |
-| Y | য | য় | **্য** | — |
+| Y | য় | য | **্য** | — |
+
+Design D places **য় on Y** and **য on Shift+Y** for more efficient standalone-letter typing, while keeping **AltGr+Y = ্য** for য-ফলা. This changes the earlier Design C Y/Shift+Y assignments.
 
 The two approved multi-code-point shortcuts output the exact sequences:
 
