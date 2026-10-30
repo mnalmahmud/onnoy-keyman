@@ -66,13 +66,14 @@ def mapping():
     assert m["["]==["ৈ","ঐ","[","{"] and m["]"]==["ূ","ঊ","]","}"]
     assert m["O"][:2]==["ো","ও"] and m[";"]==["ৌ","ঔ",";",":"]
     assert m["4"][1]=="৳" and m["4"][3]=="$"
-    assert m["SPACE"][:2]==[" "," "]
+    assert m["SPACE"]==[" "," "," "," "]
+    assert m["Z"]==["য","ঙ","\u200d","\u200c"]
     return m
 
 def keyman(m):
     s=["c Onnoy (অন্বয়) — generated from layout/onnoy.json; do not edit directly.",
        "store(&VERSION) '16.0'", "store(&NAME) 'Onnoy (অন্বয়)'",
-       "store(&KEYBOARDVERSION) '1.0'", "store(&TARGETS) 'any'",
+       "store(&KEYBOARDVERSION) '1.1'", "store(&TARGETS) 'any'",
        "store(&layoutfile) 'onnoy.keyman-touch-layout'",
        "", "begin Unicode > use(main)", "", "group(main) using keys"]
     for k in KEY_ORDER:
@@ -125,14 +126,8 @@ def touch(m):
             ("shift", "altgr"), ("default", "shift_altgr"),
             ("shift_altgr", "default"), ("altgr", "shift"))
         shift_target, altgr_target = states[index]
-        if index in (0, 1):
-            space_key = {"id": "K_SPACE", "text": "*Sp*", "width": 270}
-            if index == 0:
-                space_key["sk"] = [{"id": direct(value), "text": label(value)}
-                                   for value in m["SPACE"][2:]]
-        else:
-            space_key = {"id": direct(m["SPACE"][index]),
-                         "text": label(m["SPACE"][index]), "width": 270}
+        # Joiners are on Z, including mobile long-press Z; Space always stays Space.
+        space_key = {"id": "K_SPACE", "text": "*Sp*", "width": 270}
         return [
             {"id": "K_SHIFT", "text": "*Shifted*" if index in (1, 3)
              else "*Shift*", "sp": 2 if index in (1, 3) else 1,
@@ -209,7 +204,7 @@ def windows(m):
     s=['KBD\tonnoy\t"Onnoy"','',
        'COPYRIGHT "(c) 2026 Muhtasham Nawr al-Mahmud"',
        'COMPANY "Muhtasham Nawr al-Mahmud"','LOCALENAME "bn-BD"',
-       'LOCALEID "00000845"','VERSION 1.0','',
+       'LOCALEID "00000845"','VERSION 1.1','',
        'SHIFTSTATE','0\t// Base','1\t// Shift','2\t// Ctrl',
        '6\t// AltGr','7\t// Shift+AltGr','',
        'LAYOUT','//SC VK_ Cap 0 1 2 6 7']
