@@ -31,7 +31,7 @@ class LayoutTests(unittest.TestCase):
             "Q": ["ড", "ঢ", "ড়", "ঢ়"],
             "W": ["ট", "ঠ", None, None],
             "G": ["গ", "ঘ", None, None],
-            "Y": ["য", "য়", "্য", None],
+            "Y": ["য়", "য", "্য", None],
             "X": ["ষ", "ক্ষ", None, None],
             "Z": ["ং", "ঙ", "\u200d", "\u200c"],
             "M": ["ম", "ঁ", None, None],
