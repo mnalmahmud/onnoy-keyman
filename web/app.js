@@ -228,7 +228,7 @@
         id: "onnoy",
         name: "Onnoy (অন্বয়)",
         filename: "./onnoy.js",
-        version: "1.0",
+        version: "1.1",
         languages: [{ id: "bn", name: "Bangla" }]
       });
       await km.setActiveKeyboard("onnoy", "bn");

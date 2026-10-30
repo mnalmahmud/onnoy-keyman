@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Reposition independent অ and AU length mark
+- Swap Shift+V and Shift+B: Shift+V now emits অ (U+0985), Shift+B emits ৗ (U+09D7).
+- Retain unshifted V=ভ and B=ব, plus all other consonant and vowel assignments.
+- Update Keyman/native/mobile generators through the canonical JSON, layout tests, browser tests, and documentation.
+
+
+### Move joiners off Space
+- Move ZWJ to AltGr+Z and ZWNJ to Shift+AltGr+Z; keep Z=য and Shift+Z=ঙ.
+- Restore Space as ordinary space on every keyboard layer, avoiding OS-level Space shortcut conflicts.
+- Mobile joiners are available via long-press Z, not Space.
+- Bump compiled keyboard and package version to 1.1; native layouts, tests and documentation are regenerated.
+- Platform-specific AltGr+Z collisions still require end-user verification.
+
+
 ### Restore Bengali Ra and consolidate Ri/virama/nukta
 - Base R now emits Bengali র (U+09B0), and Shift+R emits Assamese ৰ (U+09F0); Assamese ৱ remains AltGr+W.
 - Assign the dependent/independent Ri pair to physical equals: Base `=` → ৃ and Shift+`=` → ঋ, preserving ASCII `=`/`+` on the corresponding AltGr layers.
