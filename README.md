@@ -18,7 +18,7 @@ The four layers are Base, Shift, AltGr (Right Alt; Option on macOS), and Shift+A
 | O | ো | ও | ৌ | ঔ |
 | R | র | ৃ | ঋ | ৰ |
 | Z | ং | ঙ | — | — |
-| V | অ | — | ৗ | — |
+| V | অ | ৗ | — | — |
 | Space | Space | Space | ZWJ | ZWNJ |
 | M | ম | ঁ | — | — |
 | N | ন | ণ | ঞ | — |
@@ -29,7 +29,7 @@ The four layers are Base, Shift, AltGr (Right Alt; Option on macOS), and Shift+A
 
 Design D places **য় on Y** and **য on Shift+Y** for more efficient standalone-letter typing, while keeping **AltGr+Y = ্য** for য-ফলা. This changes the earlier Design C Y/Shift+Y assignments.
 
-Assamese **ৱ** (`U+09F1`) is assigned to **AltGr+W**; **Shift+V** is unassigned.
+Assamese **ৱ** (`U+09F1`) is assigned to **AltGr+W**; **Shift+V** produces **ৗ** (`U+09D7`), useful for Kokborok and other orthographies that require the AU length mark; **AltGr+V** is unassigned.
 
 The two approved multi-code-point shortcuts output the exact sequences:
 
