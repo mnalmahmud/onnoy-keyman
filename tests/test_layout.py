@@ -45,8 +45,8 @@ class LayoutTests(unittest.TestCase):
             with self.subTest(key=key):
                 self.assertEqual(KEYS[key], values)
         empty = [sum(KEYS[key][i] is None for key in PHYSICAL) for i in range(4)]
-        self.assertEqual(empty, [0, 1, 16, 30])
-        self.assertEqual(sum(empty), 47)
+        self.assertEqual(empty, [0, 1, 15, 30])
+        self.assertEqual(sum(empty), 46)
 
     def test_touch_layout_generated_from_source(self):
         import subprocess
