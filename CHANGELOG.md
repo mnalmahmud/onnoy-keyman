@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Proposed vowel and consonant redistribution
+- Promote ী/ঈ to Y, ৈ/ঐ to [ and ূ/ঊ to ]; retain original brackets and braces on their respective AltGr layers.
+- Move virama/nukta/𑷰 to Shift+X/X/AltGr+X, ফ to F, ষ to Shift+F, ঞ to Shift+P, য to Z, ঙ to Shift+Z, ং to Shift+L, ভ to V, অ to Shift+B, and ৗ to Shift+V.
+- Drop direct ক্ষ, ্য, ড়, ঢ়, য়, ো, and ৌ shortcuts in favor of normal Unicode sequences.
+- **Compatibility warning:** direct Bengali র is deliberately removed without an equivalent Unicode decomposition or a custom conversion rule. The layout cannot type U+09B0 at present; Assamese ৰ and ৱ remain distinct and available.
+- Update web keymap, touch keyboard, tests, and documentation; bracket and brace symbols move to AltGr layers.
+
+
 ### Unicode 18 character
 - Assign AltGr+F to U+11DF0 Bengali Combining Anusvara Above.
 - Generate UTF-16 surrogate pairs for supplementary Unicode characters in native Windows KLC ligatures.
