@@ -52,9 +52,9 @@ class BrowserSmokeTests(unittest.TestCase):
         self.assertEqual(self.page.locator(".keyboard-key").count(), 37)
         self.assertEqual(self.page.locator(".keyboard-row").count(), 4)
         self.page.locator('button[data-layer="2"]').click()
-        self.assertIn("ZWNJ", self.page.locator(".keyboard-row").nth(3).inner_text())
-        self.page.locator('button[data-layer="3"]').click()
         self.assertIn("ZWJ", self.page.locator(".keyboard-row").nth(3).inner_text())
+        self.page.locator('button[data-layer="3"]').click()
+        self.assertIn("ZWNJ", self.page.locator(".keyboard-row").nth(3).inner_text())
         self.page.locator(".keyboard-row").nth(1).locator("button").nth(1).click()
         self.assertIn("AltGr + Shift: —", self.page.locator("#key-details").inner_text())
         # The renderer must display the complete approved sequences.
