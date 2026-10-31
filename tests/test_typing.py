@@ -45,10 +45,9 @@ class TypingTests(unittest.TestCase):
             "Shift+F": "থ", "Shift+P": "ফ",
             "Shift+V": "ৗ", "Shift+B": "ভ",
             "Shift+M": "ঙ", "AltGr+M": "ং", "AltGr+L": "ঁ",
-            "Shift+AltGr+N": "ঞ",
+            "AltGr+N": "ঞ",
             "AltGr+,": "়", "Shift+AltGr+,": "𑷰",
             "=": "=", "Shift+=": "+",
-            "AltGr+J": "\u200d", "AltGr+N": "\u200c",
             "/": "্", "Shift+/": "?", "AltGr+/": "/",
             "AltGr+SPACE": " ", "Shift+AltGr+SPACE": " "
         }
@@ -80,13 +79,15 @@ class TypingTests(unittest.TestCase):
         self.assertEqual(mapping["/"], ["্", "?", "/", None])
         self.assertEqual(mapping[chr(96)][2:], [None, None])
         self.assertEqual(mapping["'"][2:], [None, None])
-        self.assertEqual(mapping["J"], ["জ", "ঝ", "\u200d", None])
-        self.assertEqual(mapping["N"], ["ন", "ণ", "\u200c", "ঞ"])
+        self.assertEqual(mapping["J"], ["জ", "ঝ", None, None])
+        self.assertEqual(mapping["N"], ["ন", "ণ", "ঞ", None])
         self.assertEqual(mapping["M"], ["ম", "ঙ", "ং", None])
         self.assertEqual(mapping["L"], ["ল", None, "ঁ", None])
-        for ch in ("\u200d", "\u200c", "ঞ", "ঁ", "ং", "ঙ"):
+        for ch in ("ঞ", "ঁ", "ং", "ঙ"):
             self.assertEqual(sum(v == ch for vs in mapping.values() for v in vs), 1)
         self.assertEqual(mapping["X"], ["শ", "ঢ়", None, None])
+        self.assertNotIn("\u200d", [v for vs in mapping.values() for v in vs])
+        self.assertNotIn("\u200c", [v for vs in mapping.values() for v in vs])
         self.assertEqual(variant(mapping, "shift-f")["F"][1], "্")
         self.assertEqual(variant(mapping, "altgr-f")["F"][2], "্")
 

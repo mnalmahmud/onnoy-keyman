@@ -78,14 +78,15 @@ def mapping():
     assert m["Z"] == ["য", None, None, None]
     assert sum(v == "য়" for vs in m.values() for v in vs) == 1
     assert m["X"] == ["শ", "ঢ়", None, None]
-    assert m["N"] == ["ন", "ণ", "\u200c", "ঞ"]
+    assert m["N"] == ["ন", "ণ", "ঞ", None]
     assert m["M"] == ["ম", "ঙ", "ং", None]
     assert m["S"][:2] == ["স", "ষ"]
     assert m["A"] == ["া", "আ", None, None]
     assert m["H"] == ["হ", "ঃ", None, None]
-    assert m["J"] == ["জ", "ঝ", "\u200d", None]
+    assert m["J"] == ["জ", "ঝ", None, None]
     assert all(sum(v == ch for vs in m.values() for v in vs) == 1
-               for ch in ("\u200d", "\u200c", "ঞ", "ঁ", "ং", "ঙ"))
+               for ch in ("ঞ", "ঁ", "ং", "ঙ"))
+    assert all(v not in ("\u200d", "\u200c") for vs in m.values() for v in vs)
     assert m["L"] == ["ল", None, "ঁ", None]
     assert m["["] == ["ৈ", "ঐ", "[", "{"]
     assert m["]"] == ["ৌ", "ঔ", "]", "}"]

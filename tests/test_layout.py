@@ -38,11 +38,11 @@ class LayoutTests(unittest.TestCase):
             "A": ["া", "আ", None, None], "S": ["স", "ষ", None, None],
             "D": ["ড", "ঢ", None, None], "F": ["ত", "থ", None, None],
             "G": ["গ", "ঘ", None, None], "H": ["হ", "ঃ", None, None],
-            "J": ["জ", "ঝ", "\u200d", None], "K": ["ক", "খ", None, None],
+            "J": ["জ", "ঝ", None, None], "K": ["ক", "খ", None, None],
             "L": ["ল", None, "ঁ", None], "Z": ["য", None, None, None],
             "X": ["শ", "ঢ়", None, None], "C": ["চ", "ছ", None, None],
             "V": ["অ", "ৗ", None, None], "B": ["ব", "ভ", None, None],
-            "N": ["ন", "ণ", "\u200c", "ঞ"], "M": ["ম", "ঙ", "ং", None],
+            "N": ["ন", "ণ", "ঞ", None], "M": ["ম", "ঙ", "ং", None],
             "[": ["ৈ", "ঐ", "[", "{"], "]": ["ৌ", "ঔ", "]", "}"],
             ";": ["ৃ", "ঋ", ";", ":"], ".": ["।", ">", ".", None],
             "4": ["৪", "৳", "4", "$"],
@@ -52,8 +52,10 @@ class LayoutTests(unittest.TestCase):
                 self.assertEqual(KEYS[key], values)
         self.assertEqual(sum(v == "য়" for vs in KEYS.values() for v in vs), 1)
         self.assertEqual(sum(v == "ঢ়" for vs in KEYS.values() for v in vs), 1)
-        for ch in ("\u200d", "\u200c", "ঞ", "ঁ", "ং", "ঙ"):
+        for ch in ("ঞ", "ঁ", "ং", "ঙ"):
             self.assertEqual(sum(v == ch for vs in (KEYS | LAYOUT["passthrough"]).values() for v in vs), 1)
+        self.assertNotIn("\u200d", json.dumps(LAYOUT, ensure_ascii=False))
+        self.assertNotIn("\u200c", json.dumps(LAYOUT, ensure_ascii=False))
         self.assertNotIn("ৰ", json.dumps(LAYOUT, ensure_ascii=False))
         self.assertNotIn("ঽ", json.dumps(LAYOUT, ensure_ascii=False))
 
@@ -76,17 +78,17 @@ class LayoutTests(unittest.TestCase):
             r"key <AB01>.*U09AF, VoidSymbol",
             r"key <AD04>.*U09B0, U09DC, VoidSymbol",
             r"key <AB02>.*U09B6, U09DD",
-            r"key <AC07>.*U099C, U099D, U200D",
-            r"key <AB06>.*U09A8, U09A3, U200C, U099E",
+            r"key <AC07>.*U099C, U099D, VoidSymbol",
+            r"key <AB06>.*U09A8, U09A3, U099E, VoidSymbol",
             r"key <AB07>.*U09AE, U0999, U0982",
             r"key <AC09>.*U09B2, VoidSymbol, U0981",
             r"key <AC11>.*U0027, U0022, VoidSymbol, VoidSymbol",
         ):
             with self.subTest(regex=regex):
                 self.assertRegex(xkb, regex)
-        for char in ("U09DF", "U09F1", "U200D", "U200C", "U09CD"):
+        for char in ("U09DF", "U09F1", "U09CD"):
             self.assertIn(char, xkb)
-        for char in ("U09F0", "U09BD", "Onnoy.XCompose", "F13"):
+        for char in ("U09F0", "U09BD", "U200D", "U200C", "Onnoy.XCompose", "F13"):
             self.assertNotIn(char, xkb)
 
     def test_windows_klc(self):
@@ -106,9 +108,9 @@ class LayoutTests(unittest.TestCase):
             "2C\tZ\t0\t09af -1 -1 -1 -1",
             "2F\tV\t0\t0985 09d7 -1 -1 -1",
             "30\tB\t0\t09ac 09ad -1 -1 -1",
-            "24\tJ\t0\t099c 099d -1 200d -1",
+            "24\tJ\t0\t099c 099d -1 -1 -1",
             "26\tL\t0\t09b2 -1 -1 0981 -1",
-            "31\tN\t0\t09a8 09a3 -1 200c 099e",
+            "31\tN\t0\t09a8 09a3 -1 099e -1",
             "32\tM\t0\t09ae 0999 -1 0982 -1",
             "28\tOEM_7\t0\t0027 0022 -1 -1 -1",
             "39\tSPACE\t0\t0020 0020 0020 0020 0020",
@@ -143,8 +145,7 @@ class LayoutTests(unittest.TestCase):
             (0, 6, "য"), (2, 16, "য়"), (0, 9, "অ"), (1, 9, "ৗ"),
             (0, 47, "।"), (1, 47, ">"), (2, 47, "."),
             (0, 44, "্"), (1, 44, "?"), (2, 44, "/"),
-            (2, 38, "\u200d"), (2, 45, "\u200c"),
-            (3, 45, "ঞ"), (2, 46, "ং"), (2, 37, "ঁ"),
+            (2, 45, "ঞ"), (2, 46, "ং"), (2, 37, "ঁ"),
         ):
             with self.subTest(index=i, code=code):
                 self.assertEqual(key(custom.find(f"keyMap[@index='{i}']"), code)["output"], expected)
@@ -153,6 +154,8 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(key(custom.find("keyMap[@index='2']"), 39)["output"], "")
         self.assertEqual(key(custom.find("keyMap[@index='3']"), 39)["output"], "")
         self.assertEqual(key(custom.find("keyMap[@index='1']"), 37)["output"], "")
+        self.assertEqual(key(custom.find("keyMap[@index='2']"), 38)["output"], "")
+        self.assertEqual(key(custom.find("keyMap[@index='3']"), 45)["output"], "")
         defined_actions = {a.attrib["id"] for a in root.findall("./actions/action")}
         for node in root.findall(".//keyMap/key"):
             if "action" in node.attrib:

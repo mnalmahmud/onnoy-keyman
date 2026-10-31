@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Restore AltGr+N = ঞ; remove joiners pending redesign
+- Restore the unique ঞ character to AltGr+N from Shift+AltGr+N.
+- Clear ZWJ (U+200D) from AltGr+J and ZWNJ (U+200C) from AltGr+N; both are currently unassigned pending new positions, not duplicated or automatically generated.
+- Preserve the M /ŋ/ family, AltGr+L chandrabindu and other marks.
+
 ### Place /ŋ/ pair on M; keep joiners unchanged
 - Keep Shift+M = ঙ; move ং from Shift+L to AltGr+M. Retain AltGr+L = ঁ, clear Shift+L.
 - Keep AltGr+J = ZWJ and AltGr+N = ZWNJ during the separate joiner review. Move displaced ঞ to Shift+AltGr+N as a temporary unique assignment pending that review.
