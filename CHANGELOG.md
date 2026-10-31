@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Native phonetic/ergonomic layout redesign
+- Keep T=ট/ঠ with AltGr+T=ৎ; use F=ত/থ and Q=ড/ঢ, D=দ/ধ.
+- Group P=প/ফ, B=ব/ভ, V=অ/ৗ and W=ূ/ঊ with AltGr+W=ৱ.
+- Use R=র/ড়/ঢ়, Z=য/য়, M=ম/ঙ/ঁ and N=ন/ণ/ঞ.
+- Move ৌ/ঔ to the right bracket and ৃ/ঋ to semicolon; restore ordinary equals/plus with native US inheritance.
+- Move nukta and U+11DF0 to AltGr+comma and Shift+AltGr+comma, retaining ordinary comma and period punctuation.
+- Remove Assamese ৰ and avagraha ঽ from direct assignments. Preserve the joiner, virama and number layers.
+
+
 ### Move avagraha to AltGr+H
 - Move Bengali avagraha ঽ (U+09BD) from AltGr+A to AltGr+H; AltGr+A is now unassigned.
 - Leave Base/Shift A and H unchanged and update the native layout and browser regression tests.
