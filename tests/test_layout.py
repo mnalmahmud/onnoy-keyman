@@ -15,7 +15,7 @@ ALL_KEYS = PHYSICAL + " "
 
 class LayoutTests(unittest.TestCase):
     def test_all_keys_have_four_layers(self):
-        self.assertEqual(set(KEYS), set(PHYSICAL) | {"SPACE"})
+        self.assertEqual(set(KEYS), set(PHYSICAL))
         for key, values in KEYS.items():
             with self.subTest(key=key):
                 self.assertEqual(len(values), 4)
@@ -25,8 +25,7 @@ class LayoutTests(unittest.TestCase):
 
     def test_passthrough_keys_are_in_canonical_source(self):
         self.assertEqual(LAYOUT["passthrough"], {
-            "`": ["`", "~", None, None], "-": ["-", "_", None, None], "\\": ["\\", "|", None, None],
-            "'": ["'", '"', "\u200d", "\u200c"], ",": [",", "<", None, None], "/": ["্", "?", "/", None],
+            "'": ["'", '"', "\u200d", "\u200c"], "/": ["্", "?", "/", None],
         })
 
     def test_known_assignments_and_empty_slots(self):
@@ -51,7 +50,6 @@ class LayoutTests(unittest.TestCase):
             "M": ["ম", "ঁ", None, None],
             "[": ["ৈ", "ঐ", "[", "{"],
             "]": ["ূ", "ঊ", "]", "}"],
-            "SPACE": [" ", " ", " ", " "],
             ".": ["।", ">", ".", None],
             "4": ["৪", "৳", "4", "$"],
             "=": ["ৃ", "ঋ", "=", "+"],
@@ -70,9 +68,11 @@ class LayoutTests(unittest.TestCase):
                     self.assertTrue(value is None or len(value) == 1)
 
     def test_normal_space_and_joiners(self):
-        self.assertEqual(KEYS["SPACE"], [" ", " ", " ", " "])
+        self.assertNotIn("SPACE", KEYS)
+        for key in ("`", "-", "\\", ","):
+            self.assertNotIn(key, LAYOUT["passthrough"])
         self.assertEqual(KEYS["Z"][2:], [None, None])
-        self.assertEqual(LAYOUT["passthrough"]["`"][2:], [None, None])
+        self.assertNotIn("`", LAYOUT["passthrough"])
         self.assertEqual(LAYOUT["passthrough"]["\'"][2:], ["\u200d", "\u200c"])
         self.assertEqual(LAYOUT["passthrough"]["/"], ["্", "?", "/", None])
         self.assertIsNone(KEYS["F"][1])
@@ -86,13 +86,16 @@ class LayoutTests(unittest.TestCase):
         self.assertIn("U09B0", xkb)
         self.assertIn("U09F0", xkb)
         self.assertIn("U200C", xkb)
-        self.assertIn("key <SPCE>", xkb)
+        self.assertNotIn("key <SPCE>", xkb)
+        self.assertNotIn("key <AE11>", xkb)
+        self.assertNotIn("key <BKSL>", xkb)
+        self.assertNotIn("key <AB08>", xkb)
         self.assertIn("U200D", xkb)
         self.assertRegex(xkb, r"key <AC11>.*U200D, U200C")
-        self.assertRegex(xkb, r"key <TLDE>.*U0060, U007E, VoidSymbol, VoidSymbol")
+        self.assertNotIn("key <TLDE>", xkb)
         self.assertRegex(xkb, r"key <AB10>.*U09CD, U003F, U002F, VoidSymbol")
         self.assertRegex(xkb, r"key <AB01>.*VoidSymbol, VoidSymbol")
-        self.assertRegex(xkb, r"key <SPCE>.*space, space, space, space")
+        self.assertIn('include "us(basic)"', xkb)
         self.assertIn("39\tSPACE\t0\t0020 0020 0020 0020 0020", klc)
         self.assertIn("2C\tZ\t0\t09af 0999 -1 -1 -1", klc)
         self.assertIn("35\tOEM_2\t0\t09cd 003f -1 002f -1", klc)

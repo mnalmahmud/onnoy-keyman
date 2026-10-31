@@ -10,6 +10,14 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 ORDER = "QWERTYUIOP[]ASDFGHJKL;ZXCVBNM1234567890=."
 KEY_ORDER = tuple(ORDER) + ("SPACE",)
+# US-QWERTY defaults are generator/platform policy, not Onnoy overrides.
+US_SHIFT = dict(zip("1234567890", "!@#$%^&*()"))
+US_SHIFT.update({"[":"{","]":"}",";":":","=":"+",".":">","`":"~","-":"_","\\":"|","'":'"',",":"<","/":"?"})
+US_BASE = {key: [key.lower(), key.upper(), None, None] for key in "QWERTYUIOPASDFGHJKLZXCVBNM"}
+for key in "1234567890[];=.`-\\',/":
+    US_BASE[key] = [key, US_SHIFT[key], None, None]
+US_BASE["SPACE"] = [" "] * 4
+
 XKB = dict(zip("QWERTYUIOP", "AD01 AD02 AD03 AD04 AD05 AD06 AD07 AD08 AD09 AD10".split()))
 XKB.update(dict(zip("ASDFGHJKL", "AC01 AC02 AC03 AC04 AC05 AC06 AC07 AC08 AC09".split())))
 XKB.update(dict(zip("ZXCVBNM", "AB01 AB02 AB03 AB04 AB05 AB06 AB07".split())))
@@ -47,16 +55,16 @@ PUNCT_META = [
  ("33", "OEM_COMMA", 43, ","), ("35", "OEM_2", 44, "/"),
 ]
 LAYOUT = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))
-PUNCT = [(scan, vk, mac, key, LAYOUT["passthrough"][key])
+PUNCT = [(scan, vk, mac, key, LAYOUT["passthrough"].get(key, US_BASE[key]))
          for scan, vk, mac, key in PUNCT_META]
 def mapping():
     data=LAYOUT
     assert data["layers"]==["base","shift","altgr","shift_altgr"]
-    assert set(data["passthrough"]) == {entry[3] for entry in PUNCT_META}
+    assert set(data["passthrough"]) <= {entry[3] for entry in PUNCT_META}
     assert all(len(pair) == 4 and all(v is None or isinstance(v, str) and len(v) == 1 for v in pair)
                for pair in data["passthrough"].values())
     m=data["keys"]
-    assert set(m)==set(KEY_ORDER)
+    assert set(m)==set(ORDER)
     assert all(isinstance(v,list) and len(v)==4 and
                all(x is None or isinstance(x,str) and 1<=len(x)<=4 for x in v)
                for v in m.values())
@@ -66,13 +74,14 @@ def mapping():
     assert m["["]==["ৈ","ঐ","[","{"] and m["]"]==["ূ","ঊ","]","}"]
     assert m["O"][:2]==["ো","ও"] and m[";"]==["ৌ","ঔ",";",":"]
     assert m["4"][1]=="৳" and m["4"][3]=="$"
-    assert m["SPACE"]==[" "," "," "," "]
+    assert US_BASE["SPACE"]==[" "," "," "," "]
     assert m["Z"]==["য","ঙ",None,None]
     assert data["passthrough"]["/"]==["্","?","/",None]
-    assert data["passthrough"]["`"]==["`","~",None,None]
+    assert "`" not in data["passthrough"] and US_BASE["`"]==["`","~",None,None]
     assert data["passthrough"]["\'"]==["\'",'"',"\u200d","\u200c"]
+    assert all(key not in data["passthrough"] for key in ("-","\\",","))
     assert m["V"][:2]==["ভ","অ"] and m["B"][:2]==["ব","ৗ"]
-    return m
+    return {key: m.get(key, US_BASE[key]) for key in KEY_ORDER}
 
 def linux(m):
     """Native XKB symbols: no input method, compose engine, or custom runtime."""
@@ -87,6 +96,8 @@ def linux(m):
         '    include "level3(ralt_switch)"',
     ]
     for key in KEY_ORDER + tuple(x[3] for x in PUNCT_META):
+        if key not in LAYOUT["keys"] and key not in LAYOUT["passthrough"]:
+            continue  # Inherit untouched key directly from us(basic).
         symbols = ", ".join("VoidSymbol" if value is None else (
             "space" if value == " " else "U%04X" % ord(value)) for value in (m[key] if key in m else LAYOUT["passthrough"][key]))
         s.append('    key <%s> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ %s ] }; // %s'

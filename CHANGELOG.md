@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Inherit ordinary US keyboard keys
+- Remove unchanged Space, Minus, Backslash, Comma and Backtick from canonical Onnoy overrides.
+- Linux XKB inherits them through `us(basic)`; macOS and Windows emit required native mappings from US default data in the generator.
+- Browser preview and benchmark inherit defaults rather than copying them into Onnoy JSON.
+
+
 ### Group joiners on the apostrophe key
 - Assign U+200D to AltGr+apostrophe and U+200C to Shift+AltGr+apostrophe.
 - Restore the backtick and tilde key to normal punctuation without custom AltGr outputs.
