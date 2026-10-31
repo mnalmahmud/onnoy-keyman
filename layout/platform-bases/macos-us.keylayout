@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE keyboard SYSTEM "file://localhost/System/Library/DTDs/KeyboardLayout.dtd">
+<!-- Extract of unchanged printable-key assignments from a U.S.-derived macOS
+     Ukelele source: https://github.com/ministryofprogramming/bosnian-macos-keyboard/blob/master/src/Bosnian%20-%20U.S..keylayout
+     Limited to Space, Minus, Backslash, Comma, and Backtick, whose US behavior
+     matches the exported macOS U.S. keyboard reference. Pinned and offline. -->
+<keyboard group="126" id="-15998" name="Onnoy US build reference">
+  <keyMapSet id="OnnoyUSBase">
+    <keyMap index="0">
+      <key code="27" output="-"/>
+      <key code="42" output="\"/>
+      <key code="43" output=","/>
+      <key code="49" action="5"/>
+      <key code="50" output="`"/>
+    </keyMap>
+    <keyMap index="1">
+      <key code="27" output="_"/>
+      <key code="42" output="|"/>
+      <key code="43" output="&#x003C;"/>
+      <key code="49" action="5"/>
+      <key code="50" output="~"/>
+    </keyMap>
+    <keyMap index="2">
+      <key code="27" output="–"/>
+      <key code="42" output="«"/>
+      <key code="43" output="≤"/>
+      <key code="49" output=" "/>
+      <key code="50" action="1"/>
+    </keyMap>
+    <keyMap index="3">
+      <key code="27" output="—"/>
+      <key code="42" output="»"/>
+      <key code="43" output="¯"/>
+      <key code="49" output=" "/>
+      <key code="50" output="`"/>
+    </keyMap>
+  </keyMapSet>
+  <actions>
+    <action id="1">
+			<when state="none" next="2"/>
+		</action>
+    <action id="5">
+			<when state="none" output=" "/>
+			<when state="1" output="´"/>
+			<when state="2" output="`"/>
+			<when state="3" output="ˆ"/>
+			<when state="4" output="¨"/>
+			<when state="5" output="˜"/>
+		</action>
+  </actions>
+  <terminators>
+		<when state="1" output="´"/>
+		<when state="2" output="`"/>
+		<when state="3" output="ˆ"/>
+		<when state="4" output="¨"/>
+		<when state="5" output="˜"/>
+	</terminators>
+</keyboard>
