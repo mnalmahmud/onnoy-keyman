@@ -145,6 +145,13 @@ class LayoutTests(unittest.TestCase):
         self.assertIsNone(inherited.find("keyMap[@index='5']"))
         cmd = inherited.find("keyMap[@index='4']")
         self.assertEqual(next(k.attrib["output"] for k in cmd.findall("key") if k.attrib["code"] == "15"), "r")
+        self.assertEqual(next(k.attrib["output"] for k in cmd.findall("key") if k.attrib["code"] == "0"), "a")
+        self.assertEqual(next(k.attrib["output"] for k in cmd.findall("key") if k.attrib["code"] == "14"), "e")
+        self.assertEqual(next(k.attrib["output"] for k in cmd.findall("key") if k.attrib["code"] == "34"), "i")
+        defined_actions = {k.attrib["id"] for k in mac.findall("./actions/action")}
+        for key in mac.findall(".//keyMap/key"):
+            if "action" in key.attrib:
+                self.assertIn(key.attrib["action"], defined_actions)
         self.assertEqual(next(k.attrib["output"] for k in cmd.findall("key") if k.attrib["code"] == "50"), "`")
         ordinary = inherited.find("keyMap[@index='0']")
         shifted = inherited.find("keyMap[@index='1']")
