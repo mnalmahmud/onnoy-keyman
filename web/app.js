@@ -247,7 +247,8 @@
       })[event.code];
     if (!key || !mapping[key]) return null;
     const layer = Number(event.shiftKey) + Number(Boolean(altgr)) * 2;
-    return mapping[key][layer] ?? null;
+    // An unassigned mapped chord must not fall back to an ASCII keystroke.
+    return mapping[key][layer] ?? "";
   }
 
   editor.addEventListener("keydown", (event) => {
@@ -256,6 +257,7 @@
     if (replacement === null) return;
     if (event.ctrlKey && !event.getModifierState?.("AltGraph")) return;
     event.preventDefault();
+    if (replacement === "") return;
     editor.setRangeText(replacement, editor.selectionStart, editor.selectionEnd, "end");
     editor.dispatchEvent(new Event("input", { bubbles: true }));
   });
