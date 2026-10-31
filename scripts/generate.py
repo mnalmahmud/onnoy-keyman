@@ -162,7 +162,7 @@ def macos(m):
     import copy
     source = ET.parse(MAC_BASE).getroot()
     base = source.find("./keyMapSet[@id='OnnoyUSBase']")
-    assert base is not None and len(base.findall("keyMap")) == 6
+    assert base is not None and len(base.findall("keyMap")) == 5
     root = ET.Element("keyboard", {"group": "126", "id": "-15231",
                                   "name": "Onnoy", "maxout": "1"})
     layouts = ET.SubElement(root, "layouts")
@@ -188,7 +188,8 @@ def macos(m):
     codes.update({key: code for sc, vk, code, key in PUNCT_META})
     for index in range(6):
         node = ET.SubElement(maps, "keyMap", {"index": str(index),
-                              "baseMapSet": "OnnoyUSBase", "baseIndex": str(index)})
+                              "baseMapSet": "OnnoyUSBase",
+                              "baseIndex": str(min(index, 4))})
         if index < 4:
             for key, vals in m.items():
                 ET.SubElement(node, "key",

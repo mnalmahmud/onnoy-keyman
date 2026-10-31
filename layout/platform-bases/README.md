@@ -25,3 +25,9 @@ reviewed change.
 
 `layout/onnoy.json` remains the sole source of **Onnoy overrides**, while
 these two files supply platform-specific ordinary keyboard behavior.
+
+The macOS reference stores a single complete ordinary-US mapping for Command
+and Control (base index 4), shared by both Onnoy shortcut layers.
+The normal Space character is retained on all four Onnoy typing layers,
+including Option: U.S. Option+Space nonbreaking space is deliberately normalized
+to ASCII Space for Onnoy.

@@ -17,7 +17,7 @@ class BuildTests(unittest.TestCase):
         root = ET.parse(ROOT / "dist/macos/Onnoy.keylayout").getroot()
         self.assertEqual(root.tag, "keyboard")
         self.assertEqual(len(root.findall("./keyMapSet[@id=\'OnnoyMap\']/keyMap")), 6)
-        self.assertEqual(len(root.findall("./keyMapSet[@id=\'OnnoyUSBase\']/keyMap")), 6)
+        self.assertEqual(len(root.findall("./keyMapSet[@id=\'OnnoyUSBase\']/keyMap")), 5)
 
     def test_no_app_runtime_in_native_layouts(self):
         for file in ("dist/linux/symbols/onnoy", "dist/windows/onnoy.klc", "dist/macos/Onnoy.keylayout"):
