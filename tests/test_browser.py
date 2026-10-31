@@ -133,6 +133,8 @@ class BrowserSmokeTests(unittest.TestCase):
         self.assertEqual(key("/"), "/")
         self.assertEqual(key("`"), "—")
         self.assertEqual(key("\'"), "ZWJ")
+        self.assertEqual(key("A"), "—")
+        self.assertEqual(key("H"), "ঽ")
         self.page.locator('button[data-layer="3"]').click()
         self.assertEqual(key("="), "+")
         self.assertEqual(key("`"), "—")

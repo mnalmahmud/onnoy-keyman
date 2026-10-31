@@ -37,6 +37,7 @@ The complete, authoritative [layout definition](layout/onnoy.json) can be inspec
 | ; / Shift+; | ৌ / ঔ | = / Shift+= | ৃ / ঋ |
 | / / Shift+/ | ্ / ? | AltGr+/ | / |
 | AltGr+apostrophe | U+200D | Shift+AltGr+apostrophe | U+200C |
+| AltGr+H | ঽ (U+09BD) | AltGr+A | Unassigned |
 
 Space remains Space with every modifier. The ordinary slash character is on **AltGr+/**; **Shift+F is deliberately unassigned** rather than providing a duplicate virama shortcut. Backtick and tilde remain ordinary punctuation with no special AltGr assignment. U+200D and U+200C are grouped on the apostrophe key using AltGr and Shift+AltGr respectively, while ordinary apostrophe and double quote stay unchanged. ASCII bracket, semicolon and equals characters are available through AltGr layers. Number keys produce Bengali digits on the base layer.
 
