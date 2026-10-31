@@ -10,13 +10,9 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 ORDER = "QWERTYUIOP[]ASDFGHJKL;ZXCVBNM1234567890=."
 KEY_ORDER = tuple(ORDER) + ("SPACE",)
-# US-QWERTY defaults are generator/platform policy, not Onnoy overrides.
-US_SHIFT = dict(zip("1234567890", "!@#$%^&*()"))
-US_SHIFT.update({"[":"{","]":"}",";":":","=":"+",".":">","`":"~","-":"_","\\":"|","'":'"',",":"<","/":"?"})
-US_BASE = {key: [key.lower(), key.upper(), None, None] for key in "QWERTYUIOPASDFGHJKLZXCVBNM"}
-for key in "1234567890[];=.`-\\',/":
-    US_BASE[key] = [key, US_SHIFT[key], None, None]
-US_BASE["SPACE"] = [" "] * 4
+# Platform exports are pinned at build time; no native runtime dependency.
+MAC_BASE = ROOT / "layout/platform-bases/macos-us.keylayout"
+WIN_BASE = ROOT / "layout/platform-bases/windows-us.klc"
 
 XKB = dict(zip("QWERTYUIOP", "AD01 AD02 AD03 AD04 AD05 AD06 AD07 AD08 AD09 AD10".split()))
 XKB.update(dict(zip("ASDFGHJKL", "AC01 AC02 AC03 AC04 AC05 AC06 AC07 AC08 AC09".split())))
@@ -55,8 +51,6 @@ PUNCT_META = [
  ("33", "OEM_COMMA", 43, ","), ("35", "OEM_2", 44, "/"),
 ]
 LAYOUT = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))
-PUNCT = [(scan, vk, mac, key, LAYOUT["passthrough"].get(key, US_BASE[key]))
-         for scan, vk, mac, key in PUNCT_META]
 def mapping():
     data=LAYOUT
     assert data["layers"]==["base","shift","altgr","shift_altgr"]
@@ -74,14 +68,14 @@ def mapping():
     assert m["["]==["ৈ","ঐ","[","{"] and m["]"]==["ূ","ঊ","]","}"]
     assert m["O"][:2]==["ো","ও"] and m[";"]==["ৌ","ঔ",";",":"]
     assert m["4"][1]=="৳" and m["4"][3]=="$"
-    assert US_BASE["SPACE"]==[" "," "," "," "]
+    assert "SPACE" not in m
     assert m["Z"]==["য","ঙ",None,None]
     assert data["passthrough"]["/"]==["্","?","/",None]
-    assert "`" not in data["passthrough"] and US_BASE["`"]==["`","~",None,None]
+    assert "`" not in data["passthrough"]
     assert data["passthrough"]["\'"]==["\'",'"',"\u200d","\u200c"]
     assert all(key not in data["passthrough"] for key in ("-","\\",","))
     assert m["V"][:2]==["ভ","অ"] and m["B"][:2]==["ব","ৗ"]
-    return {key: m.get(key, US_BASE[key]) for key in KEY_ORDER}
+    return {**m, **data["passthrough"]}
 
 def linux(m):
     """Native XKB symbols: no input method, compose engine, or custom runtime."""
@@ -99,7 +93,7 @@ def linux(m):
         if key not in LAYOUT["keys"] and key not in LAYOUT["passthrough"]:
             continue  # Inherit untouched key directly from us(basic).
         symbols = ", ".join("VoidSymbol" if value is None else (
-            "space" if value == " " else "U%04X" % ord(value)) for value in (m[key] if key in m else LAYOUT["passthrough"][key]))
+            "space" if value == " " else "U%04X" % ord(value)) for value in m[key])
         s.append('    key <%s> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ %s ] }; // %s'
                  % ((XKB[key] if key in XKB else {"`": "TLDE", "-": "AE11", "\\": "BKSL", "\'": "AC11", ",": "AB08", "/": "AB10"}[key]), symbols, key))
     return "\n".join(s + ["};", ""])
@@ -110,60 +104,101 @@ def utf16_units(value):
     return [int.from_bytes(raw[i:i+2], "little") for i in range(0, len(raw), 2)]
 
 def windows(m):
-    s=['KBD\tonnoy\t"Onnoy"','',
-       'COPYRIGHT "(c) 2026 Muhtasham Nawr al-Mahmud"',
-       'COMPANY "Muhtasham Nawr al-Mahmud"','LOCALENAME "bn-BD"',
-       'LOCALEID "00000845"','VERSION 1.2','',
-       'SHIFTSTATE','0\t// Base','1\t// Shift','2\t// Ctrl',
-       '6\t// AltGr','7\t// Shift+AltGr','',
-       'LAYOUT','//SC VK_ Cap 0 1 2 6 7']
-    code=lambda x: '-1' if x is None else ('%%' if len(utf16_units(x))>1 else '%04x'%ord(x))
-    ligatures=[]
-    for k in KEY_ORDER:
-        vals=m[k]
-        cols=" ".join(code(x) for x in (vals[0],vals[1]," " if k=="SPACE" else None,vals[2],vals[3]))
-        vk={".": "OEM_PERIOD", "[": "OEM_4", "]": "OEM_6", ";": "OEM_1", "=": "OEM_PLUS"}.get(k, k)
-        s.append("%s\t%s\t0\t%s\t// %s"%(SCAN[k],vk,cols,k))
-        for shift_index,value in enumerate((vals[0],vals[1],None,vals[2],vals[3])):
-            if value is not None and len(utf16_units(value))>1:
-                ligatures.append("%s\t%d\t%s"%(vk,shift_index," ".join("%04x"%unit for unit in utf16_units(value))))
-    for scan,vk,mac,key,values in PUNCT:
-        s.append("%s\t%s\t0\t%s"%(scan,vk," ".join(code(x) for x in (values[0],values[1],None,values[2],values[3]))))
+    """Patch an actual exported US MSKLC source, preserving Ctrl and scan codes."""
+    source = WIN_BASE.read_text(encoding="utf-8-sig").splitlines()
+    first = next(i for i, s in enumerate(source) if s.startswith("LAYOUT"))
+    last = next(i for i, s in enumerate(source) if s.startswith("KEYNAME"))
+    desc = next(i for i, s in enumerate(source) if s.startswith("DESCRIPTIONS"))
+    scan_keys = {sc.upper(): key for key, sc in SCAN.items()}
+    scan_keys.update({sc.upper(): key for sc, vk, mac, key in PUNCT_META})
+    rows = []
+    for line in source[first + 1:last]:
+        parts = line.split("//", 1)[0].split()
+        if len(parts) >= 6 and len(parts[0]) == 2 and all(ch in "0123456789abcdefABCDEF" for ch in parts[0]):
+            rows.append(parts[:6])
+    assert len(rows) >= 45
+    code = lambda v: "-1" if v is None else ("%%" if len(utf16_units(v)) > 1 else "%04x" % ord(v))
+    norm = lambda v: "%04x" % ord(v) if len(v) == 1 and v != "-" else v
+    result = ['KBD\tonnoy\t"Onnoy"', '',
+              'COPYRIGHT "(c) 2026 Muhtasham Nawr al-Mahmud"',
+              'COMPANY "Muhtasham Nawr al-Mahmud"',
+              'LOCALENAME "bn-BD"', 'LOCALEID "00000845"', 'VERSION 1.2', '',
+              'SHIFTSTATE', '0\t// Base', '1\t// Shift', '2\t// Ctrl',
+              '6\t// AltGr', '7\t// Shift+AltGr', '', 'LAYOUT',
+              '//SC VK_ Cap 0 1 2 6 7']
+    ligatures = []
+    seen = set()
+    for sc, vk, cap, base, shift, ctrl in rows:
+        key = scan_keys.get(sc.upper())
+        if key is not None:
+            seen.add(key)
+        if key in m:
+            vals = m[key]
+            cap = "0"
+            values = [code(vals[0]), code(vals[1]), norm(ctrl), code(vals[2]), code(vals[3])]
+            for slot, val in enumerate([vals[0], vals[1], None, vals[2], vals[3]]):
+                if val is not None and len(utf16_units(val)) > 1:
+                    ligatures.append("%s\t%d\t%s" %
+                                     (vk, slot, " ".join("%04x" % u for u in utf16_units(val))))
+        else:
+            # Copy the reference's Base, Shift and Ctrl values.
+            values = [norm(base), norm(shift), norm(ctrl),
+                      "0020" if key == "SPACE" else "-1",
+                      "0020" if key == "SPACE" else "-1"]
+        result.append("%s\t%s\t%s\t%s\t// %s" %
+                      (sc.upper(), vk, cap, " ".join(values), key or "US base"))
+    assert set(m) <= seen, "Unknown Onnoy key in MSKLC US reference"
     if ligatures:
-        s+=['','LIGATURE','//VK_ Mod# Char0 Char1 Char2 Char3']
-        s+=ligatures
-    s+=['','KEYNAME','01\tEsc','0e\tBackspace','0f\tTab','1c\tEnter',
-        '1d\tCtrl','2a\tShift','36\t"Right Shift"','38\tAlt',
-        '39\tSpace','3a\t"Caps Lock"','KEYNAME_EXT',
-        '38\t"Right Alt"','1d\t"Right Ctrl"',
-        'DESCRIPTIONS','0845\tBengali (Onnoy)',
-        'LANGUAGENAMES','0845\tBangla (Bangladesh)','ENDKBD','']
-    return "\r\n".join(s)
+        result += ['', 'LIGATURE', '//VK_ Mod# Char0 Char1 Char2 Char3']
+        result += ligatures
+    result += ['', *source[last:desc], 'DESCRIPTIONS',
+               '0845\tBengali (Onnoy)', 'LANGUAGENAMES',
+               '0845\tBangla (Bangladesh)', 'ENDKBD', '']
+    return "\r\n".join(result)
+
 
 def macos(m):
-    root=ET.Element("keyboard",{"group":"126","id":"-15231","name":"Onnoy","maxout":str(max(len(v) for values in m.values() for v in values if v is not None))})
-    layouts=ET.SubElement(root,"layouts")
-    ET.SubElement(layouts,"layout",{"first":"0","last":"17","modifiers":"OnnoyModifiers","mapSet":"OnnoyMap"})
-    mods=ET.SubElement(root,"modifierMap",{"id":"OnnoyModifiers","defaultIndex":"0"})
-    conditions=[["","caps"],["anyShift caps?"],["anyOption caps?"],["anyShift anyOption caps?"],
-                ["command anyShift? caps? anyOption? anyControl?"],
-                ["anyControl command? anyShift? caps? anyOption?"]]
-    for i,names in enumerate(conditions):
-        node=ET.SubElement(mods,"keyMapSelect",{"mapIndex":str(i)})
-        for name in names: ET.SubElement(node,"modifier",{"keys":name})
-    maps=ET.SubElement(root,"keyMapSet",{"id":"OnnoyMap"})
+    """Inherit unchanged keys via Apple's baseMapSet and baseIndex."""
+    import copy
+    source = ET.parse(MAC_BASE).getroot()
+    base = source.find("./keyMapSet[@id='OnnoyUSBase']")
+    assert base is not None and len(base.findall("keyMap")) == 6
+    root = ET.Element("keyboard", {"group": "126", "id": "-15231",
+                                  "name": "Onnoy", "maxout": "1"})
+    layouts = ET.SubElement(root, "layouts")
+    ET.SubElement(layouts, "layout", {"first": "0", "last": "17",
+                "modifiers": "OnnoyModifiers", "mapSet": "OnnoyMap"})
+    mods = ET.SubElement(root, "modifierMap",
+                         {"id": "OnnoyModifiers", "defaultIndex": "0"})
+    conditions = [["", "caps"], ["anyShift caps?"], ["anyOption caps?"],
+                  ["anyShift anyOption caps?"],
+                  ["command anyShift? caps? anyOption? anyControl?"],
+                  ["anyControl command? anyShift? caps? anyOption?"]]
+    for i, names in enumerate(conditions):
+        n = ET.SubElement(mods, "keyMapSelect", {"mapIndex": str(i)})
+        for name in names:
+            ET.SubElement(n, "modifier", {"keys": name})
+    maps = ET.SubElement(root, "keyMapSet", {"id": "OnnoyMap"})
+    root.append(copy.deepcopy(base))
+    for tag in ("actions", "terminators"):
+        node = source.find(tag)
+        if node is not None:
+            root.append(copy.deepcopy(node))
+    codes = dict(MAC)
+    codes.update({key: code for sc, vk, code, key in PUNCT_META})
     for index in range(6):
-        node=ET.SubElement(maps,"keyMap",{"index":str(index)})
-        for k in KEY_ORDER:
-            v=m[k][index] if index<4 else (" " if k=="SPACE" else (k.lower() if k.isalpha() else k))
-            ET.SubElement(node,"key",{"code":str(MAC[k]),"output":v or ""})
-        for scan,vk,code,key,values in PUNCT:
-            value = values[index] if index < 4 else key
-            ET.SubElement(node,"key",{"code":str(code),"output":value or ""})
-    ET.indent(root,space="  ")
+        node = ET.SubElement(maps, "keyMap", {"index": str(index),
+                              "baseMapSet": "OnnoyUSBase", "baseIndex": str(index)})
+        if index < 4:
+            for key, vals in m.items():
+                ET.SubElement(node, "key",
+                              {"code": str(codes[key]), "output": vals[index] or ""})
+        # Command/Control retain the US reference's native shortcut behavior.
+    ET.indent(root, space="  ")
     return ('<?xml version="1.0" encoding="UTF-8"?>\n'
             '<!DOCTYPE keyboard SYSTEM "file://localhost/System/Library/DTDs/KeyboardLayout.dtd">\n'
-            +ET.tostring(root,encoding="unicode")+"\n")
+            + ET.tostring(root, encoding="unicode") + "\n")
+
 
 def main():
     m=mapping()
