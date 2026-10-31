@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Relocate য় from Shift+Z to AltGr+Y
+- The unique direct য় (U+09DF) assignment is now AltGr+Y; Shift+Z is unassigned, not duplicated.
+- Update native assertions, typing tests, browser behavior for unassigned chords, and documentation.
+
 ### Swap D/Q for a closer English D sound match
 - Assign D / Shift+D to ড / ঢ and Q / Shift+Q to দ / ধ. In Bangladeshi Standard Bengali, ড is commonly realized closer to the English alveolar /d/ than dental দ.
 - Update canonical mapping, native generator assertions, typing tests, browser checks, and layout documentation.
