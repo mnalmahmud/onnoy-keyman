@@ -30,18 +30,30 @@ def emit(sequence):
 
 class TypingTests(unittest.TestCase):
     def test_words(self):
-        samples = {"AltGr+H": "ঽ", "Shift+S": "ষ", "X": "শ", "K I": "কি", "K O": "কো", "K ;": "কৌ",
-                   "K / Shift+S": "ক্ষ", "Q Shift+X": "ড়",
-                   "B A Shift+L L A": "বাংলা",
-                   "X I K / Shift+S A": "শিক্ষা",
-                   "Shift+4 4 AltGr+. 5 0": "৳৪.৫০",
-                   "AltGr+\'": "\u200d", "Shift+AltGr+\'": "\u200c",
-                   "/": "্", "Shift+/": "?", "AltGr+/": "/",
-                   "AltGr+SPACE": " ", "Shift+AltGr+SPACE": " "}
+        samples = {
+            "Shift+S": "ষ", "X": "শ", "K I": "কি",
+            "K O": "কো", "K ]": "কৌ",
+            "K / Shift+S": "ক্ষ",
+            "Shift+R": "ড়", "AltGr+R": "ঢ়", "Shift+Z": "য়",
+            "Q AltGr+,": "ড়", "Shift+Q AltGr+,": "ঢ়",
+            "B A Shift+L L A": "বাংলা",
+            "X I K / Shift+S A": "শিক্ষা",
+            "Shift+4 4 AltGr+. 5 0": "৳৪.৫০",
+            "Shift+T": "ঠ", "AltGr+T": "ৎ",
+            "Shift+F": "থ", "Shift+P": "ফ",
+            "Shift+V": "ৗ", "Shift+B": "ভ",
+            "Shift+M": "ঙ", "AltGr+M": "ঁ", "AltGr+N": "ঞ",
+            "AltGr+,": "়", "Shift+AltGr+,": "𑷰",
+            "=": "=", "Shift+=": "+",
+            "AltGr+'": "\u200d", "Shift+AltGr+'": "\u200c",
+            "/": "্", "Shift+/": "?", "AltGr+/": "/",
+            "AltGr+SPACE": " ", "Shift+AltGr+SPACE": " "
+        }
         for keys, expected in samples.items():
             with self.subTest(keys=keys):
                 self.assertEqual(unicodedata.normalize("NFD", emit(keys)),
                                  unicodedata.normalize("NFD", expected))
+
     def test_web_examples(self):
         parser = Samples()
         parser.feed((ROOT / "web/index.html").read_text(encoding="utf-8"))
@@ -51,16 +63,19 @@ class TypingTests(unittest.TestCase):
                              unicodedata.normalize("NFD", expected))
     def test_variants_not_default(self):
         mapping = onnoy()
-        self.assertEqual(mapping["F"][:2], ["ফ", None])
-        self.assertIsNone(mapping["A"][2])
-        self.assertEqual(mapping["H"][2], "ঽ")
+        self.assertEqual(mapping["F"][:2], ["ত", "থ"])
+        self.assertEqual(mapping["R"][:3], ["র", "ড়", "ঢ়"])
+        self.assertEqual(mapping["Z"][:2], ["য", "য়"])
+        self.assertEqual(mapping[","][2:], ["়", "𑷰"])
+        self.assertEqual(mapping["="][:2], ["=", "+"])
+        self.assertEqual(mapping["H"][2], None)
         self.assertEqual(mapping["/"], ["্", "?", "/", None])
-        self.assertEqual(mapping["`"][2:], [None, None])
-        self.assertEqual(mapping["\'"][2:], ["\u200d", "\u200c"])
-        self.assertEqual(mapping["Z"][2:], [None, None])
+        self.assertEqual(mapping[chr(96)][2:], [None, None])
+        self.assertEqual(mapping["'"][2:], ["\u200d", "\u200c"])
+        self.assertEqual(mapping["X"][1:], [None, None, None])
         self.assertEqual(variant(mapping, "shift-f")["F"][1], "্")
         self.assertEqual(variant(mapping, "altgr-f")["F"][2], "্")
-        self.assertIsNone(mapping["F"][1])
+
     def test_reference_parser_and_ascii(self):
         self.assertEqual(ASCII["space"], " ")
         self.assertEqual(ASCII["quotedbl"], '"')

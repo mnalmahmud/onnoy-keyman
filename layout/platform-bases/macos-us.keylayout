@@ -2,11 +2,12 @@
 <!DOCTYPE keyboard SYSTEM "file://localhost/System/Library/DTDs/KeyboardLayout.dtd">
 <!-- Extract of unchanged printable-key assignments from a U.S.-derived macOS
      Ukelele source: https://github.com/ministryofprogramming/bosnian-macos-keyboard/blob/master/src/Bosnian%20-%20U.S..keylayout
-     Limited to Space, Minus, Backslash, Comma, and Backtick, whose US behavior
+     Covers Space, Minus, Equals, Backslash, Comma, and Backtick, whose US behavior
      matches the exported macOS U.S. keyboard reference. Pinned and offline. -->
 <keyboard group="126" id="-15998" name="Onnoy US build reference">
   <keyMapSet id="OnnoyUSBase">
     <keyMap index="0">
+      <key code="24" output="="/>
       <key code="27" output="-"/>
       <key code="42" output="\"/>
       <key code="43" output=","/>
@@ -14,6 +15,7 @@
       <key code="50" output="`"/>
     </keyMap>
     <keyMap index="1">
+      <key code="24" output="+"/>
       <key code="27" output="_"/>
       <key code="42" output="|"/>
       <key code="43" output="&#x003C;"/>
@@ -21,6 +23,7 @@
       <key code="50" output="~"/>
     </keyMap>
     <keyMap index="2">
+      <key code="24" output="≠"/>
       <key code="27" output="–"/>
       <key code="42" output="«"/>
       <key code="43" output="≤"/>
@@ -28,6 +31,7 @@
       <key code="50" action="1"/>
     </keyMap>
     <keyMap index="3">
+      <key code="24" output="±"/>
       <key code="27" output="—"/>
       <key code="42" output="»"/>
       <key code="43" output="¯"/>

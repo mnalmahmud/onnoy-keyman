@@ -52,31 +52,47 @@ PUNCT_META = [
 ]
 LAYOUT = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))
 def mapping():
-    data=LAYOUT
-    assert data["layers"]==["base","shift","altgr","shift_altgr"]
+    data = LAYOUT
+    assert data["layers"] == ["base", "shift", "altgr", "shift_altgr"]
     assert set(data["passthrough"]) <= {entry[3] for entry in PUNCT_META}
-    assert all(len(pair) == 4 and all(v is None or isinstance(v, str) and len(v) == 1 for v in pair)
-               for pair in data["passthrough"].values())
-    m=data["keys"]
-    assert set(m)==set(ORDER)
-    assert all(isinstance(v,list) and len(v)==4 and
-               all(x is None or isinstance(x,str) and 1<=len(x)<=4 for x in v)
+    assert all(len(values) == 4 and all(v is None or isinstance(v, str) and len(v) == 1
+                                         for v in values)
+               for values in data["passthrough"].values())
+    m = data["keys"]
+    # Equal/plus inherit the pinned US source rather than a Bengali override.
+    assert set(m) == set(ORDER) - {"="}
+    assert all(isinstance(v, list) and len(v) == 4 and
+               all(x is None or isinstance(x, str) and 1 <= len(x) <= 4 for x in v)
                for v in m.values())
-    assert m["X"][:3]==["শ","়","𑷰"] and m["S"][:2]==["স","ষ"] and m["F"]==["ফ",None,None,None]
-    assert m["R"][:2]==["র","ৰ"] and m["="]==["ৃ","ঋ","=","+"]
-    assert m["A"]==["া","আ",None,None] and m["H"]==["হ","ঃ","ঽ",None]
-    assert m["."][:3]==["।",">","."]
-    assert m["["]==["ৈ","ঐ","[","{"] and m["]"]==["ূ","ঊ","]","}"]
-    assert m["O"][:2]==["ো","ও"] and m[";"]==["ৌ","ঔ",";",":"]
-    assert m["4"][1]=="৳" and m["4"][3]=="$"
+    assert m["Q"] == ["ড", "ঢ", None, None]
+    assert m["W"] == ["ূ", "ঊ", "ৱ", None]
+    assert m["R"] == ["র", "ড়", "ঢ়", None]
+    assert m["T"] == ["ট", "ঠ", "ৎ", None]
+    assert m["F"] == ["ত", "থ", None, None]
+    assert m["P"] == ["প", "ফ", None, None]
+    assert m["B"] == ["ব", "ভ", None, None]
+    assert m["V"] == ["অ", "ৗ", None, None]
+    assert m["Z"] == ["য", "য়", None, None]
+    assert m["X"] == ["শ", None, None, None]
+    assert m["N"] == ["ন", "ণ", "ঞ", None]
+    assert m["M"] == ["ম", "ঙ", "ঁ", None]
+    assert m["S"][:2] == ["স", "ষ"]
+    assert m["A"] == ["া", "আ", None, None]
+    assert m["H"] == ["হ", "ঃ", None, None]
+    assert m["L"] == ["ল", "ং", None, None]
+    assert m["["] == ["ৈ", "ঐ", "[", "{"]
+    assert m["]"] == ["ৌ", "ঔ", "]", "}"]
+    assert m[";"] == ["ৃ", "ঋ", ";", ":"]
+    assert m["."] == ["।", ">", ".", None]
+    assert m["O"][:2] == ["ো", "ও"]
+    assert m["4"][1] == "৳" and m["4"][3] == "$"
     assert "SPACE" not in m
-    assert m["Z"]==["য","ঙ",None,None]
-    assert data["passthrough"]["/"]==["্","?","/",None]
-    assert "`" not in data["passthrough"]
-    assert data["passthrough"]["\'"]==["\'",'"',"\u200d","\u200c"]
-    assert all(key not in data["passthrough"] for key in ("-","\\",","))
-    assert m["V"][:2]==["ভ","অ"] and m["B"][:2]==["ব","ৗ"]
+    assert data["passthrough"][","] == [",", "<", "়", "𑷰"]
+    assert data["passthrough"]["/"] == ["্", "?", "/", None]
+    assert data["passthrough"]["'"] == ["'", '"', "\u200d", "\u200c"]
+    assert all(key not in data["passthrough"] for key in (chr(96), "-", "\\"))
     return {**m, **data["passthrough"]}
+
 
 def linux(m):
     """Native XKB symbols: no input method, compose engine, or custom runtime."""
