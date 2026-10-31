@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Regroup joiners and nasal symbols for one-handed AltGr
+- Move the only ZWJ (U+200D) mapping from AltGr+apostrophe to AltGr+J, and ZWNJ (U+200C) from Shift+AltGr+apostrophe to AltGr+N, honoring Join / Non-join mnemonics.
+- Relocate displaced ঞ from AltGr+N to AltGr+M and ঁ from AltGr+M to AltGr+L, keeping nasal consonants together on M and nasal marks on L; old slots are cleared, no duplicates.
+- Retain virama, nukta and U+11DF0 placements. Update native and browser regression tests.
+
 ### Move ঢ় from AltGr+R to Shift+X
 - Assign the unique direct ঢ় (U+09DD) to Shift+X, replacing the previous AltGr+R assignment without duplication.
 - Retain X=শ and R=র/ড়, leaving AltGr+R unassigned. Update native regression checks and documentation.
