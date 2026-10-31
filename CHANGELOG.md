@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Move avagraha to AltGr+H
+- Move Bengali avagraha ঽ (U+09BD) from AltGr+A to AltGr+H; AltGr+A is now unassigned.
+- Leave Base/Shift A and H unchanged and update the native layout and browser regression tests.
+
 ### Swap Shift+S and X outputs
 - Shift+S now produces ষ and plain X produces শ; plain S remains স and Shift+X remains nukta (়).
 - Update generated-platform layout assertions, reference typing examples and browser preview tests.

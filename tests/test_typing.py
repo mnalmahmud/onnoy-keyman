@@ -30,7 +30,7 @@ def emit(sequence):
 
 class TypingTests(unittest.TestCase):
     def test_words(self):
-        samples = {"Shift+S": "ষ", "X": "শ", "K I": "কি", "K O": "কো", "K ;": "কৌ",
+        samples = {"AltGr+H": "ঽ", "Shift+S": "ষ", "X": "শ", "K I": "কি", "K O": "কো", "K ;": "কৌ",
                    "K / Shift+S": "ক্ষ", "Q Shift+X": "ড়",
                    "B A Shift+L L A": "বাংলা",
                    "X I K / Shift+S A": "শিক্ষা",
@@ -52,6 +52,8 @@ class TypingTests(unittest.TestCase):
     def test_variants_not_default(self):
         mapping = onnoy()
         self.assertEqual(mapping["F"][:2], ["ফ", None])
+        self.assertIsNone(mapping["A"][2])
+        self.assertEqual(mapping["H"][2], "ঽ")
         self.assertEqual(mapping["/"], ["্", "?", "/", None])
         self.assertEqual(mapping["`"][2:], [None, None])
         self.assertEqual(mapping["\'"][2:], ["\u200d", "\u200c"])

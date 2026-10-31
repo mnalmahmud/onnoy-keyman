@@ -64,6 +64,7 @@ def mapping():
                for v in m.values())
     assert m["X"][:3]==["শ","়","𑷰"] and m["S"][:2]==["স","ষ"] and m["F"]==["ফ",None,None,None]
     assert m["R"][:2]==["র","ৰ"] and m["="]==["ৃ","ঋ","=","+"]
+    assert m["A"]==["া","আ",None,None] and m["H"]==["হ","ঃ","ঽ",None]
     assert m["."][:3]==["।",">","."]
     assert m["["]==["ৈ","ঐ","[","{"] and m["]"]==["ূ","ঊ","]","}"]
     assert m["O"][:2]==["ো","ও"] and m[";"]==["ৌ","ঔ",";",":"]

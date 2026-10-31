@@ -39,6 +39,8 @@ class LayoutTests(unittest.TestCase):
             "I": ["ি", "ই", None, None],
             "O": ["ো", "ও", None, None],
             "P": ["প", "ঞ", None, None],
+            "A": ["া", "আ", None, None],
+            "H": ["হ", "ঃ", "ঽ", None],
             "F": ["ফ", None, None, None],
             "L": ["ল", "ং", None, None],
             ";": ["ৌ", "ঔ", ";", ":"],
@@ -85,6 +87,8 @@ class LayoutTests(unittest.TestCase):
         self.assertIn("U09CD", xkb)
         self.assertIn("key <AE12>", xkb)
         self.assertIn("U09B0", xkb)
+        self.assertRegex(xkb, r"key <AC01>.*U09BE, U0986, VoidSymbol")
+        self.assertRegex(xkb, r"key <AC06>.*U09B9, U0983, U09BD")
         self.assertRegex(xkb, r"key <AC02>.*U09B8, U09B7")
         self.assertRegex(xkb, r"key <AB02>.*U09B6, U09BC")
         self.assertIn("U09F0", xkb)
@@ -101,6 +105,8 @@ class LayoutTests(unittest.TestCase):
         self.assertIn('include "us(basic)"', xkb)
         self.assertIn("39\tSPACE\t0\t0020 0020 0020 0020 0020", klc)
         self.assertIn("2C\tZ\t0\t09af 0999 -1 -1 -1", klc)
+        self.assertIn("1E\tA\t0\t09be 0986 -1 -1 -1", klc)
+        self.assertIn("23\tH\t0\t09b9 0983 -1 09bd -1", klc)
         self.assertIn("1F\tS\t0\t09b8 09b7 -1 -1 -1", klc)
         self.assertIn("2D\tX\t0\t09b6 09bc -1 %% -1", klc)
         self.assertIn("35\tOEM_2\t0\t09cd 003f -1 002f -1", klc)
@@ -198,6 +204,11 @@ class LayoutTests(unittest.TestCase):
         shifted_map = mac.find(".//keyMap[@index='1']")
         self.assertEqual(next(node.attrib["output"] for node in shifted_map.findall("key")
                               if node.attrib["code"] == "1"), "ষ")
+        altgr_map = mac.find("./keyMapSet[@id='OnnoyMap']/keyMap[@index='2']")
+        self.assertEqual(next(node.attrib["output"] for node in altgr_map.findall("key")
+                              if node.attrib["code"] == "4"), "ঽ")
+        self.assertEqual(next(node.attrib["output"] for node in altgr_map.findall("key")
+                              if node.attrib["code"] == "0"), "")
         self.assertEqual(next(node.attrib["output"] for node in shifted_map.findall("key")
                               if node.attrib["code"] == "24"), "ঋ")
         self.assertEqual(next(node.attrib["output"] for node in shifted_map.findall("key")
