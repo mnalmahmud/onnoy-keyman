@@ -79,15 +79,15 @@ def mapping():
     assert sum(v == "য়" for vs in m.values() for v in vs) == 1
     assert m["X"] == ["শ", "ঢ়", None, None]
     assert m["N"] == ["ন", "ণ", "ঞ", None]
-    assert m["M"] == ["ম", "ঙ", "ং", None]
+    assert m["M"] == ["ম", "ঙ", "ং", "𑷰"]
     assert m["S"][:2] == ["স", "ষ"]
     assert m["A"] == ["া", "আ", None, None]
     assert m["H"] == ["হ", "ঃ", None, None]
     assert m["J"] == ["জ", "ঝ", None, None]
     assert all(sum(v == ch for vs in m.values() for v in vs) == 1
-               for ch in ("ঞ", "ঁ", "ং", "ঙ"))
+               for ch in ("ঞ", "ঁ", "ং", "ঙ", "𑷰"))
     assert all(v not in ("\u200d", "\u200c") for vs in m.values() for v in vs)
-    assert m["L"] == ["ল", None, "ঁ", None]
+    assert m["L"] == ["ল", "ঁ", None, None]
     assert m["["] == ["ৈ", "ঐ", "[", "{"]
     assert m["]"] == ["ৌ", "ঔ", "]", "}"]
     assert m[";"] == ["ৃ", "ঋ", ";", ":"]
@@ -95,8 +95,9 @@ def mapping():
     assert m["O"][:2] == ["ো", "ও"]
     assert m["4"][1] == "৳" and m["4"][3] == "$"
     assert "SPACE" not in m
-    assert data["passthrough"][","] == [",", "<", "়", "𑷰"]
+    assert data["passthrough"][","] == [",", "<", "়", None]
     assert data["passthrough"]["/"] == ["্", "?", "/", None]
+    assert sum(value == "়" for values in list(m.values()) + list(data["passthrough"].values()) for value in values) == 1
     assert data["passthrough"]["'"] == ["'", '"', None, None]
     assert all(key not in data["passthrough"] for key in (chr(96), "-", "\\"))
     return {**m, **data["passthrough"]}

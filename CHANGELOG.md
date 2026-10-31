@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Relocate chandrabindu and combining anusvara above
+- Move the unique chandrabindu ঁ from AltGr+L to Shift+L, clearing its old AltGr assignment.
+- Move the unique U+11DF0 𑷰 from Shift+AltGr+comma to Shift+AltGr+M, clearing the old comma assignment.
+- Preserve AltGr+comma nukta and base slash virama, and keep both joiners unassigned while those positions are separately researched.
+- Update native assertions, browser regressions, and documentation without duplicate Unicode outputs.
+
 ### Restore AltGr+N = ঞ; remove joiners pending redesign
 - Restore the unique ঞ character to AltGr+N from Shift+AltGr+N.
 - Clear ZWJ (U+200D) from AltGr+J and ZWNJ (U+200C) from AltGr+N; both are currently unassigned pending new positions, not duplicated or automatically generated.
