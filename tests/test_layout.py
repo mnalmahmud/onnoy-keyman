@@ -159,7 +159,7 @@ class LayoutTests(unittest.TestCase):
         self.assertIn("56\tOEM_102", klc)
         self.assertIn("2B\tOEM_5\t0\t005c 007c 001c -1 -1", klc)
         self.assertIn("33\tOEM_COMMA\t0\t002c 003c -1 -1 -1", klc)
-                base = mac.find(".//keyMap[@index='0']")
+        base = mac.find(".//keyMap[@index='0']")
         shift = mac.find(".//keyMap[@index='1']")
         option = mac.find(".//keyMap[@index='2']")
         self.assertEqual(next(k.attrib["output"] for k in base.findall("key") if k.attrib["code"] == "44"), "্")
