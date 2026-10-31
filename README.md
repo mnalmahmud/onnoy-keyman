@@ -26,22 +26,27 @@ The complete, authoritative [layout definition](layout/onnoy.json) can be inspec
 
 | Chord | Output | Chord | Output |
 | --- | --- | --- | --- |
-| K / Shift+K | ক / খ | G / Shift+G | গ / ঘ |
-| D / Shift+D | দ / ধ | T / Shift+T | ত / থ |
-| F / Shift+F | ফ / — | X / Shift+X | শ / ় |
-| S / Shift+S | স / ষ | | |
-| V / Shift+V | ভ / অ | B / Shift+B | ব / ৗ |
+| T / Shift+T | ট / ঠ | AltGr+T | ৎ |
+| F / Shift+F | ত / থ | Q / Shift+Q | ড / ঢ |
+| D / Shift+D | দ / ধ | P / Shift+P | প / ফ |
+| B / Shift+B | ব / ভ | V / Shift+V | অ / ৗ |
+| R / Shift+R | র / ড় | AltGr+R | ঢ় |
+| Z / Shift+Z | য / য় | X | শ |
+| M / Shift+M | ম / ঙ | AltGr+M | ঁ |
+| N / Shift+N | ন / ণ | AltGr+N | ঞ |
+| W / Shift+W | ূ / ঊ | AltGr+W | ৱ |
 | E / Shift+E | ে / এ | I / Shift+I | ি / ই |
 | O / Shift+O | ো / ও | Y / Shift+Y | ী / ঈ |
-| [ / Shift+[ | ৈ / ঐ | ] / Shift+] | ূ / ঊ |
-| ; / Shift+; | ৌ / ঔ | = / Shift+= | ৃ / ঋ |
+| [ / Shift+[ | ৈ / ঐ | ] / Shift+] | ৌ / ঔ |
+| ; / Shift+; | ৃ / ঋ | = / Shift+= | = / + (native US) |
+| , / Shift+, | , / < | AltGr+, / Shift+AltGr+, | ় / 𑷰 |
+| . / Shift+. | । / > | AltGr+. | . |
 | / / Shift+/ | ্ / ? | AltGr+/ | / |
-| AltGr+apostrophe | U+200D | Shift+AltGr+apostrophe | U+200C |
-| AltGr+H | ঽ (U+09BD) | AltGr+A | Unassigned |
+| AltGr+apostrophe | ZWJ (U+200D) | Shift+AltGr+apostrophe | ZWNJ (U+200C) |
 
-Space remains Space with every modifier. The ordinary slash character is on **AltGr+/**; **Shift+F is deliberately unassigned** rather than providing a duplicate virama shortcut. Backtick and tilde remain ordinary punctuation with no special AltGr assignment. U+200D and U+200C are grouped on the apostrophe key using AltGr and Shift+AltGr respectively, while ordinary apostrophe and double quote stay unchanged. ASCII bracket, semicolon and equals characters are available through AltGr layers. Number keys produce Bengali digits on the base layer.
+Space remains Space with every modifier. The backtick, minus, backslash and equals keys inherit platform-native US behavior. ASCII bracket, semicolon and slash characters remain available on AltGr. The comma retains ordinary Base/Shift punctuation while its AltGr levels hold the two combining marks. Number keys produce Bengali digits on Base, English symbols on Shift and ASCII digits on AltGr.
 
-**Explicit Unicode typing:** `K → / → Shift+S` produces ক্ষ, `/ → Z` produces ্য, and `Q → Shift+X` produces ড়. No background composition engine is necessary. Apps and fonts handle shaping.
+**Explicit Unicode typing:** `K → / → Shift+S` produces ক্ষ; `/ → Z` produces ্য; `Shift+R` produces ড়; `AltGr+R` produces ঢ়; and `Shift+Z` produces য়. These mappings emit the specified Unicode scalars directly, without a background composition engine. Fonts and apps handle shaping and normalization.
 
 ## Native architecture
 
