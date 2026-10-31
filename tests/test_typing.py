@@ -35,10 +35,12 @@ class TypingTests(unittest.TestCase):
             "K O": "কো", "K ]": "কৌ",
             "K / Shift+S": "ক্ষ",
             "Shift+R": "ড়", "AltGr+R": "ঢ়", "Shift+Z": "য়",
-            "Q AltGr+,": "ড়", "Shift+Q AltGr+,": "ঢ়",
+            "D AltGr+,": "ড়", "Shift+D AltGr+,": "ঢ়",
             "B A Shift+L L A": "বাংলা",
             "X I K / Shift+S A": "শিক্ষা",
             "Shift+4 4 AltGr+. 5 0": "৳৪.৫০",
+            "Q": "দ", "Shift+Q": "ধ",
+            "D": "ড", "Shift+D": "ঢ",
             "Shift+T": "ঠ", "AltGr+T": "ৎ",
             "Shift+F": "থ", "Shift+P": "ফ",
             "Shift+V": "ৗ", "Shift+B": "ভ",
@@ -64,6 +66,8 @@ class TypingTests(unittest.TestCase):
     def test_variants_not_default(self):
         mapping = onnoy()
         self.assertEqual(mapping["F"][:2], ["ত", "থ"])
+        self.assertEqual(mapping["Q"][:2], ["দ", "ধ"])
+        self.assertEqual(mapping["D"][:2], ["ড", "ঢ"])
         self.assertEqual(mapping["R"][:3], ["র", "ড়", "ঢ়"])
         self.assertEqual(mapping["Z"][:2], ["য", "য়"])
         self.assertEqual(mapping[","][2:], ["়", "𑷰"])

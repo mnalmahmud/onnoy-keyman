@@ -27,8 +27,8 @@ The complete, authoritative [layout definition](layout/onnoy.json) can be inspec
 | Chord | Output | Chord | Output |
 | --- | --- | --- | --- |
 | T / Shift+T | ট / ঠ | AltGr+T | ৎ |
-| F / Shift+F | ত / থ | Q / Shift+Q | ড / ঢ |
-| D / Shift+D | দ / ধ | P / Shift+P | প / ফ |
+| F / Shift+F | ত / থ | Q / Shift+Q | দ / ধ |
+| D / Shift+D | ড / ঢ | P / Shift+P | প / ফ |
 | B / Shift+B | ব / ভ | V / Shift+V | অ / ৗ |
 | R / Shift+R | র / ড় | AltGr+R | ঢ় |
 | Z / Shift+Z | য / য় | X | শ |

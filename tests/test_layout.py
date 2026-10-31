@@ -30,13 +30,13 @@ class LayoutTests(unittest.TestCase):
 
     def test_redesigned_assignments(self):
         expected = {
-            "Q": ["ড", "ঢ", None, None], "W": ["ূ", "ঊ", "ৱ", None],
+            "Q": ["দ", "ধ", None, None], "W": ["ূ", "ঊ", "ৱ", None],
             "E": ["ে", "এ", None, None], "R": ["র", "ড়", "ঢ়", None],
             "T": ["ট", "ঠ", "ৎ", None], "Y": ["ী", "ঈ", None, None],
             "U": ["ু", "উ", None, None], "I": ["ি", "ই", None, None],
             "O": ["ো", "ও", None, None], "P": ["প", "ফ", None, None],
             "A": ["া", "আ", None, None], "S": ["স", "ষ", None, None],
-            "D": ["দ", "ধ", None, None], "F": ["ত", "থ", None, None],
+            "D": ["ড", "ঢ", None, None], "F": ["ত", "থ", None, None],
             "G": ["গ", "ঘ", None, None], "H": ["হ", "ঃ", None, None],
             "J": ["জ", "ঝ", None, None], "K": ["ক", "খ", None, None],
             "L": ["ল", "ং", None, None], "Z": ["য", "য়", None, None],
@@ -65,6 +65,8 @@ class LayoutTests(unittest.TestCase):
             r"key <AB08>.*U002C, U003C, U09BC, U11DF0",
             r"key <AB09>.*U0964, U003E, U002E",
             r"key <AC04>.*U09A4, U09A5",
+            r"key <AD01>.*U09A6, U09A7",
+            r"key <AC03>.*U09A1, U09A2",
             r"key <AD05>.*U099F, U09A0, U09CE",
             r"key <AD04>.*U09B0, U09DC, U09DD",
             r"key <AB06>.*U09A8, U09A3, U099E",
@@ -85,6 +87,8 @@ class LayoutTests(unittest.TestCase):
             "33\tOEM_COMMA\t0\t002c 003c -1 09bc %%",
             "34\tOEM_PERIOD\t0\t0964 003e -1 002e -1",
             "13\tR\t0\t09b0 09dc -1 09dd -1",
+            "10\tQ\t0\t09a6 09a7 -1 -1 -1",
+            "20\tD\t0\t09a1 09a2 -1 -1 -1",
             "14\tT\t0\t099f 09a0 -1 09ce -1",
             "21\tF\t0\t09a4 09a5 -1 -1 -1",
             "2C\tZ\t0\t09af 09df -1 -1 -1",
@@ -119,6 +123,7 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(key(inherited.find("keyMap[@index='4']"), 24)["output"], "=")
         self.assertEqual(key(inherited.find("keyMap[@index='4']"), 15)["output"], "r")
         for i, code, expected in (
+            (0, 12, "দ"), (1, 12, "ধ"), (0, 2, "ড"), (1, 2, "ঢ"),
             (0, 41, "ৃ"), (1, 41, "ঋ"), (0, 30, "ৌ"), (1, 30, "ঔ"),
             (2, 43, "়"), (3, 43, "𑷰"), (1, 15, "ড়"), (2, 15, "ঢ়"),
             (1, 6, "য়"), (0, 9, "অ"), (1, 9, "ৗ"),

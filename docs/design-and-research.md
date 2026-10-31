@@ -3,7 +3,7 @@
 Onnoy is a fixed Unicode keyboard intended to address specific limitations of Probhat and KaGaPa. The canonical mapping is layout/onnoy.json.
 
 ## Why these key positions exist
-- T gives ট/ঠ in English-sound-oriented grouping; F gives ত/থ, while Q remains ড/ঢ and D gives দ/ধ. P gives প/ফ and B gives ব/ভ so everyday consonants avoid distant AltGr chords.
+- T gives ট/ঠ in English-sound-oriented grouping; F gives ত/থ. D now gives ড/ঢ, which is a closer articulatory match to English alveolar /d/ in Bangladeshi Standard Bengali than dental দ. Q gives দ/ধ as the displaced consonant pair. This is a phonetic-priority decision, not a Romanization convention; pronunciations vary by dialect. P gives প/ফ and B gives ব/ভ so everyday consonants avoid distant AltGr chords.
 - Y gives ী/ঈ, O gives ো/ও, W gives ূ/ঊ, [ gives ৈ/ঐ, and ] gives ৌ/ঔ. Frequent dependent vowel signs remain on Base, with corresponding independent vowels on Shift.
 - R holds র/ড়/ঢ়; Z holds য/য়. M gives ম/ঙ/ঁ and N gives ন/ণ/ঞ, with nasal extensions on the right-hand AltGr side.
 - Semicolon gives ৃ/ঋ with literal punctuation on AltGr. Equals and plus inherit native US behavior. Comma preserves its base and Shift punctuation while AltGr+comma is nukta (়) and Shift+AltGr+comma is U+11DF0.

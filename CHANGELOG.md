@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Swap D/Q for a closer English D sound match
+- Assign D / Shift+D to ড / ঢ and Q / Shift+Q to দ / ধ. In Bangladeshi Standard Bengali, ড is commonly realized closer to the English alveolar /d/ than dental দ.
+- Update canonical mapping, native generator assertions, typing tests, browser checks, and layout documentation.
+
 ### Native phonetic/ergonomic layout redesign
 - Keep T=ট/ঠ with AltGr+T=ৎ; use F=ত/থ and Q=ড/ঢ, D=দ/ধ.
 - Group P=প/ফ, B=ব/ভ, V=অ/ৗ and W=ূ/ঊ with AltGr+W=ৱ.

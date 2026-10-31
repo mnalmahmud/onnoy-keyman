@@ -64,7 +64,8 @@ def mapping():
     assert all(isinstance(v, list) and len(v) == 4 and
                all(x is None or isinstance(x, str) and 1 <= len(x) <= 4 for x in v)
                for v in m.values())
-    assert m["Q"] == ["ড", "ঢ", None, None]
+    assert m["Q"] == ["দ", "ধ", None, None]
+    assert m["D"] == ["ড", "ঢ", None, None]
     assert m["W"] == ["ূ", "ঊ", "ৱ", None]
     assert m["R"] == ["র", "ড়", "ঢ়", None]
     assert m["T"] == ["ট", "ঠ", "ৎ", None]
