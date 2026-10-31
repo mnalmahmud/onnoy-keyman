@@ -31,12 +31,12 @@ The complete, authoritative [layout definition](layout/onnoy.json) can be inspec
 | D / Shift+D | ড / ঢ | P / Shift+P | প / ফ |
 | B / Shift+B | ব / ভ | V / Shift+V | অ / ৗ |
 | R / Shift+R | র / ড় | AltGr+R | ঢ় |
-| Z / Shift+Z | য / য় | X | শ |
+| Z / Shift+Z | য / — | X | শ |
 | M / Shift+M | ম / ঙ | AltGr+M | ঁ |
 | N / Shift+N | ন / ণ | AltGr+N | ঞ |
 | W / Shift+W | ূ / ঊ | AltGr+W | ৱ |
 | E / Shift+E | ে / এ | I / Shift+I | ি / ই |
-| O / Shift+O | ো / ও | Y / Shift+Y | ী / ঈ |
+| O / Shift+O | ো / ও | Y / Shift+Y / AltGr+Y | ী / ঈ / য় |
 | [ / Shift+[ | ৈ / ঐ | ] / Shift+] | ৌ / ঔ |
 | ; / Shift+; | ৃ / ঋ | = / Shift+= | = / + (native US) |
 | , / Shift+, | , / < | AltGr+, / Shift+AltGr+, | ় / 𑷰 |
@@ -46,7 +46,7 @@ The complete, authoritative [layout definition](layout/onnoy.json) can be inspec
 
 Space remains Space with every modifier. The backtick, minus, backslash and equals keys inherit platform-native US behavior. ASCII bracket, semicolon and slash characters remain available on AltGr. The comma retains ordinary Base/Shift punctuation while its AltGr levels hold the two combining marks. Number keys produce Bengali digits on Base, English symbols on Shift and ASCII digits on AltGr.
 
-**Explicit Unicode typing:** `K → / → Shift+S` produces ক্ষ; `/ → Z` produces ্য; `Shift+R` produces ড়; `AltGr+R` produces ঢ়; and `Shift+Z` produces য়. These mappings emit the specified Unicode scalars directly, without a background composition engine. Fonts and apps handle shaping and normalization.
+**Explicit Unicode typing:** `K → / → Shift+S` produces ক্ষ; `/ → Z` produces ্য; `Shift+R` produces ড়; `AltGr+R` produces ঢ়; and `AltGr+Y` produces য় (`Shift+Z` is unassigned). These mappings emit the specified Unicode scalars directly, without a background composition engine. Fonts and apps handle shaping and normalization.
 
 ## Native architecture
 
