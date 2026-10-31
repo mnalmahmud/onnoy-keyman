@@ -35,7 +35,7 @@ class TypingTests(unittest.TestCase):
                    "B A Shift+L L A": "বাংলা",
                    "Shift+S I K / X A": "শিক্ষা",
                    "Shift+4 4 AltGr+. 5 0": "৳৪.৫০",
-                   "AltGr+`": "\u200d", "Shift+AltGr+`": "\u200c",
+                   "AltGr+\'": "\u200d", "Shift+AltGr+\'": "\u200c",
                    "/": "্", "Shift+/": "?", "AltGr+/": "/",
                    "AltGr+SPACE": " ", "Shift+AltGr+SPACE": " "}
         for keys, expected in samples.items():
@@ -53,7 +53,8 @@ class TypingTests(unittest.TestCase):
         mapping = onnoy()
         self.assertEqual(mapping["F"][:2], ["ফ", None])
         self.assertEqual(mapping["/"], ["্", "?", "/", None])
-        self.assertEqual(mapping["`"][2:], ["\u200d", "\u200c"])
+        self.assertEqual(mapping["`"][2:], [None, None])
+        self.assertEqual(mapping["\'"][2:], ["\u200d", "\u200c"])
         self.assertEqual(mapping["Z"][2:], [None, None])
         self.assertEqual(variant(mapping, "shift-f")["F"][1], "্")
         self.assertEqual(variant(mapping, "altgr-f")["F"][2], "্")
