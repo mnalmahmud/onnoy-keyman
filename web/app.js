@@ -205,7 +205,8 @@
       // Display the unchanged hyphen key to preserve the physical number-row spacing.
       const usDefaults = {
         "`": ["`", "~", null, null], "-": ["-", "_", null, null],
-        "\\": ["\\", "|", null, null], ",": [",", "<", null, null],
+        "\\": ["\\", "|", null, null], "=": ["=", "+", null, null],
+        ",": [",", "<", null, null],
         "'": ["'", '"', null, null], SPACE: [" ", " ", " ", " "]
       };
       const displayed = { ...usDefaults, ...layout.keys, ...(layout.passthrough || {}) };
