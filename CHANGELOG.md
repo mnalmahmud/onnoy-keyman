@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Move ঢ় from AltGr+R to Shift+X
+- Assign the unique direct ঢ় (U+09DD) to Shift+X, replacing the previous AltGr+R assignment without duplication.
+- Retain X=শ and R=র/ড়, leaving AltGr+R unassigned. Update native regression checks and documentation.
+
 ### Relocate য় from Shift+Z to AltGr+Y
 - The unique direct য় (U+09DF) assignment is now AltGr+Y; Shift+Z is unassigned, not duplicated.
 - Update native assertions, typing tests, browser behavior for unassigned chords, and documentation.
