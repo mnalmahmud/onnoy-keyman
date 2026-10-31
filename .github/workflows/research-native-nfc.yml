@@ -15,7 +15,7 @@ jobs:
           using System;
           using System.Runtime.InteropServices;
           using System.Text;
-          class WinInput {
+          public class WinInput {
             [DllImport("user32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
             public static extern IntPtr CreateWindowExW(int exStyle, string cls, string title, int style, int x, int y, int w, int h, IntPtr parent, IntPtr menu, IntPtr instance, IntPtr param);
             [DllImport("user32.dll", CharSet=CharSet.Unicode)]
@@ -28,7 +28,7 @@ jobs:
               IntPtr hwnd = CreateWindowExW(0, cls, "", 0x10000000 | 0x0080 | 0x0004, 0, 0, 400, 100, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
               if(hwnd == IntPtr.Zero) throw new Exception(cls + " creation failed " + Marshal.GetLastWin32Error());
               foreach(var pair in new[]{new[]{0x09C7,0x09BE},new[]{0x09C7,0x09D7},new[]{0x09AC,0x09BC}}) {
-                SendMessageW(hwnd, 0x000C, IntPtr.Zero, IntPtr.Zero); // ignored for clearing, use EM_SETSEL+WM_CLEAR
+                // clear by selecting all and deleting
                 SendMessageW(hwnd, 0x00B1, IntPtr.Zero, new IntPtr(-1)); 
                 SendMessageW(hwnd, 0x0303, IntPtr.Zero, IntPtr.Zero);
                 foreach(int codepoint in pair) SendMessageW(hwnd, 0x0102, new IntPtr(codepoint), IntPtr.Zero);
@@ -41,7 +41,7 @@ jobs:
             }
           }
           '@ | Set-Content -Encoding utf8 test.cs
-          Add-Type -Path test.cs
+          Add-Type -TypeDefinition (Get-Content -Raw test.cs) -ErrorAction Stop
           [WinInput]::Run("EDIT")
           [void][WinInput]::LoadLibraryW("msftedit.dll")
           [WinInput]::Run("RICHEDIT50W")
