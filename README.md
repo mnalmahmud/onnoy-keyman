@@ -28,7 +28,8 @@ The complete, authoritative [layout definition](layout/onnoy.json) can be inspec
 | --- | --- | --- | --- |
 | K / Shift+K | ক / খ | G / Shift+G | গ / ঘ |
 | D / Shift+D | দ / ধ | T / Shift+T | ত / থ |
-| F / Shift+F | ফ / — | X / Shift+X | ষ / ় |
+| F / Shift+F | ফ / — | X / Shift+X | শ / ় |
+| S / Shift+S | স / ষ | | |
 | V / Shift+V | ভ / অ | B / Shift+B | ব / ৗ |
 | E / Shift+E | ে / এ | I / Shift+I | ি / ই |
 | O / Shift+O | ো / ও | Y / Shift+Y | ী / ঈ |
@@ -39,7 +40,7 @@ The complete, authoritative [layout definition](layout/onnoy.json) can be inspec
 
 Space remains Space with every modifier. The ordinary slash character is on **AltGr+/**; **Shift+F is deliberately unassigned** rather than providing a duplicate virama shortcut. Backtick and tilde remain ordinary punctuation with no special AltGr assignment. U+200D and U+200C are grouped on the apostrophe key using AltGr and Shift+AltGr respectively, while ordinary apostrophe and double quote stay unchanged. ASCII bracket, semicolon and equals characters are available through AltGr layers. Number keys produce Bengali digits on the base layer.
 
-**Explicit Unicode typing:** `K → / → X` produces ক্ষ, `/ → Z` produces ্য, and `Q → Shift+X` produces ড়. No background composition engine is necessary. Apps and fonts handle shaping.
+**Explicit Unicode typing:** `K → / → Shift+S` produces ক্ষ, `/ → Z` produces ্য, and `Q → Shift+X` produces ড়. No background composition engine is necessary. Apps and fonts handle shaping.
 
 ## Native architecture
 
