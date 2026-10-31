@@ -1,6 +1,5 @@
-"""Regression tests for Onnoy's canonical, four-layer character mapping."""
+"""Regression tests for Onnoy's canonical layout and native platform exports."""
 import json
-import re
 import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -8,211 +7,131 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LAYOUT = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))
 KEYS = LAYOUT["keys"]
-LAYERS = ("base", "shift", "altgr", "shift_altgr")
 PHYSICAL = "QWERTYUIOP[]ASDFGHJKL;ZXCVBNM1234567890=."
-ALL_KEYS = PHYSICAL + " "
 
 
 class LayoutTests(unittest.TestCase):
-    def test_all_keys_have_four_layers(self):
-        self.assertEqual(set(KEYS), set(PHYSICAL))
+    def test_canonical_layers_and_us_inheritance(self):
+        self.assertEqual(LAYOUT["layers"], ["base", "shift", "altgr", "shift_altgr"])
+        self.assertEqual(set(KEYS), set(PHYSICAL) - {"="})
         for key, values in KEYS.items():
             with self.subTest(key=key):
                 self.assertEqual(len(values), 4)
-                self.assertTrue(all(value is None or
-                                    isinstance(value, str) and 1 <= len(value) <= 4
-                                    for value in values))
-
-    def test_passthrough_keys_are_in_canonical_source(self):
+                self.assertTrue(all(v is None or isinstance(v, str) and len(v) == 1
+                                    for v in values))
         self.assertEqual(LAYOUT["passthrough"], {
-            "'": ["'", '"', "\u200d", "\u200c"], "/": ["্", "?", "/", None],
+            "'": ["'", '"', "\u200d", "\u200c"],
+            "/": ["্", "?", "/", None],
+            ",": [",", "<", "়", "𑷰"],
         })
+        self.assertNotIn("SPACE", KEYS)
+        for key in (chr(96), "-", "\\"):
+            self.assertNotIn(key, LAYOUT["passthrough"])
 
-    def test_known_assignments_and_empty_slots(self):
+    def test_redesigned_assignments(self):
         expected = {
-            "Q": ["ড", "ঢ", None, None],
-            "W": ["ট", "ঠ", "ৱ", None],
-            "E": ["ে", "এ", None, None],
-            "R": ["র", "ৰ", None, None],
-            "Y": ["ী", "ঈ", None, None],
-            "U": ["ু", "উ", None, None],
-            "I": ["ি", "ই", None, None],
-            "O": ["ো", "ও", None, None],
-            "P": ["প", "ঞ", None, None],
-            "A": ["া", "আ", None, None],
-            "H": ["হ", "ঃ", "ঽ", None],
-            "F": ["ফ", None, None, None],
-            "L": ["ল", "ং", None, None],
-            ";": ["ৌ", "ঔ", ";", ":"],
-            "Z": ["য", "ঙ", None, None],
-            "S": ["স", "ষ", None, None],
-            "X": ["শ", "়", "𑷰", None],
-            "V": ["ভ", "অ", None, None],
-            "B": ["ব", "ৗ", None, None],
-            "N": ["ন", "ণ", None, None],
-            "M": ["ম", "ঁ", None, None],
-            "[": ["ৈ", "ঐ", "[", "{"],
-            "]": ["ূ", "ঊ", "]", "}"],
-            ".": ["।", ">", ".", None],
+            "Q": ["ড", "ঢ", None, None], "W": ["ূ", "ঊ", "ৱ", None],
+            "E": ["ে", "এ", None, None], "R": ["র", "ড়", "ঢ়", None],
+            "T": ["ট", "ঠ", "ৎ", None], "Y": ["ী", "ঈ", None, None],
+            "U": ["ু", "উ", None, None], "I": ["ি", "ই", None, None],
+            "O": ["ো", "ও", None, None], "P": ["প", "ফ", None, None],
+            "A": ["া", "আ", None, None], "S": ["স", "ষ", None, None],
+            "D": ["দ", "ধ", None, None], "F": ["ত", "থ", None, None],
+            "G": ["গ", "ঘ", None, None], "H": ["হ", "ঃ", None, None],
+            "J": ["জ", "ঝ", None, None], "K": ["ক", "খ", None, None],
+            "L": ["ল", "ং", None, None], "Z": ["য", "য়", None, None],
+            "X": ["শ", None, None, None], "C": ["চ", "ছ", None, None],
+            "V": ["অ", "ৗ", None, None], "B": ["ব", "ভ", None, None],
+            "N": ["ন", "ণ", "ঞ", None], "M": ["ম", "ঙ", "ঁ", None],
+            "[": ["ৈ", "ঐ", "[", "{"], "]": ["ৌ", "ঔ", "]", "}"],
+            ";": ["ৃ", "ঋ", ";", ":"], ".": ["।", ">", ".", None],
             "4": ["৪", "৳", "4", "$"],
-            "=": ["ৃ", "ঋ", "=", "+"],
         }
         for key, values in expected.items():
             with self.subTest(key=key):
                 self.assertEqual(KEYS[key], values)
-        empty = [sum(KEYS[key][i] is None for key in PHYSICAL) for i in range(4)]
-        self.assertEqual(empty, [0, 1, 22, 36])
-        self.assertEqual(sum(empty), 59)
+        self.assertNotIn("ৰ", json.dumps(LAYOUT, ensure_ascii=False))
+        self.assertNotIn("ঽ", json.dumps(LAYOUT, ensure_ascii=False))
 
-    def test_all_native_outputs_have_scalar_keys(self):
-        for key, values in KEYS.items():
-            for layer, value in enumerate(values):
-                with self.subTest(key=key, layer=layer):
-                    self.assertTrue(value is None or len(value) == 1)
-
-    def test_normal_space_and_joiners(self):
-        self.assertNotIn("SPACE", KEYS)
-        for key in ("`", "-", "\\", ","):
-            self.assertNotIn(key, LAYOUT["passthrough"])
-        self.assertEqual(KEYS["Z"][2:], [None, None])
-        self.assertNotIn("`", LAYOUT["passthrough"])
-        self.assertEqual(LAYOUT["passthrough"]["\'"][2:], ["\u200d", "\u200c"])
-        self.assertEqual(LAYOUT["passthrough"]["/"], ["্", "?", "/", None])
-        self.assertIsNone(KEYS["F"][1])
-
-    def test_generated_native_layouts_contain_expected_characters(self):
+    def test_linux_symbols(self):
         xkb = (ROOT / "dist/linux/symbols/onnoy").read_text(encoding="utf-8")
-        klc = (ROOT / "dist/windows/onnoy.klc").read_text(encoding="utf-8")
-        mac = ET.parse(ROOT / "dist/macos/Onnoy.keylayout").getroot()
-        self.assertIn("U09CD", xkb)
-        self.assertIn("key <AE12>", xkb)
-        self.assertIn("U09B0", xkb)
-        self.assertRegex(xkb, r"key <AC01>.*U09BE, U0986, VoidSymbol")
-        self.assertRegex(xkb, r"key <AC06>.*U09B9, U0983, U09BD")
-        self.assertRegex(xkb, r"key <AC02>.*U09B8, U09B7")
-        self.assertRegex(xkb, r"key <AB02>.*U09B6, U09BC")
-        self.assertIn("U09F0", xkb)
-        self.assertIn("U200C", xkb)
-        self.assertNotIn("key <SPCE>", xkb)
-        self.assertNotIn("key <AE11>", xkb)
-        self.assertNotIn("key <BKSL>", xkb)
-        self.assertNotIn("key <AB08>", xkb)
-        self.assertIn("U200D", xkb)
-        self.assertRegex(xkb, r"key <AC11>.*U200D, U200C")
-        self.assertNotIn("key <TLDE>", xkb)
-        self.assertRegex(xkb, r"key <AB10>.*U09CD, U003F, U002F, VoidSymbol")
-        self.assertRegex(xkb, r"key <AB01>.*VoidSymbol, VoidSymbol")
         self.assertIn('include "us(basic)"', xkb)
-        self.assertIn("39\tSPACE\t0\t0020 0020 0020 0020 0020", klc)
-        self.assertIn("2C\tZ\t0\t09af 0999 -1 -1 -1", klc)
-        self.assertIn("1E\tA\t0\t09be 0986 -1 -1 -1", klc)
-        self.assertIn("23\tH\t0\t09b9 0983 -1 09bd -1", klc)
-        self.assertIn("1F\tS\t0\t09b8 09b7 -1 -1 -1", klc)
-        self.assertIn("2D\tX\t0\t09b6 09bc -1 %% -1", klc)
-        self.assertIn("35\tOEM_2\t0\t09cd 003f -1 002f -1", klc)
-        self.assertIn("29\tOEM_3\t0\t0060 007e -1 -1 -1", klc)
-        self.assertIn("28\tOEM_7\t0\t0027 0022 -1 200d 200c", klc)
-        self.assertIn("09cd", klc)
-        self.assertIn("X\t3\td807 ddf0", klc)
-        self.assertIn("U11DF0", xkb)
-        self.assertIn("200d", klc)
-        self.assertNotIn("F13", xkb)
-        self.assertIn("U200D, U200C", xkb)
-        self.assertNotIn("Onnoy.XCompose", xkb)
-        self.assertIn("LIGATURE", klc)
-        self.assertIn("1A\tOEM_4\t0\t09c8 0990 001b 005b 007b", klc)
-        self.assertIn("1B\tOEM_6\t0\t09c2 098a 001d 005d 007d", klc)
-        self.assertIn("27\tOEM_1\t0\t09cc 0994 -1 003b 003a", klc)
-        self.assertIn("18\tO\t0\t09cb 0993 -1 -1 -1", klc)
-        self.assertIn("0D\tOEM_PLUS\t0\t09c3 098b -1 003d 002b", klc)
-        self.assertIn("13\tR\t0\t09b0 09f0 -1 -1 -1", klc)
-        self.assertIn("21\tF\t0\t09ab -1 -1 -1 -1", klc)
-        self.assertIn("2F\tV\t0\t09ad 0985 -1 -1 -1", klc)
-        self.assertIn("30\tB\t0\t09ac 09d7 -1 -1 -1", klc)
-        self.assertNotIn("G\t3\t099c 09cd 099e", klc)
-        self.assertIn("22\tG\t0\t", klc)
-        self.assertNotIn(r"\\t", klc)
-        self.assertEqual(mac.attrib["maxout"], "1")
-        option_map = mac.find(".//keyMap[@index='2']")
-        self.assertEqual(next(k.attrib["output"] for k in option_map.findall("key")
-                              if k.attrib["code"] == "5"), "")
-        self.assertEqual(len(mac.findall(".//keyMap")), 11)
-        self.assertEqual(len(mac.findall("./keyMapSet[@id=\'OnnoyMap\']/keyMap")), 6)
-        self.assertEqual(len(mac.findall("./keyMapSet[@id=\'OnnoyUSBase\']/keyMap")), 5)
-        for index, char in ((2, "\u200d"), (3, "\u200c")):
-            layer = mac.find(f".//keyMap[@index='{index}']")
-            self.assertEqual(next(k.attrib["output"] for k in layer.findall("key") if k.attrib["code"] == "39"), char)
-            self.assertFalse(any(k.attrib["code"] == "50" for k in layer.findall("key")))
-            self.assertFalse(any(k.attrib["code"] == "49" for k in layer.findall("key")))
-            self.assertEqual(next(k.attrib["output"] for k in layer.findall("key") if k.attrib["code"] == "6"), "")
-        # Every sparse Onnoy map inherits the corresponding native reference.
-        custom = mac.find("./keyMapSet[@id='OnnoyMap']")
-        inherited = mac.find("./keyMapSet[@id='OnnoyUSBase']")
+        self.assertIn('include "level3(ralt_switch)"', xkb)
+        for key in ("AE12", "AE11", "BKSL", "TLDE", "SPCE"):
+            self.assertNotIn("key <" + key + ">", xkb)
+        for regex in (
+            r"key <AC10>.*U09C3, U098B, U003B, U003A",
+            r"key <AD12>.*U09CC, U0994, U005D, U007D",
+            r"key <AB08>.*U002C, U003C, U09BC, U11DF0",
+            r"key <AB09>.*U0964, U003E, U002E",
+            r"key <AC04>.*U09A4, U09A5",
+            r"key <AD05>.*U099F, U09A0, U09CE",
+            r"key <AD04>.*U09B0, U09DC, U09DD",
+            r"key <AB06>.*U09A8, U09A3, U099E",
+            r"key <AB07>.*U09AE, U0999, U0981",
+        ):
+            with self.subTest(regex=regex):
+                self.assertRegex(xkb, regex)
+        for char in ("U09DF", "U09F1", "U200D", "U200C", "U09CD"):
+            self.assertIn(char, xkb)
+        for char in ("U09F0", "U09BD", "Onnoy.XCompose", "F13"):
+            self.assertNotIn(char, xkb)
+
+    def test_windows_klc(self):
+        klc = (ROOT / "dist/windows/onnoy.klc").read_text(encoding="utf-8")
+        for line in (
+            "0D\tOEM_PLUS\t0\t003d 002b -1 -1 -1",
+            "27\tOEM_1\t0\t09c3 098b -1 003b 003a",
+            "33\tOEM_COMMA\t0\t002c 003c -1 09bc %%",
+            "34\tOEM_PERIOD\t0\t0964 003e -1 002e -1",
+            "13\tR\t0\t09b0 09dc -1 09dd -1",
+            "14\tT\t0\t099f 09a0 -1 09ce -1",
+            "21\tF\t0\t09a4 09a5 -1 -1 -1",
+            "2C\tZ\t0\t09af 09df -1 -1 -1",
+            "2F\tV\t0\t0985 09d7 -1 -1 -1",
+            "30\tB\t0\t09ac 09ad -1 -1 -1",
+            "31\tN\t0\t09a8 09a3 -1 099e -1",
+            "32\tM\t0\t09ae 0999 -1 0981 -1",
+            "28\tOEM_7\t0\t0027 0022 -1 200d 200c",
+            "39\tSPACE\t0\t0020 0020 0020 0020 0020",
+            "OEM_COMMA\t4\td807 ddf0",
+        ):
+            with self.subTest(line=line):
+                self.assertIn(line, klc)
+
+    def test_macos_inheritance_and_overrides(self):
+        root = ET.parse(ROOT / "dist/macos/Onnoy.keylayout").getroot()
+        self.assertEqual(root.attrib["maxout"], "1")
+        custom = root.find("./keyMapSet[@id='OnnoyMap']")
+        inherited = root.find("./keyMapSet[@id='OnnoyUSBase']")
+        self.assertEqual(len(custom.findall("keyMap")), 6)
+        self.assertEqual(len(inherited.findall("keyMap")), 5)
+        def key(layer, code):
+            return next(n.attrib for n in layer.findall("key")
+                        if n.attrib["code"] == str(code))
         for i in range(6):
-            override = custom.find(f"keyMap[@index='{i}']")
-            self.assertEqual(override.attrib["baseMapSet"], "OnnoyUSBase")
-            self.assertEqual(override.attrib["baseIndex"], str(min(i, 4)))
-        # Command and Control share the same native ASCII shortcut map.
-        self.assertIsNone(inherited.find("keyMap[@index='5']"))
-        cmd = inherited.find("keyMap[@index='4']")
-        self.assertEqual(next(k.attrib["output"] for k in cmd.findall("key") if k.attrib["code"] == "15"), "r")
-        self.assertEqual(next(k.attrib["output"] for k in cmd.findall("key") if k.attrib["code"] == "0"), "a")
-        self.assertEqual(next(k.attrib["output"] for k in cmd.findall("key") if k.attrib["code"] == "14"), "e")
-        self.assertEqual(next(k.attrib["output"] for k in cmd.findall("key") if k.attrib["code"] == "34"), "i")
-        defined_actions = {k.attrib["id"] for k in mac.findall("./actions/action")}
-        for key in mac.findall(".//keyMap/key"):
-            if "action" in key.attrib:
-                self.assertIn(key.attrib["action"], defined_actions)
-        self.assertEqual(next(k.attrib["output"] for k in cmd.findall("key") if k.attrib["code"] == "50"), "`")
-        ordinary = inherited.find("keyMap[@index='0']")
-        shifted = inherited.find("keyMap[@index='1']")
-        option_base = inherited.find("keyMap[@index='2']")
-        get = lambda layer, code: next(k.attrib for k in layer.findall("key") if k.attrib["code"] == str(code))
-        self.assertEqual(get(ordinary, 27)["output"], "-")
-        self.assertEqual(get(shifted, 27)["output"], "_")
-        self.assertEqual(get(ordinary, 43)["output"], ",")
-        self.assertEqual(get(shifted, 43)["output"], "<")
-        self.assertEqual(get(ordinary, 50)["output"], "`")
-        self.assertEqual(get(shifted, 50)["output"], "~")
-        self.assertEqual(get(option_base, 50)["action"], "1")
-        self.assertEqual(get(option_base, 49)["output"], " ")
-        self.assertTrue(any(k.attrib["code"] == "39" for k in custom.find("keyMap[@index='2']").findall("key")))
-        self.assertFalse(any(k.attrib["code"] == "39" for k in custom.find("keyMap[@index='4']").findall("key")))
-        self.assertIn("53\tDECIMAL", klc)
-        self.assertIn("56\tOEM_102", klc)
-        self.assertIn("2B\tOEM_5\t0\t005c 007c 001c -1 -1", klc)
-        self.assertIn("33\tOEM_COMMA\t0\t002c 003c -1 -1 -1", klc)
-        base = mac.find(".//keyMap[@index='0']")
-        shift = mac.find(".//keyMap[@index='1']")
-        option = mac.find(".//keyMap[@index='2']")
-        self.assertEqual(next(k.attrib["output"] for k in base.findall("key") if k.attrib["code"] == "44"), "্")
-        self.assertEqual(next(k.attrib["output"] for k in shift.findall("key") if k.attrib["code"] == "44"), "?")
-        self.assertEqual(next(k.attrib["output"] for k in option.findall("key") if k.attrib["code"] == "44"), "/")
-        self.assertEqual(next(k.attrib["output"] for k in shift.findall("key") if k.attrib["code"] == "3"), "")
-        keymap = mac.find(".//keyMap[@index='0']")
-        self.assertIsNotNone(keymap)
-        self.assertEqual(next(node.attrib["output"] for node in keymap.findall("key")
-                              if node.attrib["code"] == "33"), "ৈ")
-        self.assertEqual(next(node.attrib["output"] for node in keymap.findall("key")
-                              if node.attrib["code"] == "41"), "ৌ")
-        self.assertEqual(next(node.attrib["output"] for node in keymap.findall("key")
-                              if node.attrib["code"] == "7"), "শ")
-        self.assertEqual(next(node.attrib["output"] for node in keymap.findall("key")
-                              if node.attrib["code"] == "24"), "ৃ")
-        self.assertEqual(next(node.attrib["output"] for node in keymap.findall("key")
-                              if node.attrib["code"] == "15"), "র")
-        shifted_map = mac.find(".//keyMap[@index='1']")
-        self.assertEqual(next(node.attrib["output"] for node in shifted_map.findall("key")
-                              if node.attrib["code"] == "1"), "ষ")
-        altgr_map = mac.find("./keyMapSet[@id='OnnoyMap']/keyMap[@index='2']")
-        self.assertEqual(next(node.attrib["output"] for node in altgr_map.findall("key")
-                              if node.attrib["code"] == "4"), "ঽ")
-        self.assertEqual(next(node.attrib["output"] for node in altgr_map.findall("key")
-                              if node.attrib["code"] == "0"), "")
-        self.assertEqual(next(node.attrib["output"] for node in shifted_map.findall("key")
-                              if node.attrib["code"] == "24"), "ঋ")
-        self.assertEqual(next(node.attrib["output"] for node in shifted_map.findall("key")
-                              if node.attrib["code"] == "15"), "ৰ")
+            layer = custom.find(f"keyMap[@index='{i}']")
+            self.assertEqual(layer.attrib["baseMapSet"], "OnnoyUSBase")
+            self.assertEqual(layer.attrib["baseIndex"], str(min(i, 4)))
+            self.assertFalse(any(n.attrib["code"] == "24" for n in layer.findall("key")))
+        for i, expected in enumerate(("=", "+", "≠", "±")):
+            self.assertEqual(key(inherited.find(f"keyMap[@index='{i}']"), 24)["output"], expected)
+        self.assertEqual(key(inherited.find("keyMap[@index='4']"), 24)["output"], "=")
+        self.assertEqual(key(inherited.find("keyMap[@index='4']"), 15)["output"], "r")
+        for i, code, expected in (
+            (0, 41, "ৃ"), (1, 41, "ঋ"), (0, 30, "ৌ"), (1, 30, "ঔ"),
+            (2, 43, "়"), (3, 43, "𑷰"), (1, 15, "ড়"), (2, 15, "ঢ়"),
+            (1, 6, "য়"), (0, 9, "অ"), (1, 9, "ৗ"),
+            (0, 47, "।"), (1, 47, ">"), (2, 47, "."),
+            (0, 44, "্"), (1, 44, "?"), (2, 44, "/"),
+            (2, 39, "\u200d"), (3, 39, "\u200c"),
+        ):
+            with self.subTest(index=i, code=code):
+                self.assertEqual(key(custom.find(f"keyMap[@index='{i}']"), code)["output"], expected)
+        defined_actions = {a.attrib["id"] for a in root.findall("./actions/action")}
+        for node in root.findall(".//keyMap/key"):
+            if "action" in node.attrib:
+                self.assertIn(node.attrib["action"], defined_actions)
 
 
 if __name__ == "__main__":
