@@ -22,7 +22,7 @@ def onnoy():
     defaults = {"`": ["`", "~"], "-": ["-", "_"], "\\": ["\\", "|"],
                 "'": ["'", '"'], ",": [",", "<"], "/": ["/", "?"], "SPACE": [" ", " "]}
     for key, levels in defaults.items():
-        result.setdefault(key, [*levels, None, None])
+        result.setdefault(key, [" ", " ", " ", " "] if key == "SPACE" else [*levels, None, None])
 
     return result
 
