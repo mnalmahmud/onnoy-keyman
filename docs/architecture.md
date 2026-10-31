@@ -6,7 +6,7 @@ Onnoy is **one fixed Unicode Bengali keyboard layout implemented using each oper
 
 ### Canonical source
 
-`layout/onnoy.json` contains only Onnoy-specific overrides. Unchanged US keys (including Space, Minus, Backslash, Comma and Backtick) do not appear in the canonical mapping. The generator supplies platform-owned US defaults for complete native formats, and Linux XKB inherits `us(basic)` directly. `scripts/generate.py` emits:
+`layout/onnoy.json` contains only Onnoy-specific overrides. Unchanged US keys (including Space, Minus, Backslash, Comma and Backtick) do not appear in the canonical mapping. The generator reads pinned platform-specific US source references from `layout/platform-bases/` rather than maintaining `US_BASE` or `US_SHIFT` Python tables. Linux XKB inherits `us(basic)` directly. macOS uses the native `.keylayout` `baseMapSet`/`baseIndex` mechanism between embedded keymaps. Windows patches a checked-in exported US MSKLC `.klc` and preserves its scan codes and Ctrl layer. `scripts/generate.py` emits:
 - Linux: `dist/linux/symbols/onnoy` (XKB)
 - macOS: `dist/macos/Onnoy.keylayout` (Apple input source)
 - Windows: `dist/windows/onnoy.klc` (MSKLC source for a keyboard DLL)

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Platform US base references instead of hard-coded defaults
+- Replace the Python `US_BASE`/`US_SHIFT` tables with pinned exported native US reference files.
+- Generate macOS `.keylayout` with `baseMapSet`/`baseIndex` for inherited keys, native Option punctuation, and Command/Control shortcut layers.
+- Generate Windows `.klc` by patching the exported US MSKLC layout; preserve Ctrl key behavior, ISO key rows, and key labels.
+- Leave `layout/onnoy.json` override-only and retain Linux `us(basic)` inheritance.
+
+
 ### Inherit ordinary US keyboard keys
 - Remove unchanged Space, Minus, Backslash, Comma and Backtick from canonical Onnoy overrides.
 - Linux XKB inherits them through `us(basic)`; macOS and Windows emit required native mappings from US default data in the generator.
