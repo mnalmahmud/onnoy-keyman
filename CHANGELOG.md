@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Group joiners on the apostrophe key
+- Assign U+200D to AltGr+apostrophe and U+200C to Shift+AltGr+apostrophe.
+- Restore the backtick and tilde key to normal punctuation without custom AltGr outputs.
+- Keep Base apostrophe and Shift+apostrophe as ordinary quotes; no other layout changes.
+- Update Linux XKB, Windows KLC and macOS keylayout generation checks, website smoke tests, documentation and typing examples.
+
+
 ### Unshifted virama and reserved joiner shortcuts
 - Assign the physical slash key to virama (্), retaining question mark on Shift+/ and moving ASCII slash to AltGr+/.
 - Remove the former Shift+F virama assignment entirely; Base F remains ফ.

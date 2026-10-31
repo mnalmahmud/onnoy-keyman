@@ -8,7 +8,7 @@ Onnoy is a fixed Unicode keyboard intended to address specific limitations of Pr
 - Assamese letters and Bengali Unicode decompositions are intentional. Bengali র is direct. O and ; emit precomposed NFC signs.
 
 ## Virama research and experiments
-Current base / is virama. Historical Shift+F is retained only as a benchmark scenario; it is **not** an alternative key in the active layout. AltGr+` and Shift+AltGr+` emit ZWJ and ZWNJ; base ` and Shift+` preserve ASCII backtick and tilde. Test OS/application shortcut interception for the new combinations. The generator remains native and does not use a context-sensitive input method.
+Current base / is virama. Historical Shift+F is retained only as a benchmark scenario; it is **not** an alternative key in the active layout. AltGr+apostrophe and Shift+AltGr+apostrophe emit U+200D and U+200C. Base apostrophe and Shift+apostrophe preserve ASCII quotes; backtick and tilde return to ordinary punctuation with no special AltGr assignments. Test OS/application shortcut interception of apostrophe combinations on real devices. The generator remains native and does not use a context-sensitive input method.
 
 Run the mechanical experiment using:
 python3 scripts/benchmark.py --corpus path/to/licensed-bengali-corpus.txt

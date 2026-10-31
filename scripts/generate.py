@@ -69,7 +69,8 @@ def mapping():
     assert m["SPACE"]==[" "," "," "," "]
     assert m["Z"]==["য","ঙ",None,None]
     assert data["passthrough"]["/"]==["্","?","/",None]
-    assert data["passthrough"]["`"]==["`","~","\u200d","\u200c"]
+    assert data["passthrough"]["`"]==["`","~",None,None]
+    assert data["passthrough"]["\'"]==["\'",'"',"\u200d","\u200c"]
     assert m["V"][:2]==["ভ","অ"] and m["B"][:2]==["ব","ৗ"]
     return m
 
