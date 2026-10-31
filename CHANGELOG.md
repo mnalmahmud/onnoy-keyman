@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Swap Shift+S and X outputs
+- Shift+S now produces ষ and plain X produces শ; plain S remains স and Shift+X remains nukta (়).
+- Update generated-platform layout assertions, reference typing examples and browser preview tests.
+
 ### Platform US base references instead of hard-coded defaults
 - Replace the Python `US_BASE`/`US_SHIFT` tables with pinned exported native US reference files.
 - Generate macOS `.keylayout` with `baseMapSet`/`baseIndex` for inherited keys, native Option punctuation, and Command/Control shortcut layers.

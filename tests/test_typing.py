@@ -30,10 +30,10 @@ def emit(sequence):
 
 class TypingTests(unittest.TestCase):
     def test_words(self):
-        samples = {"K I": "কি", "K O": "কো", "K ;": "কৌ",
-                   "K / X": "ক্ষ", "Q Shift+X": "ড়",
+        samples = {"Shift+S": "ষ", "X": "শ", "K I": "কি", "K O": "কো", "K ;": "কৌ",
+                   "K / Shift+S": "ক্ষ", "Q Shift+X": "ড়",
                    "B A Shift+L L A": "বাংলা",
-                   "Shift+S I K / X A": "শিক্ষা",
+                   "X I K / Shift+S A": "শিক্ষা",
                    "Shift+4 4 AltGr+. 5 0": "৳৪.৫০",
                    "AltGr+\'": "\u200d", "Shift+AltGr+\'": "\u200c",
                    "/": "্", "Shift+/": "?", "AltGr+/": "/",
