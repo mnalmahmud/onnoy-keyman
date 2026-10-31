@@ -32,14 +32,14 @@ class LayoutTests(unittest.TestCase):
         expected = {
             "Q": ["দ", "ধ", None, None], "W": ["ূ", "ঊ", "ৱ", None],
             "E": ["ে", "এ", None, None], "R": ["র", "ড়", "ঢ়", None],
-            "T": ["ট", "ঠ", "ৎ", None], "Y": ["ী", "ঈ", None, None],
+            "T": ["ট", "ঠ", "ৎ", None], "Y": ["ী", "ঈ", "য়", None],
             "U": ["ু", "উ", None, None], "I": ["ি", "ই", None, None],
             "O": ["ো", "ও", None, None], "P": ["প", "ফ", None, None],
             "A": ["া", "আ", None, None], "S": ["স", "ষ", None, None],
             "D": ["ড", "ঢ", None, None], "F": ["ত", "থ", None, None],
             "G": ["গ", "ঘ", None, None], "H": ["হ", "ঃ", None, None],
             "J": ["জ", "ঝ", None, None], "K": ["ক", "খ", None, None],
-            "L": ["ল", "ং", None, None], "Z": ["য", "য়", None, None],
+            "L": ["ল", "ং", None, None], "Z": ["য", None, None, None],
             "X": ["শ", None, None, None], "C": ["চ", "ছ", None, None],
             "V": ["অ", "ৗ", None, None], "B": ["ব", "ভ", None, None],
             "N": ["ন", "ণ", "ঞ", None], "M": ["ম", "ঙ", "ঁ", None],
@@ -50,6 +50,7 @@ class LayoutTests(unittest.TestCase):
         for key, values in expected.items():
             with self.subTest(key=key):
                 self.assertEqual(KEYS[key], values)
+        self.assertEqual(sum(v == "য়" for vs in KEYS.values() for v in vs), 1)
         self.assertNotIn("ৰ", json.dumps(LAYOUT, ensure_ascii=False))
         self.assertNotIn("ঽ", json.dumps(LAYOUT, ensure_ascii=False))
 
@@ -68,6 +69,8 @@ class LayoutTests(unittest.TestCase):
             r"key <AD01>.*U09A6, U09A7",
             r"key <AC03>.*U09A1, U09A2",
             r"key <AD05>.*U099F, U09A0, U09CE",
+            r"key <AD06>.*U09C0, U0988, U09DF",
+            r"key <AB01>.*U09AF, VoidSymbol",
             r"key <AD04>.*U09B0, U09DC, U09DD",
             r"key <AB06>.*U09A8, U09A3, U099E",
             r"key <AB07>.*U09AE, U0999, U0981",
@@ -91,7 +94,8 @@ class LayoutTests(unittest.TestCase):
             "20\tD\t0\t09a1 09a2 -1 -1 -1",
             "14\tT\t0\t099f 09a0 -1 09ce -1",
             "21\tF\t0\t09a4 09a5 -1 -1 -1",
-            "2C\tZ\t0\t09af 09df -1 -1 -1",
+            "15\tY\t0\t09c0 0988 -1 09df -1",
+            "2C\tZ\t0\t09af -1 -1 -1 -1",
             "2F\tV\t0\t0985 09d7 -1 -1 -1",
             "30\tB\t0\t09ac 09ad -1 -1 -1",
             "31\tN\t0\t09a8 09a3 -1 099e -1",
@@ -126,13 +130,14 @@ class LayoutTests(unittest.TestCase):
             (0, 12, "দ"), (1, 12, "ধ"), (0, 2, "ড"), (1, 2, "ঢ"),
             (0, 41, "ৃ"), (1, 41, "ঋ"), (0, 30, "ৌ"), (1, 30, "ঔ"),
             (2, 43, "়"), (3, 43, "𑷰"), (1, 15, "ড়"), (2, 15, "ঢ়"),
-            (1, 6, "য়"), (0, 9, "অ"), (1, 9, "ৗ"),
+            (0, 6, "য"), (2, 16, "য়"), (0, 9, "অ"), (1, 9, "ৗ"),
             (0, 47, "।"), (1, 47, ">"), (2, 47, "."),
             (0, 44, "্"), (1, 44, "?"), (2, 44, "/"),
             (2, 39, "\u200d"), (3, 39, "\u200c"),
         ):
             with self.subTest(index=i, code=code):
                 self.assertEqual(key(custom.find(f"keyMap[@index='{i}']"), code)["output"], expected)
+        self.assertEqual(key(custom.find("keyMap[@index='1']"), 6)["output"], "")
         defined_actions = {a.attrib["id"] for a in root.findall("./actions/action")}
         for node in root.findall(".//keyMap/key"):
             if "action" in node.attrib:
