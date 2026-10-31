@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Place /ŋ/ pair on M; keep joiners unchanged
+- Keep Shift+M = ঙ; move ং from Shift+L to AltGr+M. Retain AltGr+L = ঁ, clear Shift+L.
+- Keep AltGr+J = ZWJ and AltGr+N = ZWNJ during the separate joiner review. Move displaced ঞ to Shift+AltGr+N as a temporary unique assignment pending that review.
+- Update native layout assertions, browser tests and the বাংলা example; no duplicate characters.
+
 ### Regroup joiners and nasal symbols for one-handed AltGr
 - Move the only ZWJ (U+200D) mapping from AltGr+apostrophe to AltGr+J, and ZWNJ (U+200C) from Shift+AltGr+apostrophe to AltGr+N, honoring Join / Non-join mnemonics.
 - Relocate displaced ঞ from AltGr+N to AltGr+M and ঁ from AltGr+M to AltGr+L, keeping nasal consonants together on M and nasal marks on L; old slots are cleared, no duplicates.

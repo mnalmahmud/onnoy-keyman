@@ -32,8 +32,8 @@ The complete, authoritative [layout definition](layout/onnoy.json) can be inspec
 | B / Shift+B | ব / ভ | V / Shift+V | অ / ৗ |
 | R / Shift+R | র / ড় | X / Shift+X | শ / ঢ় |
 | Z / Shift+Z | য / — | X | শ |
-| M / Shift+M | ম / ঙ | AltGr+M | ঞ |
-| N / Shift+N | ন / ণ | AltGr+N | ZWNJ (U+200C) |
+| M / Shift+M | ম / ঙ | AltGr+M | ং |
+| N / Shift+N | ন / ণ | AltGr+N / Shift+AltGr+N | ZWNJ / ঞ |
 | W / Shift+W | ূ / ঊ | AltGr+W | ৱ |
 | E / Shift+E | ে / এ | I / Shift+I | ি / ই |
 | O / Shift+O | ো / ও | Y / Shift+Y / AltGr+Y | ী / ঈ / য় |
@@ -42,7 +42,7 @@ The complete, authoritative [layout definition](layout/onnoy.json) can be inspec
 | , / Shift+, | , / < | AltGr+, / Shift+AltGr+, | ় / 𑷰 |
 | . / Shift+. | । / > | AltGr+. | . |
 | / / Shift+/ | ্ / ? | AltGr+/ | / |
-| AltGr+J | ZWJ (U+200D) | AltGr+L | ঁ |
+| AltGr+J | ZWJ (U+200D) | AltGr+L | ঁ (Shift+L unassigned) |
 
 AltGr+apostrophe and Shift+AltGr+apostrophe are unassigned; Base/Shift apostrophe remain ordinary ASCII quotes. Space remains Space with every modifier. The backtick, minus, backslash and equals keys inherit platform-native US behavior. ASCII bracket, semicolon and slash characters remain available on AltGr. The comma retains ordinary Base/Shift punctuation while its AltGr levels hold the two combining marks. Number keys produce Bengali digits on Base, English symbols on Shift and ASCII digits on AltGr.
 
