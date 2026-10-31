@@ -61,7 +61,9 @@ class BrowserSmokeTests(unittest.TestCase):
         self.page.locator('button[data-layer="1"]').click()
         self.assertEqual(key("Y"), "ঈ")
         self.assertEqual(key("R"), "ড়")
-        self.assertEqual(key("Z"), "য়")
+        self.assertEqual(key("Z"), "—")
+        self.page.locator('button[data-layer="2"]').click()
+        self.assertEqual(key("Y"), "য়")
 
     def test_assamese_wa_on_altgr_w(self):
         key = lambda k: self.page.locator('.keyboard-key[data-key="' + k + '"] .key-symbol').inner_text()
@@ -91,7 +93,7 @@ class BrowserSmokeTests(unittest.TestCase):
         self.page.locator('button[data-layer="1"]').click()
         self.assertEqual(y(), "ঈ")
         self.page.locator('button[data-layer="2"]').click()
-        self.assertEqual(y(), "—")
+        self.assertEqual(y(), "য়")
         self.page.locator('button[data-layer="3"]').click()
         self.assertEqual(y(), "—")
 
@@ -130,7 +132,7 @@ class BrowserSmokeTests(unittest.TestCase):
         self.assertEqual(key("Q"), "ধ")
         self.assertEqual(key("T"), "ঠ")
         self.assertEqual(key("P"), "ফ")
-        self.assertEqual(key("Z"), "য়")
+        self.assertEqual(key("Z"), "—")
         self.assertEqual(key("X"), "—")
         self.assertEqual(key("S"), "ষ")
         self.page.locator('button[data-layer="2"]').click()
@@ -200,6 +202,8 @@ class BrowserSmokeTests(unittest.TestCase):
         self.page.keyboard.press("v")
         self.assertEqual(editor.input_value(), "অ")
         self.page.keyboard.press("Shift+v")
+        self.assertEqual(editor.input_value(), "অৗ")
+        self.page.keyboard.press("Shift+z")
         self.assertEqual(editor.input_value(), "অৗ")
 
 
