@@ -34,7 +34,7 @@ class TypingTests(unittest.TestCase):
             "Shift+S": "ষ", "X": "শ", "K I": "কি",
             "K O": "কো", "K ]": "কৌ",
             "K / Shift+S": "ক্ষ",
-            "Shift+R": "ড়", "AltGr+R": "ঢ়", "Shift+Z": "য়",
+            "Shift+R": "ড়", "AltGr+R": "ঢ়", "AltGr+Y": "য়",
             "D AltGr+,": "ড়", "Shift+D AltGr+,": "ঢ়",
             "B A Shift+L L A": "বাংলা",
             "X I K / Shift+S A": "শিক্ষা",
@@ -69,7 +69,9 @@ class TypingTests(unittest.TestCase):
         self.assertEqual(mapping["Q"][:2], ["দ", "ধ"])
         self.assertEqual(mapping["D"][:2], ["ড", "ঢ"])
         self.assertEqual(mapping["R"][:3], ["র", "ড়", "ঢ়"])
-        self.assertEqual(mapping["Z"][:2], ["য", "য়"])
+        self.assertEqual(mapping["Y"], ["ী", "ঈ", "য়", None])
+        self.assertEqual(mapping["Z"], ["য", None, None, None])
+        self.assertEqual(sum(v == "য়" for vs in mapping.values() for v in vs), 1)
         self.assertEqual(mapping[","][2:], ["়", "𑷰"])
         self.assertEqual(mapping["="][:2], ["=", "+"])
         self.assertEqual(mapping["H"][2], None)
