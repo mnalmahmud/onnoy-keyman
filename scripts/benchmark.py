@@ -19,7 +19,7 @@ def onnoy():
     result = {key: values[:] for key, values in layout["keys"].items()}
     result.update({key: values[:] for key, values in layout["passthrough"].items()})
     # Standard US punctuation is inherited from the platform, not Onnoy JSON.
-    defaults = {"`": ["`", "~"], "-": ["-", "_"], "\\": ["\\", "|"],
+    defaults = {"`": ["`", "~"], "-": ["-", "_"], "=": ["=", "+"], "\\": ["\\", "|"],
                 "'": ["'", '"'], ",": [",", "<"], "/": ["/", "?"], "SPACE": [" ", " "]}
     for key, levels in defaults.items():
         result.setdefault(key, [" ", " ", " ", " "] if key == "SPACE" else [*levels, None, None])
