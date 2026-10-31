@@ -48,7 +48,7 @@ class BrowserSmokeTests(unittest.TestCase):
         self.page.close()
 
     def test_reference_and_four_layers(self):
-        self.assertEqual(self.page.locator(".keyboard-key").count(), 46)
+        self.assertEqual(self.page.locator(".keyboard-key").count(), 47)
         self.assertEqual(self.page.locator(".keyboard-row").count(), 5)
         self.page.locator('button[data-layer="2"]').click()
         self.assertIn("ZWJ", self.page.locator(".keyboard-row").nth(2).inner_text())
