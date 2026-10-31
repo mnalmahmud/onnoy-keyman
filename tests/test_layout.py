@@ -102,7 +102,7 @@ class LayoutTests(unittest.TestCase):
         self.assertIn("39\tSPACE\t0\t0020 0020 0020 0020 0020", klc)
         self.assertIn("2C\tZ\t0\t09af 0999 -1 -1 -1", klc)
         self.assertIn("1F\tS\t0\t09b8 09b7 -1 -1 -1", klc)
-        self.assertIn("2D\tX\t0\t09b6 09bc -1 -1 -1", klc)
+        self.assertIn("2D\tX\t0\t09b6 09bc -1 %% -1", klc)
         self.assertIn("35\tOEM_2\t0\t09cd 003f -1 002f -1", klc)
         self.assertIn("29\tOEM_3\t0\t0060 007e -1 -1 -1", klc)
         self.assertIn("28\tOEM_7\t0\t0027 0022 -1 200d 200c", klc)
