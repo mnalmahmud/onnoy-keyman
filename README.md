@@ -43,7 +43,7 @@ Space remains Space with every modifier. The ordinary slash character is on **Al
 
 ## Native architecture
 
-A single mapping (`layout/onnoy.json`) generates all three platform formats. There is no Keyman keyboard source in this project and no Keyman compiler in the build.
+A minimal set of Onnoy overrides (`layout/onnoy.json`) generates all three platform formats using the US base on each platform. Unchanged Space, Minus, Backslash, Comma and Backtick are not custom definitions. There is no Keyman keyboard source in this project and no Keyman compiler in the build.
 
 ```sh
 python3 scripts/generate.py

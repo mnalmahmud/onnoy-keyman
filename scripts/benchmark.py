@@ -18,6 +18,12 @@ def onnoy():
     layout = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))
     result = {key: values[:] for key, values in layout["keys"].items()}
     result.update({key: values[:] for key, values in layout["passthrough"].items()})
+    # Standard US punctuation is inherited from the platform, not Onnoy JSON.
+    defaults = {"`": ["`", "~"], "-": ["-", "_"], "\\": ["\\", "|"],
+                "'": ["'", '"'], ",": [",", "<"], "/": ["/", "?"], "SPACE": [" ", " "]}
+    for key, levels in defaults.items():
+        result.setdefault(key, [" ", " ", " ", " "] if key == "SPACE" else [*levels, None, None])
+
     return result
 
 def xkb(text, name):

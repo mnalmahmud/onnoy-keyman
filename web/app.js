@@ -203,9 +203,12 @@
       if (!response.ok) throw new Error("HTTP " + response.status);
       const layout = await response.json();
       // Display the unchanged hyphen key to preserve the physical number-row spacing.
-      const displayed = { ...layout.keys, ...Object.fromEntries(
-        Object.entries(layout.passthrough || {}).map(([key, pair]) => [key, pair])
-      ) };
+      const usDefaults = {
+        "`": ["`", "~", null, null], "-": ["-", "_", null, null],
+        "\\": ["\\", "|", null, null], ",": [",", "<", null, null],
+        "'": ["'", '"', null, null], SPACE: [" ", " ", " ", " "]
+      };
+      const displayed = { ...usDefaults, ...layout.keys, ...(layout.passthrough || {}) };
       if (!layout.keys || [...rows.join("")].some((key) =>
         !Array.isArray(displayed[mapKey(key)]) || displayed[mapKey(key)].length !== 4
       )) throw new Error("Invalid keyboard mapping");
