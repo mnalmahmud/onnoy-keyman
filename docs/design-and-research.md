@@ -5,7 +5,7 @@ Onnoy is a fixed Unicode keyboard intended to address specific limitations of Pr
 ## Why these key positions exist
 - T gives ট/ঠ in English-sound-oriented grouping; F gives ত/থ. D now gives ড/ঢ, which is a closer articulatory match to English alveolar /d/ in Bangladeshi Standard Bengali than dental দ. Q gives দ/ধ as the displaced consonant pair. This is a phonetic-priority decision, not a Romanization convention; pronunciations vary by dialect. P gives প/ফ and B gives ব/ভ so everyday consonants avoid distant AltGr chords.
 - Y gives ী/ঈ, O gives ো/ও, W gives ূ/ঊ, [ gives ৈ/ঐ, and ] gives ৌ/ঔ. Frequent dependent vowel signs remain on Base, with corresponding independent vowels on Shift.
-- R holds র/ড়/ঢ়; Z holds য/য়. M gives ম/ঙ/ঁ and N gives ন/ণ/ঞ, with nasal extensions on the right-hand AltGr side.
+- R holds র/ড়/ঢ়; Z holds য on Base with Shift+Z unassigned. Y holds ী/ঈ/য় on Base/Shift/AltGr, combining an /i/-related vowel pair with the /j/-related glide on one physical key, with no duplicate য়. AltGr+Y is potentially a one-hand right-thumb/right-index chord on standard keyboards, pending real-device ergonomic validation. M gives ম/ঙ/ঁ and N gives ন/ণ/ঞ, with nasal extensions on the right-hand AltGr side.
 - Semicolon gives ৃ/ঋ with literal punctuation on AltGr. Equals and plus inherit native US behavior. Comma preserves its base and Shift punctuation while AltGr+comma is nukta (়) and Shift+AltGr+comma is U+11DF0.
 - The period key remains unchanged: danda on Base, greater-than on Shift, ASCII period on AltGr. This intentional placement has not been redesigned.
 - Assamese ৱ remains AltGr+W. Assamese ৰ and avagraha ঽ were removed from direct key assignments.
