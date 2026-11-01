@@ -3,77 +3,186 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#102b27">
-  <meta name="description" content="Try Onnoy (অন্বয়), a Unicode Bengali-script keyboard, using native desktop layouts and live KeymanWeb typing.">
-  <meta property="og:title" content="Onnoy — A keyboard for every Bengali-script voice">
-  <meta property="og:description" content="Try the open-source Bengali-script Unicode keyboard, explore its four layers, and find native builds.">
-  <title>Onnoy — অন্বয় | Bengali-script keyboard</title>
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f6f5f1">
+  <meta name="description" content="Onnoy is a Unicode keyboard for Bangla and Assamese. Type with KeymanWeb and explore a live four-layer keyboard.">
+  <title>Onnoy — অন্বয় | Write in Bangla and Assamese</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css">
-    <script defer src="https://s.keyman.com/kmw/engine/18.0.254/keymanweb.js"></script>
-    <script defer src="./app.js"></script>
+  <script defer src="https://s.keyman.com/kmw/engine/18.0.254/keymanweb.js"></script>
+  <script defer src="./app.js"></script>
 </head>
 <body>
-  <a class="skip" href="#editor">Skip to editor</a>
-  <div class="site">
-    <header class="topbar shell">
-      <a class="brand" href="./"><span class="brand-mark" lang="bn">অ</span><span>onnoy <small lang="bn">অন্বয়</small></span></a>
-      <nav aria-label="Main navigation"><a href="#studio">Try it</a><a href="#keymap">Keymap</a><a href="#install">Install</a><a href="https://github.com/mnalmahmud/onnoy-keyman" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav>
+  <a class="skip-link" href="#editor">Skip to writing area</a>
+  <div class="page">
+    <header class="topbar">
+      <a href="./" class="wordmark" aria-label="Onnoy home">
+        <span class="brand-glyph" lang="bn">অ</span>
+        <span class="brand-text">onnoy<span lang="bn">অন্বয়</span></span>
+      </a>
+      <nav class="navigation" aria-label="Main navigation">
+        <a href="#workspace">Try it</a>
+        <a href="#about">About</a>
+        <a href="#install">Install</a>
+        <a href="https://github.com/mnalmahmud/onnoy-keyman" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+      </nav>
+      <label class="theme-control" for="theme">
+        <span class="theme-icon" aria-hidden="true">◐</span>
+        <span class="sr-only">Color theme</span>
+        <select id="theme" aria-label="Color theme">
+          <option value="system">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
     </header>
 
     <main>
-      <section class="hero shell" aria-labelledby="hero-title">
-        <div class="hero-copy"><div class="eyebrow"><span class="online-dot"></span> OPEN SOURCE · UNICODE · DESIGN D</div>
-        <h1 id="hero-title">Your words.<br><em>Your keyboard.</em></h1>
-        <p>A thoughtful Bengali-script layout for Bangla, Assamese, Kokborok and more. Four layers, native Unicode, and a real keyboard you can try right here.</p>
-        <div class="hero-actions"><a class="hero-cta" href="#studio">Start typing <span aria-hidden="true">↗</span></a><a class="hero-link" href="#keymap">Explore every key <span aria-hidden="true">↓</span></a></div>
-        <div class="hero-caption">MADE FOR MANY VOICES. BUILT IN THE OPEN.</div></div>
-        <div class="hero-art" aria-hidden="true"><span class="art-index">ONNOY / ০১</span><span class="art-letter" lang="bn">অ</span><span class="art-word" lang="bn">অন্বয়</span><div class="art-mini-keys"><span>ী<small>Y</small></span><span>ঈ<small>⇧Y</small></span><span>ৱ<small>AltGr W</small></span></div></div>
-      </section>
-
-      <section class="studio-band" id="studio"><div class="shell"><div class="section-top"><div><span class="eyebrow">01 / TRY IT LIVE</span><h2>Words in motion<span class="period">.</span></h2></div><p>KeymanWeb typing with an independent Onnoy keymap visualization. Native desktop layouts do not require Keyman.</p></div><div class="workspace" aria-label="Typing playground">
-        <div class="editor-card">
-          <div class="card-header"><h2><span aria-hidden="true">⌨</span> Live typing studio</h2><span id="status" role="status" aria-live="polite" class="status loading"><i></i><span id="status-label">Loading layout…</span></span></div>
-          <label class="sr-only" for="editor">Type text using the Onnoy keyboard</label>
-          <textarea id="editor" lang="bn" spellcheck="false" autocorrect="off" autocomplete="off" autocapitalize="off" rows="7" placeholder="এখানে লিখুন…" aria-describedby="editor-hint"></textarea>
-          <div class="editor-meta"><span id="editor-hint">Physical keyboard · Shift and Right Alt (AltGr) for more characters</span><span><b id="count">0</b> characters</span></div>
-          <div class="tools"><div><button id="copy" class="primary" type="button" disabled>Copy text ↗</button><button id="clear" type="button">Clear</button><button id="inspect" type="button" aria-controls="unicode-panel" aria-expanded="false">Unicode inspector</button></div><span id="feedback" role="status" aria-live="polite"></span></div>
-          <div id="unicode-panel" class="unicode-panel" hidden><h3>Unicode code points</h3><div id="codepoints" class="codepoints"></div></div>
-          <div id="error-help" class="error-help" hidden><strong>Preview unavailable.</strong> The text field remains usable; check that <code>layout.json</code> was deployed. <a href="https://github.com/mnalmahmud/onnoy-keyman/issues">Report a problem ↗</a><p id="error-detail"></p></div>
+      <section class="intro" aria-labelledby="intro-title">
+        <div>
+          <p class="eyebrow"><span class="green-dot" aria-hidden="true"></span> A native Unicode keyboard</p>
+          <h1 id="intro-title">Your language.<br><em>Your keys.</em></h1>
+          <p class="intro-description">A clear, direct way to write in Bangla and Assamese. Familiar QWERTY positions, thoughtful shortcuts, and a keyboard you can explore as you type.</p>
         </div>
-        <aside class="help-card"><div class="aside-label">A QUICK START</div><h2>One layout.<br><span>Many voices.</span></h2><p>Onnoy follows the standard physical QWERTY arrangement. Each key can have up to four outputs.</p><ol><li>Click the editor and start typing.</li><li>Use <kbd>Shift</kbd> and <kbd>Right Alt</kbd> for other layers.</li><li>Explore the full layout below.</li></ol><a href="#keymap">Explore the keymap ↓</a></aside></div></div>
-      </section>
-
-      <section class="samples shell">
-        <div class="section-top"><div><span class="eyebrow">GET A FEEL FOR IT</span><h2>Start with something simple.</h2></div><p>Examples show physical keystrokes. Select an example to place it in the editor.</p></div>
-        <div class="sample-grid">
-          <article><span class="sample-num">01 / EVERYDAY</span><strong lang="bn">বাংলা</strong><span>B · A · AltGr+M · L · A</span><button type="button" class="sample-insert" data-sample="বাংলা" data-sequence="B A AltGr+M L A">Insert example ↗</button></article>
-          <article><span class="sample-num">02 / LIGATURE</span><strong lang="bn">ক্ষ</strong><span>K · / · Shift+S</span><button type="button" class="sample-insert" data-sample="ক্ষ" data-sequence="K GRAVE X">Insert example ↗</button></article>
-          <article><span class="sample-num">03 / PRACTICE</span><strong lang="bn">শিক্ষা</strong><span>Shift+S · I · K · GRAVE · X · A</span><button type="button" class="sample-insert" data-sample="শিক্ষা" data-sequence="X I K · GRAVE · X A">Insert example ↗</button></article>
-          <article><span class="sample-num">04 / NUMBERS</span><strong lang="bn">৳৪.৫০</strong><span>Shift+4 · 4 · AltGr+. · 5 · 0</span><button type="button" class="sample-insert" data-sample="৳৪.৫০" data-sequence="Shift+4 4 AltGr+. 5 0">Insert example ↗</button></article>
+        <div class="intro-aside" aria-hidden="true">
+          <span class="intro-aside-label">A little more room for every word</span>
+          <span class="hero-script" lang="bn">অন্বয়<span>।</span></span>
         </div>
       </section>
 
-      <section id="keymap" class="keymap-section shell">
-        <div class="section-top"><div><span class="eyebrow">THE COMPLETE LAYOUT</span><h2>Every key, in context.</h2></div><p>Select a layer, or hold a modifier on your keyboard. Click any key to inspect all four assignments.</p></div>
-        <div class="keymap-card">
-          <div class="keymap-head"><label class="geometry-select">Hardware <select id="geometry" aria-label="Keyboard geometry"><option value="ansi">ANSI</option><option value="iso">ISO</option></select></label><div class="layer-buttons" role="group" aria-label="Select key layer"><button class="layer active" data-layer="0" aria-pressed="true">Base</button><button class="layer" data-layer="1" aria-pressed="false">Shift</button><button class="layer" data-layer="2" aria-pressed="false">AltGr</button><button class="layer" data-layer="3" aria-pressed="false">AltGr + Shift</button></div><label class="key-search"><span class="sr-only">Find key or Bengali character</span><input id="key-search" type="search" placeholder="Find a key or character…" autocomplete="off" spellcheck="false"></label></div><div class="keymap-sub"><span id="layer-hint">Unmodified keys</span><span id="search-feedback" aria-live="polite">Select a key to inspect all four layers</span></div>
-          <div id="keyboard" class="keyboard" aria-label="Onnoy key map"><p>Loading key reference…</p></div>
-          <div class="keymap-foot"><p>A dash marks an unassigned output. Switch ANSI/ISO above to display the extra ISO backslash/pipe key. Brackets and semicolon retain their specified AltGr shortcuts.</p><div id="key-details">Select a key to inspect its assignments.</div></div>
+      <section class="workspace-section" id="workspace" aria-labelledby="workspace-heading">
+        <div class="workspace-heading">
+          <div>
+            <p class="eyebrow">THE PLAYGROUND <span class="eyebrow-index">/ 01</span></p>
+            <h2 id="workspace-heading">Make yourself heard.</h2>
+          </div>
+          <div id="status" class="engine-status" role="status" aria-live="polite">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span id="status-label">Connecting keyboard…</span>
+          </div>
+        </div>
+
+        <div class="workspace-grid">
+          <section class="pane editor-pane" aria-labelledby="editor-heading">
+            <div class="pane-heading">
+              <div>
+                <span class="pane-overline">01 / WRITE</span>
+                <h3 id="editor-heading">A space for your words</h3>
+              </div>
+              <span class="pane-symbol" aria-hidden="true">✎</span>
+            </div>
+
+            <label class="sr-only" for="editor">Type using the Onnoy keyboard</label>
+            <textarea id="editor" lang="bn" placeholder="এখানে লিখুন…" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-describedby="editor-help"></textarea>
+
+            <div class="editor-bottom">
+              <span id="editor-help">Type with your physical keyboard · Shift / Right Alt for more characters</span>
+              <span id="count" class="char-count">0 characters</span>
+            </div>
+
+            <div class="editor-toolbar">
+              <button id="copy" class="button button-primary" type="button" disabled>Copy text <span aria-hidden="true">↗</span></button>
+              <button id="clear" class="button button-secondary" type="button">Clear</button>
+              <button id="inspect" class="button button-quiet" type="button" aria-expanded="false" aria-controls="unicode-panel">Unicode details <span aria-hidden="true">⌄</span></button>
+              <span id="feedback" class="action-feedback" role="status" aria-live="polite"></span>
+            </div>
+            <div class="unicode-panel" id="unicode-panel" hidden>
+              <h4>Unicode code points</h4>
+              <div id="codepoints" class="codepoints">Nothing to inspect yet.</div>
+            </div>
+          </section>
+
+          <section class="pane keyboard-pane" aria-labelledby="keyboard-heading">
+            <div class="pane-heading keyboard-heading">
+              <div>
+                <span class="pane-overline">02 / EXPLORE</span>
+                <h3 id="keyboard-heading">The keyboard, live</h3>
+              </div>
+              <label class="geometry-field" for="geometry">
+                <span>Hardware</span>
+                <select id="geometry" aria-label="Keyboard geometry">
+                  <option value="ansi">ANSI</option>
+                  <option value="iso">ISO</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="layers" role="group" aria-label="View a keyboard layer">
+              <button type="button" data-layer="0" class="layer active" aria-pressed="true">Base</button>
+              <button type="button" data-layer="1" class="layer" aria-pressed="false">Shift</button>
+              <button type="button" data-layer="2" class="layer" aria-pressed="false">AltGr</button>
+              <button type="button" data-layer="3" class="layer" aria-pressed="false">Shift + AltGr</button>
+            </div>
+
+            <div class="keyboard-context">
+              <span id="layer-hint">Base layer · Hold Shift or Right Alt to preview another layer</span>
+              <span class="hardware-indicator" id="modifier-indicator" aria-live="polite">BASE</span>
+            </div>
+
+            <div class="keyboard-scroll">
+              <div id="keyboard" class="keyboard" aria-label="Onnoy visual keyboard">
+                <p class="loading-keyboard">Loading keyboard…</p>
+              </div>
+            </div>
+
+            <div class="key-inspector" aria-live="polite">
+              <span class="inspector-label">KEY DETAILS</span>
+              <div id="key-details">Select a key to see all four outputs. The keys above are a visual reference.</div>
+            </div>
+          </section>
+        </div>
+
+        <div id="error-help" class="error-help" hidden role="alert">
+          <strong>Keyboard unavailable.</strong>
+          <span>The writing area remains usable, but Onnoy typing or the key reference could not load. Reload the page or <a href="https://github.com/mnalmahmud/onnoy-keyman/issues">report a problem</a>.</span>
+          <small id="error-detail"></small>
+        </div>
+
+        <div class="practice">
+          <span class="practice-label">TRY AN EXAMPLE</span>
+          <div class="practice-items">
+            <button type="button" data-sample="বাংলা"><span lang="bn">বাংলা</span><small>Bangla</small></button>
+            <button type="button" data-sample="অসমীয়া"><span lang="bn">অসমীয়া</span><small>Assamese</small></button>
+            <button type="button" data-sample="শিক্ষা"><span lang="bn">শিক্ষা</span><small>Education</small></button>
+            <button type="button" data-sample="ক্ষ"><span lang="bn">ক্ষ</span><small>Conjunct</small></button>
+          </div>
         </div>
       </section>
 
-      <section id="install" class="install-section"><div class="shell"><div class="section-top"><div><span class="eyebrow">03 / GET ONNOY</span><h2>Make it your own<span class="period">.</span></h2></div><p>Built from a single open-source keymap. Install a native operating-system keyboard; no background input app required.</p></div>
-        <div class="install-grid">
-          <article class="install-card featured"><span class="install-label">NATIVE LINUX</span><div class="platform-symbol">⌨</div><h3>Linux · XKB</h3><p>A generated XKB layout, without a third-party input method. Desktop registration can vary; see the installation guide.</p><a href="https://github.com/mnalmahmud/onnoy-keyman/blob/main/README.md#linux" target="_blank" rel="noopener noreferrer">Linux guide ↗</a></article>
-          <article class="install-card"><span class="install-label">NATIVE macOS</span><div class="platform-symbol">⌘</div><h3>macOS · Input Source</h3><p>System-native .keylayout with a macOS installer package generated on macOS. Package signing and on-device validation remain pending.</p><a href="https://github.com/mnalmahmud/onnoy-keyman/blob/main/README.md#macos" target="_blank" rel="noopener noreferrer">macOS guide ↗</a></article>
-          <article class="install-card"><span class="install-label">NATIVE WINDOWS</span><div class="platform-symbol">⊞</div><h3>Windows · Keyboard DLL</h3><p>Windows KLC source. Building an installable layout currently requires MSKLC on Windows; no extra software is needed after installing the compiled native layout.</p><a href="https://github.com/mnalmahmud/onnoy-keyman/blob/main/README.md#windows" target="_blank" rel="noopener noreferrer">Windows guide ↗</a></article>
-        </div><p class="install-caveat">The native formats do not depend on Keyman. Compatibility and real-device packaging still need verification.</p></div></section>
-      <section class="footer-notes shell"><article><span>01 /</span><h3>Native-first layout</h3><p>Onnoy works as an OS input source on desktop. This website uses KeymanWeb for typing; native desktop layouts do not.</p></article><article><span>02 /</span><h3>Desktop-first</h3><p>Designed for a physical keyboard. AltGr behavior can vary between browsers and operating systems.</p></article><article><span>03 /</span><h3>Open and inspectable</h3><p>MIT licensed. Native platform sources, CI builds and issue tracker are on GitHub.</p></article></section>
+      <section id="about" class="info-section" aria-labelledby="about-heading">
+        <div class="section-label">ABOUT <span>/ 02</span></div>
+        <div class="info-content">
+          <h2 id="about-heading">Made for the way you write.</h2>
+          <p>Onnoy is a direct Unicode keyboard for Bengali and Assamese. It uses physical US-QWERTY positions, with Shift and Right Alt (AltGr) for alternate characters. There is no phonetic transliteration step.</p>
+          <div class="detail-grid">
+            <div><span class="detail-icon" aria-hidden="true">⌨</span><h3>Native on desktop</h3><p>Linux XKB, Windows keyboard layouts, and macOS input sources work without a background input method.</p></div>
+            <div><span class="detail-icon" aria-hidden="true">অ</span><h3>One familiar arrangement</h3><p>The same characters are available across desktop, the web playground, and Keyman mobile.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="install" class="install-section" aria-labelledby="install-heading">
+        <div class="section-label">GET ONNOY <span>/ 03</span></div>
+        <div class="install-content">
+          <h2 id="install-heading">Take it everywhere.</h2>
+          <p>Build the native keyboard for your operating system, or install the Keyman package for desktop and mobile.</p>
+          <div class="platform-links">
+            <a href="https://github.com/mnalmahmud/onnoy-keyman/blob/main/README.md#linux"><span>Linux</span><small>XKB keyboard layout</small><span aria-hidden="true">↗</span></a>
+            <a href="https://github.com/mnalmahmud/onnoy-keyman/blob/main/README.md#macos"><span>macOS</span><small>Native input source</small><span aria-hidden="true">↗</span></a>
+            <a href="https://github.com/mnalmahmud/onnoy-keyman/blob/main/README.md#windows"><span>Windows</span><small>Native keyboard installer</small><span aria-hidden="true">↗</span></a>
+            <a href="https://github.com/mnalmahmud/onnoy-keyman/blob/main/README.md#keyman--desktop--android--ios"><span>Keyman</span><small>Desktop · Android · iOS</small><span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </section>
     </main>
-    <footer class="shell"><span lang="bn">অন্বয়</span><p>© 2026 Muhtasham Nawr al-Mahmud · MIT License</p><nav><a href="https://github.com/mnalmahmud/onnoy-keyman">Source</a><a href="https://github.com/mnalmahmud/onnoy-keyman/issues">Issues</a><a href="https://github.com/mnalmahmud/onnoy-keyman/releases">Releases</a></nav></footer>
+
+    <footer class="footer">
+      <span class="footer-brand">onnoy <span lang="bn">অন্বয়</span></span>
+      <p>A keyboard for every word. Open source under the <a href="https://github.com/mnalmahmud/onnoy-keyman/blob/main/LICENSE">MIT License</a>.</p>
+      <a href="https://github.com/mnalmahmud/onnoy-keyman" target="_blank" rel="noopener noreferrer">View source ↗</a>
+    </footer>
   </div>
 </body>
 </html>
