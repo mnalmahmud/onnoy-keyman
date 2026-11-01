@@ -6,6 +6,6 @@
     "@keymanapp/kmc": "18.0.254"
   },
   "scripts": {
-    "build:keyman": "kmc build dist/keyman/onnoy.kmn"
+    "build:keyman": "kmc build dist/keyman/onnoy.kmn && kmc build dist/keyman/onnoy.kps"
   }
 }
