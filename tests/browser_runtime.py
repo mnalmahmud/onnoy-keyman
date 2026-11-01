@@ -25,7 +25,15 @@ def main():
             page.wait_for_function(
                 "() => document.getElementById('status-label').textContent === 'KeymanWeb ready'",
                 timeout=45000)
-            assert page.locator('#keyboard .keyboard-key').count() > 35, "Visualizer did not load"
+            try:
+                page.locator('#keyboard .keyboard-key').first.wait_for(timeout=20000)
+            except Exception as error:
+                print("Keyboard status:", page.locator("#status-label").inner_text())
+                print("Keyboard content:", page.locator("#keyboard").inner_text())
+                print("Error detail:", page.locator("#error-detail").inner_text())
+                print("Browser errors:",errors)
+                raise AssertionError("Visualizer did not load") from error
+            assert page.locator('#keyboard .keyboard-key').count() > 35, "Incomplete visualizer"
             page.select_option("#geometry","iso")
             assert page.locator('button.keyboard-key[data-key="§"]').count() == 1
             page.select_option("#geometry","ansi")
