@@ -20,11 +20,11 @@ jobs:
           python-version: '3.12'
       - name: Validate, generate and run exact Unicode contract tests
         run: |
-          python3 scripts/build.py validate
-          python3 scripts/build.py generate
-          python3 scripts/build.py check
-          python3 -m unittest discover -s tests -p 'test_*.py'
-          python3 scripts/benchmark.py --corpus tests/data/demo-bengali.txt > /tmp/onnoy-benchmark.json
+          python3 -m onnoy validate
+          python3 -m onnoy generate
+          python3 -m onnoy check
+          python3 -m onnoy test
+          python3 tools/benchmark.py --corpus tests/data/demo-bengali.txt > /tmp/onnoy-benchmark.json
           python3 -m json.tool /tmp/onnoy-benchmark.json > /dev/null
           node --check web/app.js
       - name: Compile Linux XKB symbols
@@ -34,7 +34,7 @@ jobs:
           printf 'xkb_keymap { xkb_keycodes { include "evdev+aliases(qwerty)" }; xkb_types { include "complete" }; xkb_compat { include "complete" }; xkb_symbols { include "pc+onnoy(basic)+inet(evdev)" }; xkb_geometry { include "pc(pc105)" }; };' > /tmp/onnoy-test.xkb
           xkbcomp -w 0 -I"$PWD/dist/linux" /tmp/onnoy-test.xkb /tmp/onnoy-test.xkm
       - name: Package native Linux source bundle
-        run: bash scripts/package-linux.sh
+        run: bash tools/package-linux.sh
       - uses: actions/upload-artifact@v4
         with:
           name: onnoy-linux-and-sources
@@ -56,7 +56,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: python3 scripts/build.py generate
+      - run: python3 -m onnoy generate
       - name: Install pinned Keyman compiler
         run: npm install --no-audit --no-fund
       - name: Compile Keyman desktop and browser keyboard
@@ -68,7 +68,7 @@ jobs:
           test -s dist/keyman/onnoy.kmp
           test -s dist/keyman/onnoy.keyman-touch-layout
           node --check dist/keyman/onnoy.js
-          python3 tests/check_mobile_package.py
+          python3 -m onnoy test --package-check
       - name: Assemble custom website and compiled Keyman keyboard
         run: |
           mkdir -p site
@@ -80,7 +80,7 @@ jobs:
         run: |
           python3 -m pip install playwright==1.56.0
           python3 -m playwright install --with-deps chromium
-          python3 tests/browser_runtime.py
+          python3 -m onnoy test --browser
       - uses: actions/upload-artifact@v4
         with:
           name: onnoy-keyman-and-website
@@ -107,10 +107,10 @@ jobs:
         with:
           python-version: '3.12'
       - run: |
-          python3 scripts/build.py generate
-          python3 scripts/build.py check
-          python3 -m unittest discover -s tests -p 'test_*.py'
-          bash scripts/package-macos.sh
+          python3 -m onnoy generate
+          python3 -m onnoy check
+          python3 -m onnoy test
+          bash tools/package-macos.sh
       - uses: actions/upload-artifact@v4
         with:
           name: onnoy-native-macos-unsigned
@@ -126,9 +126,9 @@ jobs:
           python-version: '3.12'
       - shell: pwsh
         run: |
-          python scripts/build.py generate
-          python scripts/build.py check
-          python -m unittest discover -s tests -p 'test_*.py'
+          python -m onnoy generate
+          python -m onnoy check
+          python -m onnoy test
           Write-Host "Generated KLC only; native DLL install not yet verified"
       - uses: actions/upload-artifact@v4
         with:
