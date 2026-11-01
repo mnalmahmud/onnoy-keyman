@@ -1,0 +1,8 @@
+{
+  "name": "onnoy-build",
+  "private": true,
+  "description": "Build-time Keyman compiler; native users do not need Node.js",
+  "devDependencies": {
+    "@keymanapp/kmc": "18.0.254"
+  }
+}

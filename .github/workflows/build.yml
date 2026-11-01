@@ -1,4 +1,4 @@
-name: Native Onnoy builds and verification
+name: CI
 
 on:
   push:
@@ -10,9 +10,73 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
-  linux-and-web:
-    name: Linux XKB, tests and offline browser preview
+  native:
+    name: Native / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate and test
+        shell: bash
+        run: |
+          python -m onnoy validate
+          python -m onnoy test
+          python -m onnoy check
+
+      - name: Compile and package Linux XKB
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq x11-xkb-utils xkb-data
+          printf 'xkb_keymap { xkb_keycodes { include "evdev+aliases(qwerty)" }; xkb_types { include "complete" }; xkb_compat { include "complete" }; xkb_symbols { include "pc+onnoy(basic)+inet(evdev)" }; xkb_geometry { include "pc(pc105)" }; };' > /tmp/onnoy.xkb
+          xkbcomp -w 0 -I"$PWD/dist/linux" /tmp/onnoy.xkb /tmp/onnoy.xkm
+          python tools/benchmark.py > /tmp/onnoy-benchmark.json
+          python -m json.tool /tmp/onnoy-benchmark.json > /dev/null
+          python -m onnoy package --target linux
+
+      - name: Package macOS layout
+        if: runner.os == 'macOS'
+        run: python -m onnoy package --target macos
+
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'Linux'
+        with:
+          name: onnoy-linux
+          path: |
+            build/onnoy-linux-native.tar.gz
+            dist/linux/symbols/onnoy
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'macOS'
+        with:
+          name: onnoy-macos
+          path: |
+            build/onnoy-macos.pkg
+            dist/macos/Onnoy.keylayout
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'Windows'
+        with:
+          name: onnoy-windows
+          path: dist/windows/onnoy.klc
+          if-no-files-found: error
+
+  keyman:
+    name: Keyman and browser
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,129 +86,56 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Generate native files and run regression tests
+      - name: Build Keyman
         run: |
-          bash scripts/build.sh
-          python3 scripts/benchmark.py --corpus tests/data/demo-bengali.txt > /tmp/onnoy-benchmark.json
-          python3 -m json.tool /tmp/onnoy-benchmark.json > /dev/null
+          npm install --no-audit --no-fund
+          python -m onnoy package --target keyman
+          node --check dist/keyman/onnoy.js
           node --check web/app.js
-      - name: Compile native XKB symbols
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq x11-xkb-utils xkb-data
-          printf 'xkb_keymap { xkb_keycodes { include "evdev+aliases(qwerty)" }; xkb_types { include "complete" }; xkb_compat { include "complete" }; xkb_symbols { include "pc+onnoy(basic)+inet(evdev)" }; xkb_geometry { include "pc(pc105)" }; };' > /tmp/onnoy-test.xkb
-          xkbcomp -w 0 -I"$PWD/dist/linux" /tmp/onnoy-test.xkb /tmp/onnoy-test.xkm
-      - name: Stage standalone website
+
+      - name: Assemble website
         run: |
           mkdir -p site
-          cp web/index.html web/app.js web/style.css site/
-          cp layout/onnoy.json site/layout.json
+          cp web/index.html web/style.css web/app.js site/
+          cp dist/web/layout.json site/layout.json
+          cp dist/keyman/onnoy.js site/onnoy.js
           touch site/.nojekyll
-      - name: Test offline website
+
+      - name: Test compiled package and browser typing
         run: |
-          python3 -m pip install playwright==1.56.0
-          python3 -m playwright install --with-deps chromium
-          python3 -m unittest discover -s tests -p 'test_browser.py'
-      - name: Package Linux native layout
-        run: bash scripts/package-linux.sh
-      - name: Upload Linux and Windows source artifacts
-        uses: actions/upload-artifact@v4
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+          python -m onnoy test --package-check --browser
+
+      - uses: actions/upload-artifact@v4
         with:
-          name: onnoy-native-linux-windows-sources
+          name: onnoy-keyman-and-website
           path: |
-            build/onnoy-linux-native.tar.gz
-            dist/linux/symbols/onnoy
-            dist/windows/onnoy.klc
+            dist/keyman/onnoy.kmn
+            dist/keyman/onnoy.kps
+            dist/keyman/onnoy.keyman-touch-layout
+            dist/keyman/onnoy.kmx
+            dist/keyman/onnoy.js
+            dist/keyman/onnoy.kmp
+            site/
           if-no-files-found: error
-      - name: Upload Pages website
+
+      - uses: actions/upload-pages-artifact@v4
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-pages-artifact@v4
         with:
           path: site
 
-  macos:
-    name: Build unsigned native macOS installer
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Generate and package .keylayout
-        run: |
-          python3 scripts/generate.py
-          python3 scripts/generate.py --check
-          python3 -m unittest discover -s tests -p 'test_layout.py'
-          bash scripts/package-macos.sh
-      - name: Upload native macOS package
-        uses: actions/upload-artifact@v4
-        with:
-          name: onnoy-native-macos
-          path: |
-            build/onnoy-macos.pkg
-            dist/macos/Onnoy.keylayout
-          if-no-files-found: error
-
-  windows:
-    name: Generate native Windows layout source
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Validate Windows KLC
-        shell: pwsh
-        run: |
-          python scripts/generate.py
-          python scripts/generate.py --check
-          python -m unittest discover -s tests -p 'test_layout.py'
-          Write-Host "MSKLC is required to compile a native Windows DLL and installer."
-      - name: Upload KLC source
-        uses: actions/upload-artifact@v4
-        with:
-          name: onnoy-native-windows-source
-          path: dist/windows/onnoy.klc
-          if-no-files-found: error
-
-  release:
-    name: Release verified sources and macOS package
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    needs: [linux-and-web, macos, windows]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: onnoy-native-*
-          path: release-assets
-          merge-multiple: true
-      - uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            release-assets/onnoy-linux-native.tar.gz
-            release-assets/onnoy-macos.pkg
-            release-assets/onnoy.klc
-            release-assets/Onnoy.keylayout
-            release-assets/onnoy
-          generate_release_notes: true
-
   deploy:
-    name: Publish dependency-free website
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: linux-and-web
+    needs: [native, keyman]
     runs-on: ubuntu-latest
-    concurrency:
-      group: onnoy-github-pages
-      cancel-in-progress: false
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       contents: read
       pages: write
       id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/deploy-pages@v4
         id: deployment

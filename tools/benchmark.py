@@ -7,6 +7,9 @@ import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# Allow standalone script invocation: python tools/benchmark.py
+import sys
+sys.path.insert(0, str(ROOT))
 PHYSICAL = {}
 for row, prefix in (("QWERTYUIOP", "AD"), ("ASDFGHJKL", "AC"), ("ZXCVBNM", "AB"), ("1234567890", "AE")):
     PHYSICAL.update({f"{prefix}{i:02}": key for i, key in enumerate(row, 1)})
@@ -15,16 +18,22 @@ PHYSICAL.update({"AD11": "[", "AD12": "]", "AC10": ";", "AC11": "'", "AB08": ","
 ASCII = {"exclam":"!","at":"@","numbersign":"#","dollar":"$","percent":"%","asciicircum":"^","ampersand":"&","asterisk":"*","parenleft":"(","parenright":")","minus":"-","underscore":"_","equal":"=","plus":"+","bracketleft":"[","bracketright":"]","braceleft":"{","braceright":"}","semicolon":";","colon":":","apostrophe":"'","quotedbl":"\"","comma":",","less":"<","period":".","greater":">","slash":"/","question":"?","backslash":"\\","bar":"|","grave":"`","asciitilde":"~","space":" "}
 
 def onnoy():
-    layout = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))
-    result = {key: values[:] for key, values in layout["keys"].items()}
-    result.update({key: values[:] for key, values in layout["passthrough"].items()})
-    # Standard US punctuation is inherited from the platform, not Onnoy JSON.
-    defaults = {"`": ["`", "~"], "-": ["-", "_"], "=": ["=", "+"], "\\": ["\\", "|"],
-                "'": ["'", '"'], ",": [",", "<"], "/": ["/", "?"], "SPACE": [" ", " "]}
-    for key, levels in defaults.items():
-        result.setdefault(key, [" ", " ", " ", " "] if key == "SPACE" else [*levels, None, None])
+    from onnoy.model import resolve
 
-    return result
+    # Benchmarks use printable US key labels, unlike the canonical JSON.
+    # Translate key IDs once so the same physical-key model is used for
+    # Onnoy, legacy variants, Probhat, and KaGaPa.
+    symbols = {
+        "GRAVE": "`", "MINUS": "-", "EQUAL": "=",
+        "LBRACKET": "[", "RBRACKET": "]", "BACKSLASH": "\\",
+        "SEMICOLON": ";", "APOSTROPHE": "'", "COMMA": ",",
+        "PERIOD": ".", "SLASH": "/", "SPACE": " ",
+    }
+    return {
+        symbols.get(key, key): list(values)
+        for key, values in resolve().items()
+    }
+
 
 def xkb(text, name):
     match = re.search(r'xkb_symbols\s+"' + re.escape(name) + r'"\s*\{', text)
