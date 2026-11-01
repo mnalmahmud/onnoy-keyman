@@ -45,7 +45,8 @@ def main():
         generate(check=args.command=="check")
     elif args.command=="test":
         import unittest
-        suite=unittest.defaultTestLoader.discover(str(ROOT/"tests"),pattern="test_mapping_contract.py",top_level_dir=str(ROOT))
+        generate()
+        suite=unittest.defaultTestLoader.discover(str(ROOT/"tests"),pattern="test_*.py",top_level_dir=str(ROOT))
         result=unittest.TextTestRunner(verbosity=2).run(suite)
         if not result.wasSuccessful():raise SystemExit(1)
     elif args.command=="package":

@@ -49,6 +49,7 @@
   ];
 
   let mapping = null;
+  let keymanReady = false;
   let selectedLayer = 0;
   let visibleLayer = -1;
   let selectedKey = null;
@@ -237,7 +238,7 @@
       draw(selectedLayer);
       status.classList.remove("loading", "error");
       status.classList.add("ready");
-      statusLabel.textContent = "Keymap loaded";
+      statusLabel.textContent = keymanReady ? "KeymanWeb ready" : "Keymap loaded";
     } catch (error) {
       keyboard.textContent = "The key reference could not be loaded.";
       details.textContent = "Check that layout.json was included in the site deployment.";
@@ -264,6 +265,7 @@
       filename: "./onnoy.js"
     });
     await engine.setActiveKeyboard("onnoy", "bn");
+    keymanReady = true;
     statusLabel.textContent = "KeymanWeb ready";
   }
   void startKeyman().catch(error => {
