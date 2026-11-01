@@ -81,6 +81,7 @@ def virama(mapping):
 
 def bottom(mapping, numeric=False):
     return [
+        special("K_LOPT", "*Menu*", width=80),
         special("K_NUMERALS", "*ABC*" if numeric else "*123*",
                 nextlayer="default" if numeric else "numeric", width=120,
                 active=numeric),
