@@ -38,14 +38,14 @@ def generate(check=False):
 def test(browser=False, package_check=False, windows=False):
     generate()
     suite = unittest.defaultTestLoader.discover(
-        str(ROOT / "tests"), pattern="test_onnoy.py"
+        str(ROOT), pattern="tests.py"
     )
     if not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful():
         raise SystemExit(1)
 
     if browser or package_check or windows:
-        # unittest discovery imported the single test file as test_onnoy.
-        checks = sys.modules["test_onnoy"]
+        # unittest discovery imported the root test module as tests.
+        checks = sys.modules["tests"]
         if package_check:
             checks.verify_mobile_package()
         if browser:
