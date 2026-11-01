@@ -35,10 +35,10 @@ class MobileTouchTests(unittest.TestCase):
             self.assertEqual(len(layer["row"]), 4)
         self.assertEqual(
             [len(row["key"]) for row in self.layers["default"]["row"]],
-            [10,9,9,6])
+            [10,9,9,7])
         self.assertEqual(
             [len(row["key"]) for row in self.layers["numeric"]["row"]],
-            [10,10,10,6])
+            [10,10,10,7])
 
     def test_alphabet_keys_resolve_canonical_outputs(self):
         for layer_name, idx in (("default",0), ("shift",1)):
@@ -79,6 +79,8 @@ class MobileTouchTests(unittest.TestCase):
         self.assertIn("K_SPACE",{key["id"] for key in base})
         self.assertIn("K_BKSP",{key["id"] for key in base})
         self.assertIn("K_ENTER",{key["id"] for key in base})
+        for layer in self.layers.values():
+            self.assertIn("K_LOPT",{key["id"] for key in self.flattened(layer)})
         self.assertTrue(any(k.get("nextlayer")=="numeric" for k in base))
         self.assertTrue(any(k.get("nextlayer")=="default" for k in self.flattened(self.layers["numeric"])))
         self.assertTrue(any(k.get("nextlayer")=="shift" for k in base))
