@@ -15,16 +15,10 @@ PHYSICAL.update({"AD11": "[", "AD12": "]", "AC10": ";", "AC11": "'", "AB08": ","
 ASCII = {"exclam":"!","at":"@","numbersign":"#","dollar":"$","percent":"%","asciicircum":"^","ampersand":"&","asterisk":"*","parenleft":"(","parenright":")","minus":"-","underscore":"_","equal":"=","plus":"+","bracketleft":"[","bracketright":"]","braceleft":"{","braceright":"}","semicolon":";","colon":":","apostrophe":"'","quotedbl":"\"","comma":",","less":"<","period":".","greater":">","slash":"/","question":"?","backslash":"\\","bar":"|","grave":"`","asciitilde":"~","space":" "}
 
 def onnoy():
-    layout = json.loads((ROOT / "layout/onnoy.json").read_text(encoding="utf-8"))
-    result = {key: values[:] for key, values in layout["keys"].items()}
-    result.update({key: values[:] for key, values in layout["passthrough"].items()})
-    # Standard US punctuation is inherited from the platform, not Onnoy JSON.
-    defaults = {"`": ["`", "~"], "-": ["-", "_"], "=": ["=", "+"], "\\": ["\\", "|"],
-                "'": ["'", '"'], ",": [",", "<"], "/": ["/", "?"], "SPACE": [" ", " "]}
-    for key, levels in defaults.items():
-        result.setdefault(key, [" ", " ", " ", " "] if key == "SPACE" else [*levels, None, None])
+    from onnoy.model import resolve
+    return {key: list(values) for key, values in resolve().items()
+            if key not in ("ISO_EXTRA",)}
 
-    return result
 
 def xkb(text, name):
     match = re.search(r'xkb_symbols\s+"' + re.escape(name) + r'"\s*\{', text)

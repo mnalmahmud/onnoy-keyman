@@ -22,7 +22,18 @@
   const layerButtons = [...document.querySelectorAll("[data-layer]")];
   const rows = ["`1234567890-=", "QWERTYUIOP[]", "ASDFGHJKL;\'", "ZXCVBNM,./", " "];
   const layerNames = ["Base", "Shift", "AltGr", "AltGr + Shift"];
-  const mapKey = (key) => key === " " ? "SPACE" : key;
+  const physicalCode = (key) => {
+    if (key === " ") return "Space";
+    if (/^[A-Z]$/.test(key)) return "Key" + key;
+    if (/^[0-9]$/.test(key)) return "Digit" + key;
+    return ({
+      "`": "Backquote", "-": "Minus", "=": "Equal",
+      "[": "BracketLeft", "]": "BracketRight", "\\": "Backslash",
+      ";": "Semicolon", "'": "Quote", ",": "Comma",
+      ".": "Period", "/": "Slash"
+    })[key];
+  };
+  const mapKey = physicalCode;
   const layerHints = [
     "Unmodified keys", "Hold Shift for this layer",
     "Hold Right Alt (AltGr) for this layer", "Hold Shift + Right Alt for this layer"
@@ -202,14 +213,8 @@
       const response = await fetch("./layout.json");
       if (!response.ok) throw new Error("HTTP " + response.status);
       const layout = await response.json();
-      // Display the unchanged hyphen key to preserve the physical number-row spacing.
-      const usDefaults = {
-        "`": ["`", "~", null, null], "-": ["-", "_", null, null],
-        "\\": ["\\", "|", null, null], "=": ["=", "+", null, null],
-        ",": [",", "<", null, null],
-        "'": ["'", '"', null, null], SPACE: [" ", " ", " ", " "]
-      };
-      const displayed = { ...usDefaults, ...layout.keys, ...(layout.passthrough || {}) };
+      // Visualization reads generated, resolved physical-key data.
+      const displayed = layout.keys;
       if (!layout.keys || [...rows.join("")].some((key) =>
         !Array.isArray(displayed[mapKey(key)]) || displayed[mapKey(key)].length !== 4
       )) throw new Error("Invalid keyboard mapping");
@@ -217,7 +222,7 @@
       draw(selectedLayer);
       status.classList.remove("loading", "error");
       status.classList.add("ready");
-      statusLabel.textContent = "Preview ready";
+      statusLabel.textContent = "Keymap loaded";
     } catch (error) {
       keyboard.textContent = "The key reference could not be loaded.";
       details.textContent = "Check that layout.json was included in the site deployment.";
@@ -230,36 +235,29 @@
     }
   }
 
-  // Browser-only preview. Desktop typing is handled by the OS-native layout.
-  // Do not promise to intercept OS/application shortcuts: browser listeners cannot.
-  function translateKey(event) {
-    if (!mapping || event.isComposing || event.key === "Dead" || event.metaKey) return null;
-    const altgr = event.getModifierState?.("AltGraph") || event.code === "AltRight" || event.altKey;
-    // Ctrl without AltGr is a host shortcut (copy, save, etc.) and must pass through.
-    if (event.ctrlKey && !altgr) return null;
-    const key = event.code === "Space" ? "SPACE" :
-      event.code.startsWith("Key") ? event.code.slice(3) :
-      event.code.startsWith("Digit") ? event.code.slice(5) :
-      ({
-        BracketLeft: "[", BracketRight: "]", Semicolon: ";",
-        Equal: "=", Period: ".", Minus: "-", Backquote: "`",
-        Backslash: "\\", Quote: "'", Comma: ",", Slash: "/"
-      })[event.code];
-    if (!key || !mapping[key]) return null;
-    const layer = Number(event.shiftKey) + Number(Boolean(altgr)) * 2;
-    // An unassigned mapped chord must not fall back to an ASCII keystroke.
-    return mapping[key][layer] ?? "";
+  // KeymanWeb owns typing; there is deliberately no second JS key translator.
+  async function startKeyman() {
+    const engine = window.keyman;
+    if (!engine || typeof engine.init !== "function") {
+      throw new Error("KeymanWeb engine could not load");
+    }
+    await engine.init({attachType: "auto"});
+    await engine.addKeyboards({
+      id: "onnoy",
+      name: "Onnoy",
+      language: {id: "bn", name: "Bengali"},
+      filename: "./onnoy.js"
+    });
+    await engine.setActiveKeyboard("onnoy", "bn");
+    statusLabel.textContent = "KeymanWeb ready";
   }
-
-  editor.addEventListener("keydown", (event) => {
-    // A browser demo can be preempted by the OS; see native installation guides.
-    const replacement = translateKey(event);
-    if (replacement === null) return;
-    if (event.ctrlKey && !event.getModifierState?.("AltGraph")) return;
-    event.preventDefault();
-    if (replacement === "") return;
-    editor.setRangeText(replacement, editor.selectionStart, editor.selectionEnd, "end");
-    editor.dispatchEvent(new Event("input", { bubbles: true }));
+  void startKeyman().catch(error => {
+    status.classList.remove("loading", "ready");
+    status.classList.add("error");
+    statusLabel.textContent = "Typing engine unavailable";
+    errorHelp.hidden = false;
+    errorDetail.textContent = String(error.message || error);
+    console.error("KeymanWeb:", error);
   });
 
   // A browser preview cannot replace OS-native input. A click on a keymap key
