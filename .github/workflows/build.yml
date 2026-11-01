@@ -74,6 +74,11 @@ jobs:
           cp dist/web/layout.json site/layout.json
           cp dist/keyman/onnoy.js site/onnoy.js
           touch site/.nojekyll
+      - name: Browser typing test using compiled Keyman and real KeymanWeb
+        run: |
+          python3 -m pip install playwright==1.56.0
+          python3 -m playwright install --with-deps chromium
+          python3 tests/browser_runtime.py
       - uses: actions/upload-artifact@v4
         with:
           name: onnoy-keyman-and-website

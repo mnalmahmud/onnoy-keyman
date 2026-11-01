@@ -5,7 +5,7 @@ Onnoy is an XKB layout, **not** an input method: no Keyman, Fcitx, IBus, or back
 ## Build
 
 ```sh
-python3 scripts/generate.py
+python3 scripts/build.py generate
 bash scripts/package-linux.sh
 ```
 
@@ -29,4 +29,4 @@ The Linux archive is currently **a native-layout bundle, not a one-click install
 
 ## Known modifier caveats
 
-Right Alt acts as AltGr where supported; a compositor or application may intercept its own shortcuts. ZWJ and ZWNJ are `AltGr+Z` and `Shift+AltGr+Z`. The Space key always outputs a space.
+Right Alt acts as AltGr where supported; a compositor or application may intercept its own shortcuts. ZWJ and ZWNJ are `AltGr+J` and `Shift+AltGr+J`. The Space key always outputs a space.

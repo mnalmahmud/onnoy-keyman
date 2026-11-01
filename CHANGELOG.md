@@ -1,3 +1,10 @@
+# Unreleased — canonical mapping and build-system refactor
+
+- Approved backtick virama, S/X reassignment, duplicated য়, Assamese ৰ, ZWJ/ZWNJ, and nukta at AltGr+L.
+- Migrated to sparse named-layer JSON, one ANSI/ISO resolver and native/Keyman/web generators.
+- Added KeymanWeb typing, Keyman compiled package and unified source tests.
+- Removed copied US platform-base templates from active development; real native installation verification remains pending.
+
 # Changelog
 
 ## Unreleased

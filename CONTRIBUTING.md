@@ -1,33 +1,35 @@
 # Contributing to Onnoy
 
-Onnoy is a native cross-platform Bengali keyboard layout. No external runtime is needed once a platform-native layout is installed.
+The keyboard layout is defined once in `layout/onnoy.json`.
+It is a sparse map of key IDs to named modifier outputs.
+**Do not** put Bengali character assignments into platform backends,
+reference punctuation tables, website scripts, or generated output files.
 
-## Canonical files
+## Developer checks
 
-- `layout/onnoy.json`: single source of key assignments
-- `scripts/generate.py`: native Linux, macOS and Windows emitters
-- `scripts/build.sh`: generation and regression tests
-- `scripts/package-*.sh` and `.ps1`: platform packaging workflows
-- `tests/`: codepoint and artifact regression checks
-- `web/`: optional browser-only illustration; not a system input engine
-
-All `dist/`, `site/` and `build/` files are generated; do not hand-edit them.
-
-## Local check
-
-```sh
-bash scripts/build.sh
+```bash
+python3 scripts/build.py validate
+python3 scripts/build.py generate
+python3 scripts/build.py check
+python3 -m unittest discover -s tests -p 'test_*.py'
 python3 scripts/benchmark.py --corpus tests/data/demo-bengali.txt
 ```
 
-Make changes only in `layout/onnoy.json`, then update tests, rationale and changelog. Source verification is not a replacement for real-device testing.
+For Keyman compilation, additionally run `npm install` and
+`npm run build:keyman`. The website depends on compiled KeymanWeb keyboard
+assets. Native keyboard users do not need Node.js or Keyman.
 
-## Native release checklist
+## Release testing
 
-- Linux: XKB compiles; test X11, GNOME Wayland, KDE Wayland, app shortcuts, installation and removal.
-- macOS: build package on macOS; test .keylayout, Option, input source registration, signing and Gatekeeper.
-- Windows: compile .klc with MSKLC; test native installer, Unicode scalar output, AltGr/Ctrl+Alt, and remove/upgrade.
-- Verify Bengali shaping, NFC/NFD, and ZWJ/ZWNJ across several editors.
-- Publish real package hashes and clearly state if any platform is source-only.
+- Linux: XKB compilation, real X11/Wayland registration, keyboard selection
+  and uninstallation; verify ISO <LSGT> backslash/pipe.
+- macOS: real `.keylayout` and package installation, Command/Control shortcuts,
+  Right Option, ANSI and ISO code 10/50 behavior.
+- Windows: compile KLC with MSKLC into native DLL/setup, validate Ctrl/AltGr
+  shortcuts, supplementary Unicode, installation and removal.
+- Keyman: compiler and package validation, physical keyboard typing and web
+  integration across browsers.
 
-Bug reports should include platform, physical keyboard, actual keys, expected versus actual Unicode code points, and software/application version.
+Report precise key chords, Unicode code points, operating-system and
+keyboard type for bugs. GitHub Actions source generation and compiler checks
+are **not** substitutes for real-device testing.

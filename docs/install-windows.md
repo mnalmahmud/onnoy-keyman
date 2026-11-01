@@ -9,7 +9,7 @@ The repository currently generates **`dist/windows/onnoy.klc`**, a source file f
 On a Windows development machine with MSKLC 1.4 and `kbdutool.exe` available:
 
 ```powershell
-python scripts/generate.py
+python scripts/build.py generate
 powershell -ExecutionPolicy Bypass -File scripts/package-windows.ps1
 ```
 
