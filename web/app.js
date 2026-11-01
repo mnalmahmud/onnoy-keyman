@@ -1,167 +1,67 @@
 (() => {
   "use strict";
 
-  const $ = (id) => document.getElementById(id);
-  const editor = $("editor");
-  const status = $("status");
-  const statusLabel = $("status-label");
-  const count = $("count");
-  const copy = $("copy");
-  const clear = $("clear");
-  const inspect = $("inspect");
-  const unicodePanel = $("unicode-panel");
-  const codepoints = $("codepoints");
-  const feedback = $("feedback");
-  const keyboard = $("keyboard");
-  const details = $("key-details");
-  const layerHint = $("layer-hint");
-  const errorHelp = $("error-help");
-  const errorDetail = $("error-detail");
-  const search = $("key-search");
-  const searchFeedback = $("search-feedback");
+  const byId = (id) => document.getElementById(id);
+  const editor = byId("editor");
+  const keyboard = byId("keyboard");
+  const details = byId("key-details");
+  const status = byId("status");
+  const statusLabel = byId("status-label");
+  const errorHelp = byId("error-help");
+  const errorDetail = byId("error-detail");
+  const feedback = byId("feedback");
+  const copyButton = byId("copy");
+  const clearButton = byId("clear");
+  const inspectButton = byId("inspect");
+  const unicodePanel = byId("unicode-panel");
+  const codepoints = byId("codepoints");
+  const count = byId("count");
+  const themeControl = byId("theme");
+  const geometryControl = byId("geometry");
+  const layerHint = byId("layer-hint");
+  const modifierIndicator = byId("modifier-indicator");
   const layerButtons = [...document.querySelectorAll("[data-layer]")];
-  const geometrySelect = $("geometry");
-  let geometry = "ansi";
-  const rowsFor = () => [
-    "`1234567890-=",
-    "QWERTYUIOP[]" + (geometry === "ansi" ? "\\" : ""),
-    "ASDFGHJKL;'" + (geometry === "iso" ? "\\" : ""),
-    (geometry === "iso" ? "§" : "") + "ZXCVBNM,./",
-    " "
-  ];
-  const layerNames = ["Base", "Shift", "AltGr", "AltGr + Shift"];
+
+  const layerNames = ["Base", "Shift", "AltGr", "Shift + AltGr"];
+  const backtick = String.fromCharCode(96);
+  const keyCodes = {
+    [backtick]: "Backquote", "-": "Minus", "=": "Equal",
+    "[": "BracketLeft", "]": "BracketRight", "\\": "Backslash",
+    ";": "Semicolon", "'": "Quote", ",": "Comma",
+    ".": "Period", "/": "Slash", "§": "IntlBackslash", " ": "Space"
+  };
   const physicalCode = (key) => {
-    if (key === " ") return "Space";
-    if (key === "§") return "IntlBackslash";
     if (/^[A-Z]$/.test(key)) return "Key" + key;
     if (/^[0-9]$/.test(key)) return "Digit" + key;
-    return ({
-      "`": "Backquote", "-": "Minus", "=": "Equal",
-      "[": "BracketLeft", "]": "BracketRight", "\\": "Backslash",
-      ";": "Semicolon", "'": "Quote", ",": "Comma",
-      ".": "Period", "/": "Slash"
-    })[key];
+    return keyCodes[key];
   };
-  const mapKey = physicalCode;
-  const layerHints = [
-    "Unmodified keys", "Hold Shift for this layer",
-    "Hold Right Alt (AltGr) for this layer", "Hold Shift + Right Alt for this layer"
-  ];
+  const rowsFor = () => {
+    const iso = geometryControl.value === "iso";
+    return [
+      backtick + "1234567890-=",
+      "QWERTYUIOP[]" + (iso ? "" : "\\"),
+      "ASDFGHJKL;'" + (iso ? "\\" : ""),
+      (iso ? "§" : "") + "ZXCVBNM,./",
+      " "
+    ];
+  };
 
   let mapping = null;
   let keymanReady = false;
   let selectedLayer = 0;
-  let visibleLayer = -1;
   let selectedKey = null;
+  let displayedLayer = -1;
+  let displayedGeometry = "";
   let shiftDown = false;
   let altGrDown = false;
 
-  function describe(value) {
-    if (value === null) return "—";
-    if (value === "\u200c") return "ZWNJ";
+  // The keymap only visualizes characters. KeymanWeb owns actual typing.
+  function readable(value) {
+    if (value === null || value === undefined) return "—";
     if (value === "\u200d") return "ZWJ";
-    if (value === "𑷰") return "𑷰"; // Keep actual Unicode; font fallback may show a box.
+    if (value === "\u200c") return "ZWNJ";
+    if (value === " ") return "Space";
     return value;
-  }
-
-  const segmenter = typeof Intl.Segmenter === "function" ? new Intl.Segmenter("bn", { granularity: "grapheme" }) : null;
-  function graphemeCount(value) {
-    return segmenter ? [...segmenter.segment(value)].length : [...value].length;
-  }
-
-  function updateEditor() {
-    const characters = [...editor.value];
-    count.textContent = characters.length + " code points · " + graphemeCount(editor.value) + " graphemes";
-    copy.disabled = characters.length === 0;
-    if (!unicodePanel.hidden) {
-      codepoints.textContent = characters.map((character) =>
-        character + " U+" + character.codePointAt(0).toString(16).toUpperCase().padStart(4, "0")
-      ).join(" · ") || "Nothing to inspect yet.";
-    }
-  }
-
-  function showDetails(key) {
-    if (!mapping) return;
-    details.textContent = key + "  ·  " +
-      mapping[mapKey(key)].map((value, index) => layerNames[index] + ": " + describe(value)).join("   |   ");
-  }
-
-  function draw(layer) {
-    if (!mapping || layer === visibleLayer && keyboard.childElementCount) return;
-    visibleLayer = layer;
-    const fragment = document.createDocumentFragment();
-    for (const rowKeys of rowsFor()) {
-      const row = document.createElement("div");
-      row.className = "keyboard-row";
-      for (const key of rowKeys) {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "keyboard-key";
-        button.dataset.key = key;
-        button.classList.toggle("selected", key === selectedKey);
-        button.setAttribute("aria-pressed", String(key === selectedKey));
-        button.setAttribute("aria-label", key + ": " + layerNames[layer] + " " + describe(mapping[mapKey(key)][layer]));
-        const symbol = document.createElement("span");
-        symbol.className = "key-symbol";
-        symbol.lang = "bn";
-        symbol.textContent = key === " " && mapping.Space[layer] === " " ? "Space" : describe(mapping[mapKey(key)][layer]);
-        if (mapping[mapKey(key)][layer] === null) button.classList.add("unassigned");
-        const label = document.createElement("span");
-        label.className = "key-label";
-        label.textContent = key === " " ? "Space" : (key === "§" ? "ISO" : key);
-        button.append(symbol, label);
-        button.addEventListener("click", () => {
-          selectedKey = key;
-          visibleLayer = -1;
-          draw(layer);
-          showDetails(key);
-        });
-        row.append(button);
-      }
-      fragment.append(row);
-    }
-    keyboard.replaceChildren(fragment);
-    filterKeys();
-    layerHint.textContent = layerHints[layer];
-    for (const button of layerButtons) {
-      const active = Number(button.dataset.layer) === layer;
-      button.classList.toggle("active", active);
-      button.setAttribute("aria-pressed", String(active));
-    }
-  }
-
-  function filterKeys() {
-    if (!mapping || !search) return;
-    const q = search.value.trim().toLocaleLowerCase();
-    let matches = 0;
-    for (const button of keyboard.querySelectorAll(".keyboard-key")) {
-      const key = button.dataset.key;
-      const values = mapping[mapKey(key)];
-      const hit = !q || (key === " " ? "space" : key).toLowerCase().includes(q) ||
-        values.some(value => value && (value.toLocaleLowerCase().includes(q) ||
-          [...value].some(ch => ("u+" + ch.codePointAt(0).toString(16)).includes(q.replace(/^u\+/, "u+")))));
-      button.classList.toggle("search-match", !!q && hit);
-      button.classList.toggle("search-dim", !!q && !hit);
-      if (hit) matches++;
-    }
-    if (searchFeedback) searchFeedback.textContent = q
-      ? matches + " matching keys across all four layers" : "Select a key to inspect all four layers";
-  }
-  if (search) search.addEventListener("input", filterKeys);
-  if (geometrySelect) geometrySelect.addEventListener("change", () => {
-    geometry = geometrySelect.value === "iso" ? "iso" : "ansi";
-    selectedKey = null;
-    visibleLayer = -1;
-    draw(activeLayer());
-  });
-  for (const sample of document.querySelectorAll("[data-sample]")) {
-    sample.addEventListener("click", () => {
-      editor.value = sample.dataset.sample;
-      feedback.textContent = "Example inserted";
-      updateEditor();
-      editor.focus();
-      editor.scrollIntoView({ behavior: "smooth", block: "center" });
-    });
   }
 
   function activeLayer() {
@@ -170,114 +70,282 @@
       : selectedLayer;
   }
 
+  function displayError(message) {
+    status.classList.remove("ready");
+    status.classList.add("error");
+    statusLabel.textContent = "Preview unavailable";
+    errorHelp.hidden = false;
+    errorDetail.textContent = String(message);
+  }
+
+  function displayStatus() {
+    if (status.classList.contains("error")) return;
+    if (mapping && keymanReady) {
+      status.classList.add("ready");
+      statusLabel.textContent = "KeymanWeb ready";
+    } else if (mapping) {
+      statusLabel.textContent = "Keymap ready · Connecting keyboard…";
+    } else if (keymanReady) {
+      statusLabel.textContent = "Keyboard ready · Loading keymap…";
+    }
+  }
+
+  function showDetails(key) {
+    if (!mapping || !key) return;
+    const values = mapping[physicalCode(key)];
+    if (!values) return;
+    details.replaceChildren();
+    const title = document.createElement("strong");
+    title.textContent = key === " " ? "Space" : key === "§" ? "ISO extra key" : key;
+    const description = document.createElement("span");
+    description.textContent = "  ·  " + values.map((value, index) =>
+      layerNames[index] + ": " + readable(value)).join("   |   ");
+    details.append(title, description);
+  }
+
+  function drawKeyboard() {
+    const layer = activeLayer();
+    const geometry = geometryControl.value;
+    if (!mapping) return;
+
+    layerHint.textContent = shiftDown || altGrDown
+      ? "Physical modifier held · Visual layer updates as you type"
+      : "Select a layer above or hold Shift / Right Alt to preview";
+    modifierIndicator.textContent = layerNames[layer].toUpperCase();
+
+    for (const button of layerButtons) {
+      const active = Number(button.dataset.layer) === layer;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    }
+    if (layer === displayedLayer && geometry === displayedGeometry && keyboard.querySelector(".keyboard-key")) {
+      return;
+    }
+    displayedLayer = layer;
+    displayedGeometry = geometry;
+    const fragment = document.createDocumentFragment();
+
+    for (const rowKeys of rowsFor()) {
+      const row = document.createElement("div");
+      row.className = "keyboard-row";
+      for (const key of rowKeys) {
+        const output = mapping[physicalCode(key)]?.[layer];
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "keyboard-key";
+        button.dataset.key = key;
+        button.classList.toggle("selected", selectedKey === key);
+        button.classList.toggle("unassigned", output === null || output === undefined);
+        button.setAttribute("aria-pressed", String(selectedKey === key));
+        button.setAttribute("aria-label", (key === "§" ? "ISO extra key" : key === " " ? "Space" : key) + ", " +
+          layerNames[layer] + ": " + readable(output));
+
+        const glyph = document.createElement("span");
+        glyph.className = "key-output";
+        if (output === "\u200c" || output === "\u200d") glyph.classList.add("key-joiner");
+        glyph.lang = output === "\u200c" || output === "\u200d" ? "en" : "bn";
+        glyph.textContent = readable(output);
+
+        const caption = document.createElement("span");
+        caption.className = "key-label";
+        caption.textContent = key === " " ? "SPACE" : key === "§" ? "ISO" : key;
+        button.append(glyph, caption);
+        button.addEventListener("click", () => {
+          selectedKey = key;
+          for (const existing of keyboard.querySelectorAll(".keyboard-key")) {
+            const current = existing.dataset.key === selectedKey;
+            existing.classList.toggle("selected", current);
+            existing.setAttribute("aria-pressed", String(current));
+          }
+          showDetails(key);
+        });
+        row.append(button);
+      }
+      fragment.append(row);
+    }
+    keyboard.replaceChildren(fragment);
+    showDetails(selectedKey);
+  }
+
   for (const button of layerButtons) {
     button.addEventListener("click", () => {
       selectedLayer = Number(button.dataset.layer);
       shiftDown = false;
       altGrDown = false;
-      draw(selectedLayer);
+      drawKeyboard();
     });
   }
 
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Shift") shiftDown = true;
-    if (event.code === "AltRight" || (event.getModifierState && event.getModifierState("AltGraph"))) {
-      altGrDown = true;
-    }
-    draw(activeLayer());
+  geometryControl.addEventListener("change", () => {
+    selectedKey = null;
+    displayedGeometry = "";
+    drawKeyboard();
+    details.textContent = "Select a key to inspect all four outputs.";
   });
-  document.addEventListener("keyup", (event) => {
-    if (event.key === "Shift") shiftDown = false;
-    if (event.code === "AltRight" || (event.getModifierState && !event.getModifierState("AltGraph"))) {
-      altGrDown = false;
+
+  function modifierState(event, down) {
+    const wasShift = shiftDown;
+    const wasAltGr = altGrDown;
+    const graph = typeof event.getModifierState === "function" &&
+      event.getModifierState("AltGraph");
+    if (event.key === "Shift" || event.code === "ShiftLeft" || event.code === "ShiftRight") {
+      shiftDown = down;
+    } else {
+      shiftDown = !!event.shiftKey;
     }
-    draw(activeLayer());
-  });
+    if (event.code === "AltRight" || event.key === "AltGraph") {
+      altGrDown = down;
+    } else {
+      altGrDown = !!graph || (altGrDown && event.altKey);
+    }
+    if (shiftDown !== wasShift || altGrDown !== wasAltGr) drawKeyboard();
+  }
+
+  document.addEventListener("keydown", (event) => modifierState(event, true));
+  document.addEventListener("keyup", (event) => modifierState(event, false));
   window.addEventListener("blur", () => {
     shiftDown = false;
     altGrDown = false;
-    draw(selectedLayer);
+    drawKeyboard();
   });
 
-  inspect.addEventListener("click", () => {
-    unicodePanel.hidden = !unicodePanel.hidden;
-    inspect.setAttribute("aria-expanded", String(!unicodePanel.hidden));
+  // System is the default. Explicit theme choices persist across visits.
+  const themeValues = new Set(["system", "light", "dark"]);
+  function applyTheme(value) {
+    const chosen = themeValues.has(value) ? value : "system";
+    themeControl.value = chosen;
+    if (chosen === "system") {
+      document.documentElement.removeAttribute("data-theme");
+    } else {
+      document.documentElement.dataset.theme = chosen;
+    }
+    const prefersDark = window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const dark = chosen === "dark" || (chosen === "system" && prefersDark);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = dark ? "#171d1b" : "#f7f6f2";
+  }
+  let savedTheme = "system";
+  try {
+    savedTheme = window.localStorage.getItem("onnoy-theme") || "system";
+  } catch {
+    // Private browsing can disable localStorage; System still works.
+  }
+  applyTheme(savedTheme);
+  themeControl.addEventListener("change", () => {
+    applyTheme(themeControl.value);
+    try {
+      if (themeControl.value === "system") {
+        window.localStorage.removeItem("onnoy-theme");
+      } else {
+        window.localStorage.setItem("onnoy-theme", themeControl.value);
+      }
+    } catch { /* preference applies to this visit */ }
+  });
+  if (window.matchMedia) {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    if (media.addEventListener) {
+      media.addEventListener("change", () => {
+        if (themeControl.value === "system") applyTheme("system");
+      });
+    }
+  }
+
+  const segmenter = typeof Intl.Segmenter === "function"
+    ? new Intl.Segmenter("bn", { granularity: "grapheme" }) : null;
+  function updateEditor() {
+    const chars = [...editor.value];
+    const graphemes = segmenter ? [...segmenter.segment(editor.value)].length : chars.length;
+    count.textContent = chars.length + " code points · " + graphemes + " graphemes";
+    copyButton.disabled = chars.length === 0;
+    if (!unicodePanel.hidden) {
+      codepoints.replaceChildren();
+      if (!chars.length) {
+        codepoints.textContent = "Nothing to inspect yet.";
+      } else {
+        for (const char of chars) {
+          const part = document.createElement("span");
+          part.textContent = readable(char) + " U+" +
+            char.codePointAt(0).toString(16).toUpperCase().padStart(4, "0");
+          codepoints.append(part);
+        }
+      }
+    }
+  }
+  editor.addEventListener("input", () => {
+    feedback.textContent = "";
     updateEditor();
   });
-  clear.addEventListener("click", () => {
+  inspectButton.addEventListener("click", () => {
+    unicodePanel.hidden = !unicodePanel.hidden;
+    inspectButton.setAttribute("aria-expanded", String(!unicodePanel.hidden));
+    updateEditor();
+  });
+  clearButton.addEventListener("click", () => {
     editor.value = "";
     feedback.textContent = "";
     updateEditor();
     editor.focus();
   });
-  copy.addEventListener("click", async () => {
+  copyButton.addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(editor.value);
       feedback.textContent = "Copied!";
     } catch {
-      feedback.textContent = "Copy failed. Select the text to copy manually.";
+      feedback.textContent = "Copy unavailable — select your text manually.";
     }
   });
-  editor.addEventListener("input", () => {
-    feedback.textContent = "";
-    updateEditor();
-  });
+  for (const button of document.querySelectorAll("[data-sample]")) {
+    button.addEventListener("click", () => {
+      editor.value = button.dataset.sample || "";
+      feedback.textContent = "Example inserted";
+      updateEditor();
+      editor.focus();
+    });
+  }
   updateEditor();
 
   async function loadLayout() {
     try {
       const response = await fetch("./layout.json");
-      if (!response.ok) throw new Error("HTTP " + response.status);
+      if (!response.ok) throw new Error("Unable to fetch generated keymap (HTTP " + response.status + ")");
       const layout = await response.json();
-      // Visualization reads generated, resolved physical-key data.
-      const displayed = layout.keys;
-      if (!layout.keys || [...rowsFor().join("")].some((key) =>
-        !Array.isArray(displayed[mapKey(key)]) || displayed[mapKey(key)].length !== 4
-      )) throw new Error("Invalid keyboard mapping");
-      mapping = displayed;
-      draw(selectedLayer);
-      status.classList.remove("loading", "error");
-      status.classList.add("ready");
-      statusLabel.textContent = keymanReady ? "KeymanWeb ready" : "Keymap loaded";
+      if (!layout.keys || rowsFor().some((row) => [...row].some((key) => {
+        const values = layout.keys[physicalCode(key)];
+        return !Array.isArray(values) || values.length !== 4;
+      }))) {
+        throw new Error("Invalid four-layer keymap");
+      }
+      mapping = layout.keys;
+      drawKeyboard();
+      displayStatus();
     } catch (error) {
-      keyboard.textContent = "The key reference could not be loaded.";
-      details.textContent = "Check that layout.json was included in the site deployment.";
-      status.classList.remove("loading", "ready");
-      status.classList.add("error");
-      statusLabel.textContent = "Preview unavailable";
-      errorHelp.hidden = false;
-      errorDetail.textContent = String(error.message || error);
-      console.error("Onnoy key reference:", error);
+      keyboard.textContent = "Could not load the Onnoy keyboard reference.";
+      displayError(error.message || error);
     }
   }
 
-  // KeymanWeb owns typing; there is deliberately no second JS key translator.
   async function startKeyman() {
-    const engine = window.keyman;
-    if (!engine || typeof engine.init !== "function") {
-      throw new Error("KeymanWeb engine could not load");
+    try {
+      const engine = window.keyman;
+      if (!engine || typeof engine.init !== "function") {
+        throw new Error("KeymanWeb failed to load");
+      }
+      await engine.init({ attachType: "auto" });
+      await engine.addKeyboards({
+        id: "onnoy",
+        name: "Onnoy",
+        language: { id: "bn", name: "Bengali" },
+        filename: "./onnoy.js"
+      });
+      await engine.setActiveKeyboard("onnoy", "bn");
+      keymanReady = true;
+      displayStatus();
+    } catch (error) {
+      displayError(error.message || error);
     }
-    await engine.init({attachType: "auto"});
-    await engine.addKeyboards({
-      id: "onnoy",
-      name: "Onnoy",
-      language: {id: "bn", name: "Bengali"},
-      filename: "./onnoy.js"
-    });
-    await engine.setActiveKeyboard("onnoy", "bn");
-    keymanReady = true;
-    statusLabel.textContent = "KeymanWeb ready";
   }
-  void startKeyman().catch(error => {
-    status.classList.remove("loading", "ready");
-    status.classList.add("error");
-    statusLabel.textContent = "Typing engine unavailable";
-    errorHelp.hidden = false;
-    errorDetail.textContent = String(error.message || error);
-    console.error("KeymanWeb:", error);
-  });
 
-  // A browser preview cannot replace OS-native input. A click on a keymap key
-  // inspects its Unicode mapping; it never installs an input method.
   void loadLayout();
+  void startKeyman();
 })();
