@@ -10,6 +10,7 @@ def render(mapping):
            "store(&NAME) 'Onnoy'",
            "store(&KEYBOARDVERSION) '1.0'",
            "store(&TARGETS) 'any'",
+           "store(&layoutfile) 'onnoy.keyman-touch-layout'",
            "begin Unicode > use(main)", "",
            "group(main) using keys"]
     modifiers=("","SHIFT ","RALT ","SHIFT RALT ")

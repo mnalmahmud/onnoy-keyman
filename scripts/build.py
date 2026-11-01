@@ -7,7 +7,7 @@ import sys
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from onnoy.model import load,resolve
-from onnoy.backends import linux,windows,macos,keyman,web
+from onnoy.backends import linux,windows,macos,keyman,web,touch
 
 def generate(geometry="iso",check=False):
     data=load()
@@ -18,6 +18,7 @@ def generate(geometry="iso",check=False):
        "dist/macos/Onnoy.keylayout":macos.render(layout),
        "dist/keyman/onnoy.kmn":keyman.render(layout),
        "dist/keyman/onnoy.kps":keyman.package_source(),
+       "dist/keyman/onnoy.keyman-touch-layout":touch.render(layout),
        "dist/web/layout.json":web.render(layout)
     }
     for path,content in outputs.items():
