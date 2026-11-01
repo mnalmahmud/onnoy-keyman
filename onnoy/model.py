@@ -37,14 +37,20 @@ def validate(data):
             n = ord(output)
             if 0xD800 <= n <= 0xDFFF or n > 0x10FFFF:
                 raise ValueError("Invalid Unicode scalar: " + key + "." + level)
-    # Every explicit character has one canonical position.
+    # Only the explicitly approved ergonomic aliases may duplicate a character.
     # Ordinary reference punctuation remains excluded.
+    allowed_aliases = {
+        "ঢ়": {("X", "shift"), ("R", "altgr")},
+        "ষ": {("X", "base"), ("S", "altgr")},
+    }
     positions = {}
     for key, values in data["keys"].items():
         for level, output in values.items():
-            if output in positions:
+            if output in positions and {
+                positions[output], (key, level)
+            } != allowed_aliases.get(output):
                 raise ValueError("Unexpected duplicate output " + repr(output))
-            positions[output] = (key, level)
+            positions.setdefault(output, (key, level))
 
 def resolve(data=None, geometry="ansi"):
     if geometry not in ("ansi", "iso"):
