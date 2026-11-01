@@ -49,8 +49,7 @@
     },
     "W": {
       "base": "ূ",
-      "shift": "ঊ",
-      "altgr": "ৱ"
+      "shift": "ঊ"
     },
     "E": {
       "base": "ে",
@@ -125,8 +124,8 @@
     "J": {
       "base": "জ",
       "shift": "ঝ",
-      "altgr": "\u200D",
-      "shift_altgr": "\u200C"
+      "altgr": "‍",
+      "shift_altgr": "‌"
     },
     "K": {
       "base": "ক",
@@ -157,7 +156,8 @@
     },
     "V": {
       "base": "অ",
-      "shift": "ৗ"
+      "shift": "ৗ",
+      "altgr": "ৱ"
     },
     "B": {
       "base": "ব",

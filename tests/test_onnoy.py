@@ -42,7 +42,8 @@ class MappingContractTests(unittest.TestCase):
             ("Z","shift"):"য়", ("Y","altgr"):"য়",
             ("J","altgr"):"‍", ("J","shift_altgr"):"‌",
             ("L","altgr"):"়", ("B","altgr"):"ৰ",
-            ("M","shift_altgr"):"𑷰", ("W","altgr"):"ৱ",
+            ("V","altgr"):"ৱ",
+            ("M","shift_altgr"):"𑷰",
             ("N","altgr"):"ঞ", ("4","shift"):"৳",
             ("4","shift_altgr"):"$"
         }
@@ -53,6 +54,7 @@ class MappingContractTests(unittest.TestCase):
     def test_symbol_and_alpha_omissions(self):
         a=resolve()
         self.assertEqual(a["Q"][2:], (None,None))
+        self.assertEqual(a["W"][2:], (None, None))
         self.assertEqual(a["COMMA"], (",","<",None,None))
         self.assertEqual(a["SLASH"], ("/","?",None,None))
         self.assertEqual(a["MINUS"], ("-","_",None,None))
