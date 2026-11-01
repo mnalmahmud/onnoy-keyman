@@ -1,36 +1,32 @@
-# Onnoy (অন্বয়)
+# Onnoy · অন্বয়
 
-A Unicode keyboard for Bengali and Assamese, based on US-QWERTY positions.
-The [layout.json](layout.json) defines characters for the native Linux,
-Windows and macOS keyboards, Keyman, and the mobile touch layout.
+A Unicode keyboard for **Bangla and Assamese**, built around the familiar US-QWERTY key positions.
 
-[Try the keyboard](https://mnalmahmud.github.io/onnoy-keyman/) · [Releases](https://github.com/mnalmahmud/onnoy-keyman/releases) · [Builds](https://github.com/mnalmahmud/onnoy-keyman/actions)
+Onnoy maps physical keys directly to Unicode characters. It works as a native keyboard layout on Linux, Windows, and macOS, or through Keyman on desktop and mobile.
 
-## Layout
+[**Try Onnoy online**](https://mnalmahmud.github.io/onnoy-keyman/) · [Keyboard mapping](layout.json) · [Builds](https://github.com/mnalmahmud/onnoy-keyman/actions)
 
-| Key | Base | Shift | Other |
-| --- | --- | --- | --- |
-| Grave | ্ | ~ | AltGr: backtick |
-| S | স | শ | |
-| X | ষ | ঢ় | |
-| Z | য | য় | |
-| Y | ী | ঈ | AltGr: য় |
-| J | জ | ঝ | AltGr: ZWJ, Shift+AltGr: ZWNJ |
-| L | ল | ঁ | AltGr: ় (nukta) |
-| B | ব | ভ | AltGr: ৰ |
-| W | ূ | ঊ | AltGr: ৱ |
-| M | ম | ঙ | AltGr: ং, Shift+AltGr: 𑷰 |
+## Keyboard layout
 
-`K GRAVE X` → **ক্ষ** · `Shift+S I K GRAVE X A` → **শিক্ষা**.
+The layout stays in the same positions on ANSI and ISO keyboards. Use **Shift** for alternate letters and **Right Alt (AltGr)** for additional characters.
 
-Use Shift and Right Alt (AltGr) for alternate characters. Ordinary US
-punctuation such as `/` and `?` remains available; the extra ISO key
-outputs backslash/pipe. Text is emitted as exact Unicode characters.
+| Key | Output |
+| --- | --- |
+| `K` / `Shift+K` | ক / খ |
+| `S` / `Shift+S` | স / শ |
+| `Z` / `Shift+Z` | য / য় |
+| `Grave` | ্ (virama) |
+| `AltGr+J` / `Shift+AltGr+J` | ZWJ / ZWNJ |
+| `AltGr+L` | ় (nukta) |
+| `AltGr+B` / `AltGr+W` | ৰ / ৱ |
+
+For example, `K → Grave → X` produces **ক্ষ**, and `Shift+S → I → K → Grave → X → A` produces **শিক্ষা**.
+
+Number keys produce Bengali digits; AltGr gives access to ASCII digits. The extra ISO key provides `\` and `|`. See the [interactive keyboard](https://mnalmahmud.github.io/onnoy-keyman/#keymap) or [layout.json](layout.json) for every assignment.
 
 ## Install
 
-Generate platform sources first with `python -m onnoy generate`.
-Native desktop layouts do not require Keyman.
+Native desktop layouts require **no Keyman or background input method**. The commands below run from the repository root.
 
 ### Linux
 
@@ -38,10 +34,13 @@ Native desktop layouts do not require Keyman.
 python -m onnoy package --target linux
 ```
 
-Extract `build/onnoy-linux-native.tar.gz` and run the bundled `install.sh`.
-This installs user-local XKB symbols in `~/.config/xkb/symbols/`.
-On X11, try `setxkbmap -I"$HOME/.config/xkb" -layout onnoy -variant basic`.
-Wayland desktop integration may require additional XKB registration.
+Extract `build/onnoy-linux-native.tar.gz` and run its `install.sh`. This installs the XKB symbols under `~/.config/xkb/symbols/`. On X11, you can try:
+
+```sh
+setxkbmap -I"$HOME/.config/xkb" -layout onnoy -variant basic
+```
+
+Some desktops, particularly on Wayland, also require registering the layout in their keyboard settings.
 
 ### macOS
 
@@ -49,50 +48,40 @@ Wayland desktop integration may require additional XKB registration.
 python -m onnoy package --target macos
 ```
 
-This produces an unsigned `build/onnoy-macos.pkg`. Alternatively, copy
-`dist/macos/Onnoy.keylayout` into `~/Library/Keyboard Layouts/` and enable
-it under System Settings → Keyboard → Input Sources.
+This creates `build/onnoy-macos.pkg` (unsigned). To install manually, copy `dist/macos/Onnoy.keylayout` to `~/Library/Keyboard Layouts/`, then add Onnoy in **System Settings → Keyboard → Input Sources**.
 
 ### Windows
-
-Generate `dist/windows/onnoy.klc` and compile a native installer on Windows
-using Microsoft Keyboard Layout Creator 1.4 and `kbdutool.exe`:
 
 ```powershell
 python -m onnoy package --target windows
 ```
 
-The `.klc` file alone is not installable.
+Requires **Microsoft Keyboard Layout Creator 1.4** with `kbdutool.exe` on `PATH`. The generated `dist/windows/onnoy.klc` is source for the native keyboard DLL and installer—not itself an installable layout.
 
-### Keyman (desktop, Android, iOS)
+### Keyman · Desktop / Android / iOS
 
 ```sh
 npm install
 python -m onnoy package --target keyman
 ```
 
-Import `dist/keyman/onnoy.kmp` in Keyman. On Android, install from a local
-package in Keyman's settings. On iPhone/iPad, use Keyman's *Install From File*
-option and enable Keyman under iOS keyboard settings.
+Install `dist/keyman/onnoy.kmp` with Keyman. On Android and iOS, import the package through Keyman's keyboard installation settings; enable Keyman in the device's keyboard settings when needed.
 
-The touch keyboard includes long-press alternatives, Shift, Bengali digits,
-a numeric/symbol page, and a dedicated virama key.
+The mobile layout includes long-press variants, Bengali numerals, Shift, and a dedicated virama key.
 
-## Development
+## Build and test
 
-Python 3.12+ is required. Keyman compilation uses Node.js.
+Requires **Python 3.12+**. Building Keyman also requires Node.js.
 
 ```sh
 python -m onnoy validate
 python -m onnoy generate
 python -m onnoy check
 python -m onnoy test
-python -m onnoy test --package-check
-python tools/benchmark.py
 ```
 
-The package check requires a compiled Keyman `.kmp`. For the browser test,
-build and stage `site/`, install Playwright/Chromium, then run
-`python -m onnoy test --browser`.
+Generated files are written to `dist/`. Packaging creates artifacts under `build/`. Both directories are ignored by Git.
 
-[MIT License](LICENSE).
+## License
+
+[MIT](LICENSE).
