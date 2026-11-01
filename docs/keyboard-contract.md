@@ -35,6 +35,31 @@ are explicit before passing to a backend.
 - On macOS ISO, test and account for the physical code 10/50 distinction
   between the extra position and the grave position (virama).
 
+## Mobile touch arrangement
+
+Keyman Android/iOS uses a separate **generated** phone interface, not the
+US-QWERTY desktop hardware representation. The touch placement code contains
+only logical Onnoy key IDs and layer navigation. Bengali and Assamese output
+scalars come entirely from `layout/onnoy.json` via the resolver.
+
+- The default three alphabetic rows are QWERTYUIOP / ASDFGHJKL / ZXCVBNM.
+- The shifted layer exposes the mapped Shift variants.
+- Every alphabetic key has long-press alternatives from its nonempty mapping
+  layers, including Assamese letters, nukta, ZWJ and ZWNJ.
+- Vowel signs on LBRACKET/RBRACKET and the SEMICOLON mapping are also
+  accessible through relevant vowel/consonant long-presses and the
+  numeric/symbol layer.
+- A dedicated virama key is always visible next to space.
+- A numeric page exposes Bengali digits, punctuation, AltGr alternatives,
+  ASCII digits, and currency/symbol variants by long-press.
+- Backspace, Enter, Space, Shift and numeric-page switching are engine keys,
+  not separately defined Unicode character overrides.
+- Combining marks use dotted-circle labels for clarity; the dotted circle is
+  **not** inserted into the text. ZWJ and ZWNJ have readable labels.
+
+No context-sensitive rules, normalization, autocorrect, transliteration,
+or alternative authoritative Unicode map is introduced by touch support.
+
 ## Release verification
 
 Generated-source checks, native compilation, and real-device installation

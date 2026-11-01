@@ -24,3 +24,12 @@ imply correct X11/Wayland desktop registration.
 
 The website requires an externally loaded KeymanWeb engine. The GitHub Pages
 build must stage a compiled `onnoy.js` alongside generated `layout.json`.
+
+## Keyman mobile
+
+`onnoy/backends/touch.py` produces `dist/keyman/onnoy.keyman-touch-layout`
+from the same resolved Unicode outputs. The `&layoutfile` KMN store embeds it
+in the compiled JS keyboard; the installable `.kmp` includes the JS and
+`.kmx`. No duplicate mobile character JSON is edited by hand.
+Touch-layout coverage checks are in `tests/test_touch.py`; physical Android/iOS
+installation and usability tests remain separate release gates.

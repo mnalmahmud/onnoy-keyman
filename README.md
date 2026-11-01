@@ -56,7 +56,10 @@ npm run build:keyman
 ```
 
 The compiler generates desktop `dist/keyman/onnoy.kmx`, installable
-`dist/keyman/onnoy.kmp` and browser `dist/keyman/onnoy.js`.
+`dist/keyman/onnoy.kmp` and browser/mobile `dist/keyman/onnoy.js`.
+The package contains a generated touch layout for Keyman on Android and iOS,
+with Bengali letters, long-press variants, a permanent virama key, and a
+numeric/symbol layer. Mobile device usability verification is still pending.
 The KeymanWeb playground loads the compiled browser keyboard while
 retaining a separate Onnoy visualizer.
 
@@ -67,7 +70,7 @@ Native outputs:
 | Linux | `dist/linux/symbols/onnoy` | XKB compilation in CI; desktop integration testing pending |
 | macOS | `dist/macos/Onnoy.keylayout`, unsigned `.pkg` | Generated/package tested; ANSI/ISO installation tests pending |
 | Windows | `dist/windows/onnoy.klc` | KLC source generated; MSKLC DLL/installer testing pending |
-| Keyman | `.kmn` → `.kmx`, `.js`, `.kmp` | Compiled in CI; device testing pending |
+| Keyman desktop/mobile | `.kmn` + generated touch layout → `.kmx`, `.js`, `.kmp` | CI compilation; Android/iOS installation and typing tests pending |
 
 See [Linux](docs/install-linux.md), [macOS](docs/install-macos.md), and
 [Windows](docs/install-windows.md) installation guides.
