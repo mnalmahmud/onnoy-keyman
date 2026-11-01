@@ -170,8 +170,11 @@
   for (const button of layerButtons) {
     button.addEventListener("click", () => {
       selectedLayer = Number(button.dataset.layer);
+      // An explicit preview selection always wins, even after an OS has
+      // swallowed a modifier keyup while the editor was focused.
       shiftDown = false;
       altGrDown = false;
+      displayedLayer = -1;
       drawKeyboard();
     });
   }
@@ -201,8 +204,10 @@
     if (shiftDown !== wasShift || altGrDown !== wasAltGr) drawKeyboard();
   }
 
-  document.addEventListener("keydown", (event) => modifierState(event, true));
-  document.addEventListener("keyup", (event) => modifierState(event, false));
+  // KeymanWeb may stop keyboard events while the editor has focus.
+  // Capture on window so modifiers update before Keyman processes typing.
+  window.addEventListener("keydown", (event) => modifierState(event, true), true);
+  window.addEventListener("keyup", (event) => modifierState(event, false), true);
   window.addEventListener("blur", () => {
     shiftDown = false;
     altGrDown = false;
@@ -339,6 +344,13 @@
         filename: "./onnoy.js"
       });
       await engine.setActiveKeyboard("onnoy", "bn");
+      // Desktop already has our own visual keyboard. Disable KeymanWeb's
+      // separate floating OSK so it cannot cover the editor or page.
+      // Keep the touch OSK available on phones and tablets.
+      if (window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+          engine.osk && typeof engine.osk.hide === "function") {
+        engine.osk.hide();
+      }
       keymanReady = true;
       displayStatus();
     } catch (error) {
@@ -347,5 +359,7 @@
   }
 
   void loadLayout();
-  void startKeyman();
+  // The app script runs before KeymanWeb so capture listeners are installed
+  // first. Initialize the engine after both deferred scripts have loaded.
+  window.addEventListener("load", () => { void startKeyman(); }, { once: true });
 })();

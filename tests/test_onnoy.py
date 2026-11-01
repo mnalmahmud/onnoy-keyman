@@ -384,19 +384,52 @@ def browser_smoke():
             page.locator('button.layer[data-layer="0"]').click()
             assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "অ"
 
+            # Intercept editor key events as KeymanWeb may: the visualizer must
+            # update immediately even when a downstream listener stops propagation.
+            page.locator("#editor").focus()
+            page.evaluate("""() => {
+                const editor = document.getElementById('editor');
+                editor.addEventListener('keydown', event => {
+                    if (event.key === 'Shift' || event.code === 'AltRight') event.stopPropagation();
+                });
+                editor.addEventListener('keyup', event => {
+                    if (event.key === 'Shift' || event.code === 'AltRight') event.stopPropagation();
+                });
+            }""")
+            # The editor retains focus while we switch preview layers;
+            # KeymanWeb must not prevent the visual keycaps from rendering.
+            page.evaluate("""() => document.querySelector('[data-layer="2"]').click()""")
+            assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "ৱ"
+            page.evaluate("""() => document.querySelector('[data-layer="0"]').click()""")
+            assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "অ"
+            assert page.locator("#editor").evaluate("(element) => document.activeElement === element")
+
             # Physical modifiers must change the visual layer and restore it on release.
             page.keyboard.down("Shift")
             assert page.locator('button.keyboard-key[data-key="S"] .key-output').inner_text() == "শ"
             page.keyboard.up("Shift")
             assert page.locator('button.keyboard-key[data-key="S"] .key-output').inner_text() == "স"
-            page.evaluate("""() => document.dispatchEvent(
+            page.evaluate("""() => document.getElementById('editor').dispatchEvent(
                 new KeyboardEvent('keydown', {key:'AltGraph', code:'AltRight', altKey:true, bubbles:true})
             )""")
             assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "ৱ"
-            page.evaluate("""() => document.dispatchEvent(
+            page.evaluate("""() => document.getElementById('editor').dispatchEvent(
                 new KeyboardEvent('keyup', {key:'AltGraph', code:'AltRight', bubbles:true})
             )""")
             assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "অ"
+            # Both modifiers held together must show the fourth layer.
+            page.keyboard.down("Shift")
+            page.evaluate("""() => document.getElementById('editor').dispatchEvent(
+                new KeyboardEvent('keydown', {key:'AltGraph', code:'AltRight',
+                  shiftKey:true, altKey:true, bubbles:true})
+            )""")
+            assert page.locator("#modifier-indicator").inner_text() == "SHIFT + ALTGR"
+            page.evaluate("""() => document.getElementById('editor').dispatchEvent(
+                new KeyboardEvent('keyup', {key:'AltGraph', code:'AltRight',
+                  shiftKey:true, bubbles:true})
+            )""")
+            page.keyboard.up("Shift")
+            assert page.locator("#modifier-indicator").inner_text() == "BASE"
 
             # Theme follows System initially, supports explicit Light/Dark, and persists.
             assert page.locator("#theme").input_value() == "system"
@@ -422,6 +455,12 @@ def browser_smoke():
             assert bounds["keysTop"] >= bounds["editorBottom"], bounds
             page.set_viewport_size({"width": 1280, "height": 720})
             page.locator("#editor").focus()
+            # KeymanWeb must not show its own floating OSK over the page;
+            # our visual keyboard is the only desktop keyboard reference.
+            assert page.evaluate("""() =>
+                !(window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
+                  window.keyman.osk.isEnabled())
+            """), "KeymanWeb floating OSK was not disabled for desktop"
             page.keyboard.press("k")
             page.wait_for_function("() => document.getElementById('editor').value === 'ক'")
             page.keyboard.press("Shift+z")

@@ -5,14 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#f6f5f1">
-  <meta name="description" content="Onnoy is a Unicode keyboard for Bangla and Assamese. Type with KeymanWeb and explore a live four-layer keyboard.">
+  <meta name="description" content="Onnoy is a Unicode keyboard for Bangla, Assamese, and Bengali-script Kokborok. Type with KeymanWeb and explore a live four-layer keyboard.">
   <title>Onnoy — অন্বয় | Write in Bangla and Assamese</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css">
-  <script defer src="https://s.keyman.com/kmw/engine/18.0.254/keymanweb.js"></script>
+  <!-- Register the visualizer's modifier listeners before KeymanWeb. -->
   <script defer src="./app.js"></script>
+  <script defer src="https://s.keyman.com/kmw/engine/18.0.254/keymanweb.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#editor">Skip to writing area</a>
@@ -44,7 +45,7 @@
         <div>
           <p class="eyebrow"><span class="green-dot" aria-hidden="true"></span> A native Unicode keyboard</p>
           <h1 id="intro-title">Your language.<br><em>Your keys.</em></h1>
-          <p class="intro-description">A clear, direct way to write in Bangla and Assamese. Familiar QWERTY positions, thoughtful shortcuts, and a keyboard you can explore as you type.</p>
+          <p class="intro-description">A clear, direct way to write in Bangla, Assamese, and Bengali-script Kokborok. Familiar QWERTY positions, thoughtful shortcuts, and a keyboard you can explore as you type.</p>
         </div>
         <div class="intro-aside" aria-hidden="true">
           <span class="intro-aside-label">A little more room for every word</span>
@@ -155,7 +156,7 @@
         <div class="section-label">ABOUT <span>/ 02</span></div>
         <div class="info-content">
           <h2 id="about-heading">Made for the way you write.</h2>
-          <p>Onnoy is a direct Unicode keyboard for Bengali and Assamese. It uses physical US-QWERTY positions, with Shift and Right Alt (AltGr) for alternate characters. There is no phonetic transliteration step.</p>
+          <p>Onnoy is a direct Unicode keyboard for Bangla, Assamese, and Kokborok written in the Bengali script. It uses physical US-QWERTY positions, with Shift and Right Alt (AltGr) for alternate characters. There is no phonetic transliteration step.</p>
           <div class="detail-grid">
             <div><span class="detail-icon" aria-hidden="true">⌨</span><h3>Native on desktop</h3><p>Linux XKB, Windows keyboard layouts, and macOS input sources work without a background input method.</p></div>
             <div><span class="detail-icon" aria-hidden="true">অ</span><h3>One familiar arrangement</h3><p>The same characters are available across desktop, the web playground, and Keyman mobile.</p></div>
