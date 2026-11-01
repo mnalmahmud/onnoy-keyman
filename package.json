@@ -1,0 +1,12 @@
+{
+  "name": "onnoy-build",
+  "private": true,
+  "description": "Build-time Keyman toolchain; native keyboard users do not need Node.js",
+  "devDependencies": {
+    "@keymanapp/kmc": "18.0.4",
+    "@keymanapp/keymanweb": "18.0.4"
+  },
+  "scripts": {
+    "build:keyman": "kmc build dist/keyman/onnoy.kmn"
+  }
+}
