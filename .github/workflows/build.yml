@@ -83,6 +83,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Native Windows packaging failed" }
           if (-not (Test-Path build/windows/onnoy-windows-native.zip)) { throw "Installer archive missing" }
 
+      - name: Install and test native Windows keyboard
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python -m onnoy test --windows
+          if ($LASTEXITCODE -ne 0) { throw "Native Windows installation test failed" }
+
       - uses: actions/upload-artifact@v4
         if: runner.os == 'Windows'
         with:

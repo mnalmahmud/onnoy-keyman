@@ -9,6 +9,10 @@ from threading import Thread
 import unittest
 from xml.etree import ElementTree as ET
 from zipfile import ZipFile
+import ctypes
+import os
+import subprocess
+import tempfile
 
 from onnoy.backends import keyman, linux, macos, touch, web, windows
 from onnoy.hardware import ALPHABET, BROWSER, ISO_EXTRA, KEYMAN, LAYERS, MAC, STANDARD, WINDOWS, XKB
@@ -368,3 +372,84 @@ def browser_smoke():
     finally:
         server.shutdown()
         server.server_close()
+
+def windows_smoke():
+    """Install, exercise, upgrade and uninstall a compiled native Windows keyboard."""
+    if os.name != "nt":
+        raise RuntimeError("Windows-only smoke test")
+    import winreg
+
+    package = ROOT / "build/windows/onnoy-windows-native.zip"
+    if not package.is_file():
+        raise AssertionError(f"Windows installer missing: {package}")
+    with tempfile.TemporaryDirectory() as temp:
+        with ZipFile(package) as archive:
+            archive.extractall(temp)
+        root = Path(temp)
+        for name in ("setup.ps1", "x64/onnoy.dll", "x86/onnoy.dll"):
+            if not (root / name).is_file():
+                raise AssertionError(f"Missing installer component: {name}")
+
+        setup = root / "setup.ps1"
+        command = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(setup)]
+        registry_path = r"SYSTEM\\CurrentControlSet\\Control\\Keyboard Layouts\\A0010845"
+        installed = False
+        hkl = None
+        user32 = ctypes.WinDLL("user32", use_last_error=True)
+        user32.LoadKeyboardLayoutW.argtypes = (ctypes.c_wchar_p, ctypes.c_uint)
+        user32.LoadKeyboardLayoutW.restype = ctypes.c_void_p
+        user32.UnloadKeyboardLayout.argtypes = (ctypes.c_void_p,)
+        user32.UnloadKeyboardLayout.restype = ctypes.c_int
+        user32.ToUnicodeEx.argtypes = (
+            ctypes.c_uint, ctypes.c_uint, ctypes.POINTER(ctypes.c_ubyte),
+            ctypes.c_wchar_p, ctypes.c_int, ctypes.c_uint, ctypes.c_void_p,
+        )
+        user32.ToUnicodeEx.restype = ctypes.c_int
+        try:
+            subprocess.run(command, check=True)
+            installed = True
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, registry_path) as key:
+                if winreg.QueryValueEx(key, "Layout File")[0] != "onnoy.dll":
+                    raise AssertionError("Unexpected installed keyboard DLL")
+            hkl = user32.LoadKeyboardLayoutW("A0010845", 0x1)
+            if not hkl:
+                raise AssertionError(f"Windows failed to load Onnoy keyboard ({ctypes.get_last_error()})")
+
+            def type_key(vk, scan, *, shift=False, altgr=False):
+                state = (ctypes.c_ubyte * 256)()
+                if shift:
+                    state[0x10] = 0x80
+                if altgr:
+                    state[0x11] = 0x80
+                    state[0x12] = 0x80
+                buffer = ctypes.create_unicode_buffer(16)
+                length = user32.ToUnicodeEx(vk, scan, state, buffer, 16, 0, hkl)
+                if length <= 0:
+                    raise AssertionError(f"ToUnicodeEx failed for VK {vk:02X}: {length}")
+                return buffer[:length].encode("utf-16-le", "surrogatepass").decode("utf-16-le")
+
+            cases = (
+                ((0x4B, 0x25), {}, "ক"),
+                ((0x53, 0x1F), {"shift": True}, "শ"),
+                ((0xC0, 0x29), {}, "্"),
+                ((0x4A, 0x24), {"altgr": True}, "\u200d"),
+                ((0x4A, 0x24), {"shift": True, "altgr": True}, "\u200c"),
+                ((0x4D, 0x32), {"shift": True, "altgr": True}, "\U00011df0"),
+            )
+            for (vk, scan), modifiers, expected in cases:
+                actual = type_key(vk, scan, **modifiers)
+                if actual != expected:
+                    raise AssertionError(f"VK {vk:02X} output {actual!r}, expected {expected!r}")
+            # Reinstalling the same package should be safe.
+            subprocess.run(command, check=True)
+            print("Windows installation, Unicode typing and reinstall passed")
+        finally:
+            if hkl:
+                user32.UnloadKeyboardLayout(hkl)
+            if installed:
+                subprocess.run(command + ["-Uninstall"], check=True)
+            try:
+                with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, registry_path):
+                    raise AssertionError("Windows keyboard registry entry remains after uninstall")
+            except FileNotFoundError:
+                pass
