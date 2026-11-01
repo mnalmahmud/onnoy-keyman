@@ -165,11 +165,15 @@ class NativeLayoutTests(unittest.TestCase):
         self.assertIn("+ [RALT K_COLON] > U+003B",source)
         self.assertIn("+ [K_oE2] > U+005C",source)
         self.assertIn("+ [RALT K_Z] > nul",source)
+        self.assertIn("+ [RALT K_V] > U+09F1", source)
+        self.assertIn("+ [RALT K_W] > nul", source)
 
     def test_browser_visualizer_data(self):
         ref=json.loads(web.render(self.map))
         self.assertEqual(ref["keys"]["KeyJ"][2],"‍")
         self.assertEqual(ref["keys"]["KeyZ"][1],"য়")
+        self.assertEqual(ref["keys"]["KeyV"][2], "ৱ")
+        self.assertIsNone(ref["keys"]["KeyW"][2])
         self.assertEqual(ref["keys"]["IntlBackslash"][0],"\\")
 
 
@@ -363,6 +367,60 @@ def browser_smoke():
             assert page.locator('button.keyboard-key[data-key="§"]').count() == 1
             page.select_option("#geometry","ansi")
             assert page.locator('button.keyboard-key[data-key="§"]').count() == 0
+
+            # Desktop editor and visual keyboard share the same horizontal row.
+            bounds = page.evaluate("""() => {
+                const editor = document.querySelector('.editor-pane').getBoundingClientRect();
+                const keys = document.querySelector('.keyboard-pane').getBoundingClientRect();
+                return { editorX: editor.x, keysX: keys.x, editorY: editor.y, keysY: keys.y };
+            }""")
+            assert bounds["keysX"] > bounds["editorX"], bounds
+            assert abs(bounds["keysY"] - bounds["editorY"]) < 3, bounds
+
+            # The selector exposes the canonical four layers, including relocated Assamese wa.
+            page.locator('button.layer[data-layer="2"]').click()
+            assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "ৱ"
+            assert page.locator('button.keyboard-key[data-key="W"] .key-output').inner_text() == "—"
+            page.locator('button.layer[data-layer="0"]').click()
+            assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "অ"
+
+            # Physical modifiers must change the visual layer and restore it on release.
+            page.keyboard.down("Shift")
+            assert page.locator('button.keyboard-key[data-key="S"] .key-output').inner_text() == "শ"
+            page.keyboard.up("Shift")
+            assert page.locator('button.keyboard-key[data-key="S"] .key-output').inner_text() == "স"
+            page.evaluate("""() => document.dispatchEvent(
+                new KeyboardEvent('keydown', {key:'AltGraph', code:'AltRight', altKey:true, bubbles:true})
+            )""")
+            assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "ৱ"
+            page.evaluate("""() => document.dispatchEvent(
+                new KeyboardEvent('keyup', {key:'AltGraph', code:'AltRight', bubbles:true})
+            )""")
+            assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "অ"
+
+            # Theme follows System initially, supports explicit Light/Dark, and persists.
+            assert page.locator("#theme").input_value() == "system"
+            page.select_option("#theme", "dark")
+            assert page.locator("html").get_attribute("data-theme") == "dark"
+            page.reload()
+            page.wait_for_function(
+                "() => document.getElementById('status-label').textContent === 'KeymanWeb ready'",
+                timeout=45000)
+            assert page.locator("#theme").input_value() == "dark"
+            page.select_option("#theme", "light")
+            assert page.locator("html").get_attribute("data-theme") == "light"
+            page.select_option("#theme", "system")
+            assert page.locator("html").get_attribute("data-theme") is None
+
+            # The panes stack on mobile instead of overflowing the page.
+            page.set_viewport_size({"width": 420, "height": 900})
+            bounds = page.evaluate("""() => {
+                const editor = document.querySelector('.editor-pane').getBoundingClientRect();
+                const keys = document.querySelector('.keyboard-pane').getBoundingClientRect();
+                return { editorBottom: editor.bottom, keysTop: keys.top };
+            }""")
+            assert bounds["keysTop"] >= bounds["editorBottom"], bounds
+            page.set_viewport_size({"width": 1280, "height": 720})
             page.locator("#editor").focus()
             page.keyboard.press("k")
             page.wait_for_function("() => document.getElementById('editor').value === 'ক'")
