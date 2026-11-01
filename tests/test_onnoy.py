@@ -1,7 +1,6 @@
 """Unit regressions plus optional compiled-package and browser integration checks."""
 
 import copy
-import inspect
 import json
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer

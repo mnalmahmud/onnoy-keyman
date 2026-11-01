@@ -56,11 +56,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: python3 -m onnoy generate
       - name: Install pinned Keyman compiler
         run: npm install --no-audit --no-fund
       - name: Compile Keyman desktop and browser keyboard
-        run: npm run build:keyman
+        run: python3 -m onnoy package --target keyman
       - name: Check compiled keyboard outputs
         run: |
           test -s dist/keyman/onnoy.kmx
