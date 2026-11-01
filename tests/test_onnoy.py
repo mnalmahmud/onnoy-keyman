@@ -439,7 +439,6 @@ def browser_smoke():
             assert key_k.get_attribute("aria-pressed") == "true"
             page.keyboard.up("k")
             assert "pressed" not in key_k.get_attribute("class").split()
-            assert "pressed" not in key_k.get_attribute("class").split()
             assert key_k.get_attribute("aria-pressed") == "false"
             page.keyboard.down("Shift")
             page.keyboard.down("v")
