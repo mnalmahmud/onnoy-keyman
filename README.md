@@ -1,6 +1,6 @@
 # Onnoy · অন্বয়
 
-A Unicode keyboard for **Bangla and Assamese**, built around the familiar US-QWERTY key positions.
+A Unicode keyboard for **Bangla, Assamese, and Bengali-script Kokborok**, built around familiar US-QWERTY key positions.
 
 Onnoy maps physical keys directly to Unicode characters. It works as a native keyboard layout on Linux, Windows, and macOS, or through Keyman on desktop and mobile.
 
