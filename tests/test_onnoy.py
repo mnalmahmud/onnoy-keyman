@@ -396,6 +396,14 @@ def browser_smoke():
                     if (event.key === 'Shift' || event.code === 'AltRight') event.stopPropagation();
                 });
             }""")
+            # The editor retains focus while we switch preview layers;
+            # KeymanWeb must not prevent the visual keycaps from rendering.
+            page.evaluate("""() => document.querySelector('[data-layer="2"]').click()""")
+            assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "ৱ"
+            page.evaluate("""() => document.querySelector('[data-layer="0"]').click()""")
+            assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "অ"
+            assert page.locator("#editor").evaluate("(element) => document.activeElement === element")
+
             # Physical modifiers must change the visual layer and restore it on release.
             page.keyboard.down("Shift")
             assert page.locator('button.keyboard-key[data-key="S"] .key-output').inner_text() == "শ"
@@ -409,6 +417,19 @@ def browser_smoke():
                 new KeyboardEvent('keyup', {key:'AltGraph', code:'AltRight', bubbles:true})
             )""")
             assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "অ"
+            # Both modifiers held together must show the fourth layer.
+            page.keyboard.down("Shift")
+            page.evaluate("""() => document.getElementById('editor').dispatchEvent(
+                new KeyboardEvent('keydown', {key:'AltGraph', code:'AltRight',
+                  shiftKey:true, altKey:true, bubbles:true})
+            )""")
+            assert page.locator("#modifier-indicator").inner_text() == "SHIFT + ALTGR"
+            page.evaluate("""() => document.getElementById('editor').dispatchEvent(
+                new KeyboardEvent('keyup', {key:'AltGraph', code:'AltRight',
+                  shiftKey:true, bubbles:true})
+            )""")
+            page.keyboard.up("Shift")
+            assert page.locator("#modifier-indicator").inner_text() == "BASE"
 
             # Theme follows System initially, supports explicit Light/Dark, and persists.
             assert page.locator("#theme").input_value() == "system"
