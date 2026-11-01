@@ -17,6 +17,7 @@ The layout stays in the same positions on ANSI and ISO keyboards. Use **Shift** 
 | `Y` / `Shift+Y` | ী / য় |
 | `Z` / `Shift+Z` | য / ঈ |
 | `AltGr+R` / `AltGr+S` / `AltGr+H` | ঢ় / ষ / ঽ |
+| `AltGr+J` / `AltGr+D` | ZWJ (U+200D) / ZWNJ (U+200C) |
 | `Grave` / `Shift+Grave` | ্ (virama) / ় (nukta) |
 | `Shift+AltGr+Grave` | ~ (tilde) |
 | `Shift+L` / `AltGr+B` | ং (anusvara) / ঁ (chandrabindu) |
@@ -25,7 +26,7 @@ The layout stays in the same positions on ANSI and ISO keyboards. Use **Shift** 
 
 For example, `K → Grave → X` produces **ক্ষ**, and `Shift+S → I → K → Grave → X → A` produces **শিক্ষা**.
 
-Onnoy does not target full Assamese coverage; ৱ is retained because it is useful. AltGr+R and AltGr+S duplicate the existing Shift+X (ঢ়) and X (ষ) assignments. ZWJ, ZWNJ, and double danda (॥) are currently unassigned. Number keys produce Bengali digits; AltGr gives access to ASCII digits. The extra ISO key provides `\` and `|`. See the [interactive keyboard](https://mnalmahmud.github.io/onnoy-keyman/#keymap) or [layout.json](layout.json) for every assignment.
+Onnoy does not target full Assamese coverage; ৱ is retained because it is useful. AltGr+R and AltGr+S duplicate the existing Shift+X (ঢ়) and X (ষ) assignments. Double danda (॥) is currently unassigned. Number keys produce Bengali digits; AltGr gives access to ASCII digits. The extra ISO key provides `\` and `|`. See the [interactive keyboard](https://mnalmahmud.github.io/onnoy-keyman/#keymap) or [layout.json](layout.json) for every assignment.
 
 ## Install
 
