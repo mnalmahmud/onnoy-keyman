@@ -17,6 +17,7 @@ def generate(geometry="iso",check=False):
        "dist/windows/onnoy.klc":windows.render(layout),
        "dist/macos/Onnoy.keylayout":macos.render(layout),
        "dist/keyman/onnoy.kmn":keyman.render(layout),
+       "dist/keyman/onnoy.kps":keyman.package_source(),
        "dist/web/layout.json":web.render(layout)
     }
     for path,content in outputs.items():
@@ -53,6 +54,7 @@ def main():
         generate()
         if args.target=="keyman":
             subprocess.run(["npx","--no-install","kmc","build",str(ROOT/"dist/keyman/onnoy.kmn")],check=True)
+            subprocess.run(["npx","--no-install","kmc","build",str(ROOT/"dist/keyman/onnoy.kps")],check=True)
         elif args.target=="linux":
             subprocess.run(["bash",str(ROOT/"scripts/package-linux.sh")],check=True)
         elif args.target=="macos":
