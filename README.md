@@ -56,7 +56,7 @@ This creates `build/onnoy-macos.pkg` (unsigned). To install manually, copy `dist
 python -m onnoy package --target windows
 ```
 
-Requires **Microsoft Keyboard Layout Creator 1.4** with `kbdutool.exe` on `PATH`. The generated `dist/windows/onnoy.klc` is source for the native keyboard DLL and installer—not itself an installable layout.
+Requires **Microsoft Keyboard Layout Creator 1.4** with `kbdutool.exe` installed. This generates `build/windows/onnoy-windows-native.zip` with native x64/x86 keyboard DLLs and an install/uninstall script. Extract the archive, then run `setup.ps1` in elevated 64-bit PowerShell (use `-Uninstall` to remove Onnoy). No Keyman runtime is needed. The standalone `.klc` file is only source; new packages require Windows installation testing before release.
 
 ### Keyman · Desktop / Android / iOS
 

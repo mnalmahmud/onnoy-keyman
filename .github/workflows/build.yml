@@ -68,11 +68,28 @@ jobs:
             dist/macos/Onnoy.keylayout
           if-no-files-found: error
 
+      - name: Install Microsoft Keyboard Layout Creator (build-time only)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install keyboard-layout-creator --version=1.4.0.20241119 --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { throw "MSKLC installation failed" }
+
+      - name: Compile native Windows DLLs and installer archive
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python -m onnoy package --target windows
+          if ($LASTEXITCODE -ne 0) { throw "Native Windows packaging failed" }
+          if (-not (Test-Path build/windows/onnoy-windows-native.zip)) { throw "Installer archive missing" }
+
       - uses: actions/upload-artifact@v4
         if: runner.os == 'Windows'
         with:
           name: onnoy-windows
-          path: dist/windows/onnoy.klc
+          path: |
+            dist/windows/onnoy.klc
+            build/windows/onnoy-windows-native.zip
           if-no-files-found: error
 
   keyman:
