@@ -1,6 +1,6 @@
 # Onnoy · অন্বয়
 
-A Unicode keyboard for **Bangla, Assamese, and Bengali-script Kokborok**, built around familiar US-QWERTY key positions.
+A Unicode keyboard for **Bangla and Bengali-script Kokborok**, with selected Assamese characters, built around familiar US-QWERTY key positions.
 
 Onnoy maps physical keys directly to Unicode characters. It works as a native keyboard layout on Linux, Windows, and macOS, or through Keyman on desktop and mobile.
 
@@ -15,14 +15,16 @@ The layout stays in the same positions on ANSI and ISO keyboards. Use **Shift** 
 | `K` / `Shift+K` | ক / খ |
 | `S` / `Shift+S` | স / শ |
 | `Z` / `Shift+Z` | য / য় |
-| `Grave` | ্ (virama) |
-| `AltGr+J` / `Shift+AltGr+J` | ZWJ / ZWNJ |
-| `AltGr+L` | ় (nukta) |
-| `AltGr+B` / `AltGr+V` | ৰ / ৱ |
+| `Grave` / `Shift+Grave` | ্ (virama) / ় (nukta) |
+| `Shift+AltGr+Grave` | ~ (tilde) |
+| `AltGr+J` / `AltGr+S` | ZWJ / ZWNJ |
+| `Shift+L` / `AltGr+B` | ং (anusvara) / ঁ (chandrabindu) |
+| `F` / `Shift+F` / `AltGr+F` | ত / থ / ৎ |
+| `AltGr+W` | ৱ (Assamese wa) |
 
 For example, `K → Grave → X` produces **ক্ষ**, and `Shift+S → I → K → Grave → X → A` produces **শিক্ষা**.
 
-Number keys produce Bengali digits; AltGr gives access to ASCII digits. The extra ISO key provides `\` and `|`. See the [interactive keyboard](https://mnalmahmud.github.io/onnoy-keyman/#keymap) or [layout.json](layout.json) for every assignment.
+The Assamese ৰ character is not assigned, so this layout does not provide complete Assamese coverage. Number keys produce Bengali digits; AltGr gives access to ASCII digits. The extra ISO key provides `\` and `|`. See the [interactive keyboard](https://mnalmahmud.github.io/onnoy-keyman/#keymap) or [layout.json](layout.json) for every assignment.
 
 ## Install
 

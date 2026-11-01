@@ -34,16 +34,16 @@ class MappingContractTests(unittest.TestCase):
     def test_approved_sequences(self):
         a = resolve(geometry="ansi")
         cases = {
-            ("GRAVE","base"):"্", ("GRAVE","shift"):"~",
+            ("GRAVE","base"):"্", ("GRAVE","shift"):"়",
+            ("GRAVE","shift_altgr"):"~",
             ("GRAVE","altgr"):"`", ("SLASH","base"):"/",
             ("SLASH","shift"):"?", ("COMMA","base"):",",
             ("COMMA","shift"):"<", ("S","shift"):"শ",
             ("X","base"):"ষ", ("X","shift"):"ঢ়",
-            ("Z","shift"):"য়", ("Y","altgr"):"য়",
-            ("J","altgr"):"‍", ("J","shift_altgr"):"‌",
-            ("L","altgr"):"়", ("B","altgr"):"ৰ",
-            ("V","altgr"):"ৱ",
-            ("M","shift_altgr"):"𑷰",
+            ("Z","shift"):"য়", ("L","shift"):"ং",
+            ("M","shift"):"ঙ", ("J","altgr"):"‍",
+            ("S","altgr"):"‌", ("B","altgr"):"ঁ",
+            ("W","altgr"):"ৱ", ("F","altgr"):"ৎ",
             ("N","altgr"):"ঞ", ("4","shift"):"৳",
             ("4","shift_altgr"):"$"
         }
@@ -54,7 +54,11 @@ class MappingContractTests(unittest.TestCase):
     def test_symbol_and_alpha_omissions(self):
         a=resolve()
         self.assertEqual(a["Q"][2:], (None,None))
-        self.assertEqual(a["W"][2:], (None, None))
+        self.assertEqual(a["W"][2:], ("ৱ", None))
+        for key in ("V", "Y", "T", "L", "M"):
+            self.assertIsNone(a[key][2], key)
+        self.assertIsNone(a["J"][3])
+        self.assertIsNone(a["M"][3])
         self.assertEqual(a["COMMA"], (",","<",None,None))
         self.assertEqual(a["SLASH"], ("/","?",None,None))
         self.assertEqual(a["MINUS"], ("-","_",None,None))
@@ -98,22 +102,28 @@ class TypingCases(unittest.TestCase):
         cases={
             ("K","GRAVE","X"):"ক্ষ",
             ("Shift+S","I","K","GRAVE","X","A"):"শিক্ষা",
-            ("B","A","AltGr+M","L","A"):"বাংলা",
+            ("B","A","Shift+L","L","A"):"বাংলা",
             ("R","AltGr+J","GRAVE","Z"):"র‍্য",
-            ("K","GRAVE","Shift+AltGr+J","X"):"ক্‌ষ",
+            ("K","GRAVE","AltGr+S","X"):"ক্‌ষ",
             ("Shift+4","4","AltGr+PERIOD","5","0"):"৳৪.৫০",
-            ("D","AltGr+L"):"ড়",
-            ("Shift+D","AltGr+L"):"ঢ়",
+            ("D","Shift+GRAVE"):"ড়",
+            ("Shift+D","Shift+GRAVE"):"ঢ়",
         }
         for chords, expected in cases.items():
             with self.subTest(chords=chords):
                 self.assertEqual(emit(*chords),expected)
-    def test_alias_codepoint_exact(self):
+    def test_special_codepoints_and_removed_aliases(self):
         self.assertEqual(emit("Shift+Z"),chr(0x09DF))
-        self.assertEqual(emit("AltGr+Y"),chr(0x09DF))
-        self.assertEqual(emit("Shift+AltGr+M"),chr(0x11DF0))
+        self.assertEqual(emit("Shift+L"),chr(0x0982))
+        self.assertEqual(emit("AltGr+B"),chr(0x0981))
+        self.assertEqual(emit("Shift+GRAVE"),chr(0x09BC))
+        self.assertEqual(emit("Shift+AltGr+GRAVE"),"~")
         self.assertEqual(emit("AltGr+J"),chr(0x200D))
-        self.assertEqual(emit("Shift+AltGr+J"),chr(0x200C))
+        self.assertEqual(emit("AltGr+S"),chr(0x200C))
+        for chord in ("AltGr+Y", "AltGr+V", "AltGr+T", "AltGr+L",
+                      "AltGr+M", "Shift+AltGr+J", "Shift+AltGr+M"):
+            self.assertEqual(emit(chord),"")
+        self.assertFalse(any("𑷰" in layers for layers in resolve().values()))
     def test_punctuation_and_no_output(self):
         self.assertEqual(emit("SLASH","Shift+SLASH"),"/?")
         self.assertEqual(emit("COMMA","Shift+COMMA"),",<")
@@ -130,17 +140,17 @@ class NativeLayoutTests(unittest.TestCase):
         symbols=linux.render(self.map)
         self.assertIn('include "us(basic)"',symbols)
         self.assertIn('key <LSGT> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U005C, U007C',symbols)
-        self.assertIn('key <TLDE> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U09CD, U007E, U0060',symbols)
-        self.assertIn('key <AC07> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U099C, U099D, U200D, U200C',symbols)
-        self.assertIn('key <AC09> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U09B2, U0981, U09BC',symbols)
+        self.assertIn('key <TLDE> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U09CD, U09BC, U0060, U007E',symbols)
+        self.assertIn('key <AC07> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U099C, U099D, U200D, VoidSymbol',symbols)
+        self.assertIn('key <AC09> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U09B2, U0982, VoidSymbol',symbols)
+        self.assertIn('key <AC02> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U09B8, U09B6, U200C',symbols)
 
-    def test_windows_unicode_and_utf16_surrogates(self):
+    def test_windows_unicode_and_grave_layers(self):
         text=windows.render(self.map)
-        self.assertIn("29\tOEM_3\t0\t09cd\t007e\t-1\t0060",text)
+        self.assertIn("29\tOEM_3\t0\t09cd\t09bc\t-1\t0060\t007e",text)
         self.assertIn("56\tOEM_102\t0\t005c\t007c",text)
-        self.assertIn("LIGATURE",text)
-        # U+11DF0 is the surrogate pair D807 DDF0.
-        self.assertIn("d807 ddf0",text.lower())
+        self.assertNotIn("LIGATURE",text)
+        self.assertNotIn("d807 ddf0",text.lower())
 
     def test_macos_self_contained(self):
         source=macos.render(self.map)
@@ -151,29 +161,42 @@ class NativeLayoutTests(unittest.TestCase):
         def output(layer,code):
             return keys[layer].find(f"./key[@code='{code}']").get("output")
         self.assertEqual(output(0,50),"্")
+        self.assertEqual(output(1,50),"়")
         self.assertEqual(output(2,50),"`")
+        self.assertEqual(output(3,50),"~")
         self.assertEqual(output(0,10),"\\")
         self.assertEqual(output(1,10),"|")
         self.assertEqual(output(2,38),"‍")
-        self.assertEqual(output(3,38),"‌")
+        self.assertEqual(output(3,38),"")
+        self.assertEqual(output(2,1),"‌")
         self.assertEqual(output(4,38),"j")
 
     def test_keyman_physical_rules(self):
         source=keyman.render(self.map)
         self.assertIn("+ [RALT K_J] > U+200D",source)
-        self.assertIn("+ [SHIFT RALT K_J] > U+200C",source)
+        self.assertIn("+ [RALT K_S] > U+200C",source)
+        self.assertIn("+ [SHIFT RALT K_J] > nul",source)
+        self.assertIn("+ [SHIFT K_BKQUOTE] > U+09BC",source)
+        self.assertIn("+ [SHIFT RALT K_BKQUOTE] > U+007E",source)
         self.assertIn("+ [RALT K_COLON] > U+003B",source)
         self.assertIn("+ [K_oE2] > U+005C",source)
         self.assertIn("+ [RALT K_Z] > nul",source)
-        self.assertIn("+ [RALT K_V] > U+09F1", source)
-        self.assertIn("+ [RALT K_W] > nul", source)
+        self.assertIn("+ [RALT K_V] > nul", source)
+        self.assertIn("+ [RALT K_W] > U+09F1", source)
+        self.assertIn("+ [RALT K_B] > U+0981", source)
+        self.assertIn("+ [RALT K_F] > U+09CE", source)
 
     def test_browser_visualizer_data(self):
         ref=json.loads(web.render(self.map))
         self.assertEqual(ref["keys"]["KeyJ"][2],"‍")
         self.assertEqual(ref["keys"]["KeyZ"][1],"য়")
-        self.assertEqual(ref["keys"]["KeyV"][2], "ৱ")
-        self.assertIsNone(ref["keys"]["KeyW"][2])
+        self.assertIsNone(ref["keys"]["KeyV"][2])
+        self.assertEqual(ref["keys"]["KeyW"][2], "ৱ")
+        self.assertEqual(ref["keys"]["KeyB"][2], "ঁ")
+        self.assertEqual(ref["keys"]["KeyF"][2], "ৎ")
+        self.assertEqual(ref["keys"]["KeyL"][1], "ং")
+        self.assertEqual(ref["keys"]["Backquote"][1], "়")
+        self.assertEqual(ref["keys"]["Backquote"][3], "~")
         self.assertEqual(ref["keys"]["IntlBackslash"][0],"\\")
 
 
@@ -291,11 +314,11 @@ class MobileTouchTests(unittest.TestCase):
         self.assertTrue(any(k.get("nextlayer")=="default" for k in self.flattened(self.layers["numeric"])))
         self.assertTrue(any(k.get("nextlayer")=="shift" for k in base))
 
-    def test_joiners_nukta_assamese_and_supplementary(self):
+    def test_joiners_nukta_and_assamese_wa(self):
         keys=set()
         for layer in self.layers.values():
             keys |= self.outputs(layer)
-        for value in ("\u200D","\u200C","়","ৰ","ৱ","𑷰"):
+        for value in ("\u200D","\u200C","়","ৱ","ঁ","ং","ৎ"):
             self.assertIn(touch.unicode_key(value),keys)
 
     def test_digits_and_ascii_fallbacks(self):
@@ -382,8 +405,8 @@ def browser_smoke():
             # The selector exposes the canonical four layers, including relocated Assamese wa.
             page.locator('button.layer[data-layer="2"]').click()
             assert page.evaluate("() => window.__firstOnnoyKey === document.querySelector('.keyboard-key')")
-            assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "ৱ"
-            assert page.locator('button.keyboard-key[data-key="W"] .key-output').inner_text() == "—"
+            assert page.locator('button.keyboard-key[data-key="W"] .key-output').inner_text() == "ৱ"
+            assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "—"
             page.locator('button.layer[data-layer="0"]').click()
             assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "অ"
 
@@ -402,7 +425,7 @@ def browser_smoke():
             # The editor retains focus while we switch preview layers;
             # KeymanWeb must not prevent the visual keycaps from rendering.
             page.evaluate("""() => document.querySelector('[data-layer="2"]').click()""")
-            assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "ৱ"
+            assert page.locator('button.keyboard-key[data-key="W"] .key-output').inner_text() == "ৱ"
             page.evaluate("""() => document.querySelector('[data-layer="0"]').click()""")
             assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "অ"
             assert page.locator("#editor").evaluate("(element) => document.activeElement === element")
@@ -415,7 +438,7 @@ def browser_smoke():
             page.evaluate("""() => document.getElementById('editor').dispatchEvent(
                 new KeyboardEvent('keydown', {key:'AltGraph', code:'AltRight', altKey:true, bubbles:true})
             )""")
-            assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "ৱ"
+            assert page.locator('button.keyboard-key[data-key="W"] .key-output').inner_text() == "ৱ"
             page.evaluate("""() => document.getElementById('editor').dispatchEvent(
                 new KeyboardEvent('keyup', {key:'AltGraph', code:'AltRight', bubbles:true})
             )""")
@@ -571,8 +594,10 @@ def windows_smoke():
                 ((0x53, 0x1F), {"shift": True}, "শ"),
                 ((0xC0, 0x29), {}, "্"),
                 ((0x4A, 0x24), {"altgr": True}, "\u200d"),
-                ((0x4A, 0x24), {"shift": True, "altgr": True}, "\u200c"),
-                ((0x4D, 0x32), {"shift": True, "altgr": True}, "\U00011df0"),
+                ((0x53, 0x1F), {"altgr": True}, "\u200c"),
+                ((0xC0, 0x29), {"shift": True}, "\u09bc"),
+                ((0x4C, 0x26), {"shift": True}, "\u0982"),
+                ((0x42, 0x30), {"altgr": True}, "\u0981"),
             )
             for (vk, scan), modifiers, expected in cases:
                 actual = type_key(vk, scan, **modifiers)

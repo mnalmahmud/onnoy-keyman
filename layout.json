@@ -49,7 +49,8 @@
     },
     "W": {
       "base": "ূ",
-      "shift": "ঊ"
+      "shift": "ঊ",
+      "altgr": "ৱ"
     },
     "E": {
       "base": "ে",
@@ -61,13 +62,11 @@
     },
     "T": {
       "base": "ট",
-      "shift": "ঠ",
-      "altgr": "ৎ"
+      "shift": "ঠ"
     },
     "Y": {
       "base": "ী",
-      "shift": "ঈ",
-      "altgr": "য়"
+      "shift": "ঈ"
     },
     "U": {
       "base": "ু",
@@ -103,7 +102,8 @@
     },
     "S": {
       "base": "স",
-      "shift": "শ"
+      "shift": "শ",
+      "altgr": "‌"
     },
     "D": {
       "base": "ড",
@@ -111,7 +111,8 @@
     },
     "F": {
       "base": "ত",
-      "shift": "থ"
+      "shift": "থ",
+      "altgr": "ৎ"
     },
     "G": {
       "base": "গ",
@@ -124,8 +125,7 @@
     "J": {
       "base": "জ",
       "shift": "ঝ",
-      "altgr": "‍",
-      "shift_altgr": "‌"
+      "altgr": "‍"
     },
     "K": {
       "base": "ক",
@@ -133,8 +133,7 @@
     },
     "L": {
       "base": "ল",
-      "shift": "ঁ",
-      "altgr": "়"
+      "shift": "ং"
     },
     "SEMICOLON": {
       "base": "ৃ",
@@ -156,13 +155,12 @@
     },
     "V": {
       "base": "অ",
-      "shift": "ৗ",
-      "altgr": "ৱ"
+      "shift": "ৗ"
     },
     "B": {
       "base": "ব",
       "shift": "ভ",
-      "altgr": "ৰ"
+      "altgr": "ঁ"
     },
     "N": {
       "base": "ন",
@@ -171,9 +169,7 @@
     },
     "M": {
       "base": "ম",
-      "shift": "ঙ",
-      "altgr": "ং",
-      "shift_altgr": "𑷰"
+      "shift": "ঙ"
     },
     "PERIOD": {
       "base": "।",
@@ -181,7 +177,9 @@
     },
     "GRAVE": {
       "base": "্",
-      "altgr": "`"
+      "altgr": "`",
+      "shift": "়",
+      "shift_altgr": "~"
     }
   }
 }

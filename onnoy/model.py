@@ -37,14 +37,12 @@ def validate(data):
             n = ord(output)
             if 0xD800 <= n <= 0xDFFF or n > 0x10FFFF:
                 raise ValueError("Invalid Unicode scalar: " + key + "." + level)
-    # Guard the intentionally duplicated U+09DF while catching accidental duplicates
-    # in the character assignments (ordinary reference punctuation is excluded).
+    # Every explicit character has one canonical position.
+    # Ordinary reference punctuation remains excluded.
     positions = {}
     for key, values in data["keys"].items():
         for level, output in values.items():
-            if output in positions and not (
-                output == "য়" and {positions[output], (key, level)} ==
-                {("Y", "altgr"), ("Z", "shift")}):
+            if output in positions:
                 raise ValueError("Unexpected duplicate output " + repr(output))
             positions[output] = (key, level)
 
