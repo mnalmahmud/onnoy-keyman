@@ -1,8 +1,8 @@
-name: Onnoy mapping, native and Keyman builds
+name: CI
 
 on:
   push:
-    branches: [main, feature/approved-unicode-layout-2026-11-01]
+    branches: [main]
     tags: ['v*']
   pull_request:
   workflow_dispatch:
@@ -10,44 +10,71 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
-  source-and-linux:
-    runs-on: ubuntu-latest
+  native:
+    name: Native (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux
+            os: ubuntu-latest
+            shell: bash
+            artifacts: |
+              build/onnoy-linux-native.tar.gz
+              dist/linux/symbols/onnoy
+          - platform: macos
+            os: macos-latest
+            shell: bash
+            artifacts: |
+              build/onnoy-macos.pkg
+              dist/macos/Onnoy.keylayout
+          - platform: windows
+            os: windows-latest
+            shell: pwsh
+            artifacts: dist/windows/onnoy.klc
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Validate, generate and run exact Unicode contract tests
+      - name: Validate, generate, test and check
+        shell: ${{ matrix.shell }}
         run: |
-          python3 -m onnoy validate
-          python3 -m onnoy generate
-          python3 -m onnoy check
-          python3 -m onnoy test
-          python3 tools/benchmark.py --corpus tests/data/demo-bengali.txt > /tmp/onnoy-benchmark.json
-          python3 -m json.tool /tmp/onnoy-benchmark.json > /dev/null
-          node --check web/app.js
-      - name: Compile Linux XKB symbols
+          python -m onnoy validate
+          python -m onnoy test
+          python -m onnoy check
+
+      - name: Compile and package Linux XKB
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq x11-xkb-utils xkb-data
-          printf 'xkb_keymap { xkb_keycodes { include "evdev+aliases(qwerty)" }; xkb_types { include "complete" }; xkb_compat { include "complete" }; xkb_symbols { include "pc+onnoy(basic)+inet(evdev)" }; xkb_geometry { include "pc(pc105)" }; };' > /tmp/onnoy-test.xkb
-          xkbcomp -w 0 -I"$PWD/dist/linux" /tmp/onnoy-test.xkb /tmp/onnoy-test.xkm
-      - name: Package native Linux source bundle
-        run: bash tools/package-linux.sh
+          printf 'xkb_keymap { xkb_keycodes { include "evdev+aliases(qwerty)" }; xkb_types { include "complete" }; xkb_compat { include "complete" }; xkb_symbols { include "pc+onnoy(basic)+inet(evdev)" }; xkb_geometry { include "pc(pc105)" }; };' > /tmp/onnoy.xkb
+          xkbcomp -w 0 -I"$PWD/dist/linux" /tmp/onnoy.xkb /tmp/onnoy.xkm
+          python tools/benchmark.py > /tmp/onnoy-benchmark.json
+          python -m json.tool /tmp/onnoy-benchmark.json > /dev/null
+          python -m onnoy package --target linux
+
+      - name: Package macOS layout
+        if: runner.os == 'macOS'
+        run: python -m onnoy package --target macos
+
       - uses: actions/upload-artifact@v4
         with:
-          name: onnoy-linux-and-sources
-          path: |
-            build/onnoy-linux-native.tar.gz
-            dist/linux/symbols/onnoy
-            dist/windows/onnoy.klc
-            dist/macos/Onnoy.keylayout
-            dist/web/layout.json
+          name: onnoy-${{ matrix.platform }}
+          path: ${{ matrix.artifacts }}
+          if-no-files-found: error
 
-  keyman-and-web:
+  keyman:
+    name: Keyman and browser
     runs-on: ubuntu-latest
-    needs: source-and-linux
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -56,30 +83,27 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install pinned Keyman compiler
-        run: npm install --no-audit --no-fund
-      - name: Compile Keyman desktop and browser keyboard
-        run: python3 -m onnoy package --target keyman
-      - name: Check compiled keyboard outputs
+      - name: Build Keyman
         run: |
-          test -s dist/keyman/onnoy.kmx
-          test -s dist/keyman/onnoy.js
-          test -s dist/keyman/onnoy.kmp
-          test -s dist/keyman/onnoy.keyman-touch-layout
+          npm install --no-audit --no-fund
+          python -m onnoy package --target keyman
           node --check dist/keyman/onnoy.js
-          python3 -m onnoy test --package-check
-      - name: Assemble custom website and compiled Keyman keyboard
+          node --check web/app.js
+
+      - name: Assemble website
         run: |
           mkdir -p site
           cp web/index.html web/style.css web/app.js site/
           cp dist/web/layout.json site/layout.json
           cp dist/keyman/onnoy.js site/onnoy.js
           touch site/.nojekyll
-      - name: Browser typing test using compiled Keyman and real KeymanWeb
+
+      - name: Test compiled package and browser typing
         run: |
-          python3 -m pip install playwright==1.56.0
-          python3 -m playwright install --with-deps chromium
-          python3 -m onnoy test --browser
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+          python -m onnoy test --package-check --browser
+
       - uses: actions/upload-artifact@v4
         with:
           name: onnoy-keyman-and-website
@@ -91,52 +115,16 @@ jobs:
             dist/keyman/onnoy.js
             dist/keyman/onnoy.kmp
             site/
-      - name: Upload Pages artifact
+          if-no-files-found: error
+
+      - uses: actions/upload-pages-artifact@v4
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-pages-artifact@v4
         with:
           path: site
 
-  macos:
-    runs-on: macos-latest
-    needs: source-and-linux
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: |
-          python3 -m onnoy generate
-          python3 -m onnoy check
-          python3 -m onnoy test
-          bash tools/package-macos.sh
-      - uses: actions/upload-artifact@v4
-        with:
-          name: onnoy-native-macos-unsigned
-          path: build/onnoy-macos.pkg
-
-  windows:
-    runs-on: windows-latest
-    needs: source-and-linux
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - shell: pwsh
-        run: |
-          python -m onnoy generate
-          python -m onnoy check
-          python -m onnoy test
-          Write-Host "Generated KLC only; native DLL install not yet verified"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: onnoy-native-windows-klc-source
-          path: dist/windows/onnoy.klc
-
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: keyman-and-web
+    needs: [native, keyman]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -145,9 +133,6 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    concurrency:
-      group: onnoy-github-pages
-      cancel-in-progress: false
     steps:
       - uses: actions/deploy-pages@v4
         id: deployment
