@@ -377,8 +377,11 @@ def browser_smoke():
             assert bounds["keysX"] > bounds["editorX"], bounds
             assert abs(bounds["keysY"] - bounds["editorY"]) < 3, bounds
 
+            # Layer changes reuse the same keys instead of rebuilding the DOM.
+            page.evaluate("""() => { window.__firstOnnoyKey = document.querySelector('.keyboard-key'); }""")
             # The selector exposes the canonical four layers, including relocated Assamese wa.
             page.locator('button.layer[data-layer="2"]').click()
+            assert page.evaluate("() => window.__firstOnnoyKey === document.querySelector('.keyboard-key')")
             assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "ৱ"
             assert page.locator('button.keyboard-key[data-key="W"] .key-output').inner_text() == "—"
             page.locator('button.layer[data-layer="0"]').click()
@@ -466,8 +469,11 @@ def browser_smoke():
 
             # Theme follows System initially, supports explicit Light/Dark, and persists.
             assert page.locator("#theme").input_value() == "system"
+            light_bg = page.locator("body").evaluate("(element) => getComputedStyle(element).backgroundColor")
             page.select_option("#theme", "dark")
             assert page.locator("html").get_attribute("data-theme") == "dark"
+            dark_bg = page.locator("body").evaluate("(element) => getComputedStyle(element).backgroundColor")
+            assert dark_bg != light_bg, (light_bg, dark_bg)
             page.reload()
             page.wait_for_function(
                 "() => document.getElementById('status-label').textContent === 'KeymanWeb ready'",
