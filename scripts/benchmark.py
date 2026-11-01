@@ -7,6 +7,9 @@ import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# Allow standalone script invocation: python scripts/benchmark.py
+import sys
+sys.path.insert(0, str(ROOT))
 PHYSICAL = {}
 for row, prefix in (("QWERTYUIOP", "AD"), ("ASDFGHJKL", "AC"), ("ZXCVBNM", "AB"), ("1234567890", "AE")):
     PHYSICAL.update({f"{prefix}{i:02}": key for i, key in enumerate(row, 1)})
