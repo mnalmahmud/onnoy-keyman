@@ -11,7 +11,7 @@ from .hardware import ALPHABET, DIGITS, SYMBOLS, STANDARD, ISO_EXTRA, LAYERS
 from .reference import PAIRS
 
 ROOT = Path(__file__).resolve().parents[1]
-LAYOUT_PATH = ROOT / "layout" / "onnoy.json"
+LAYOUT_PATH = ROOT / "layout.json"
 
 def load(path=LAYOUT_PATH):
     data = json.loads(Path(path).read_text(encoding="utf-8"))

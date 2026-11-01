@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-python3 scripts/generate.py --check
+python3 -m onnoy check
 if ! command -v pkgbuild >/dev/null 2>&1; then
   echo "pkgbuild requires macOS" >&2
   exit 1

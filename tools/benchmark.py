@@ -7,7 +7,7 @@ import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-# Allow standalone script invocation: python scripts/benchmark.py
+# Allow standalone script invocation: python tools/benchmark.py
 import sys
 sys.path.insert(0, str(ROOT))
 PHYSICAL = {}
