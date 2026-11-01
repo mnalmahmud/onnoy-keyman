@@ -201,8 +201,10 @@
     if (shiftDown !== wasShift || altGrDown !== wasAltGr) drawKeyboard();
   }
 
-  document.addEventListener("keydown", (event) => modifierState(event, true));
-  document.addEventListener("keyup", (event) => modifierState(event, false));
+  // KeymanWeb may stop keyboard events while the editor has focus.
+  // Capture on window so modifiers update before Keyman processes typing.
+  window.addEventListener("keydown", (event) => modifierState(event, true), true);
+  window.addEventListener("keyup", (event) => modifierState(event, false), true);
   window.addEventListener("blur", () => {
     shiftDown = false;
     altGrDown = false;

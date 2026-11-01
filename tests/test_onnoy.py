@@ -384,16 +384,28 @@ def browser_smoke():
             page.locator('button.layer[data-layer="0"]').click()
             assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "অ"
 
+            # Intercept editor key events as KeymanWeb may: the visualizer must
+            # update immediately even when a downstream listener stops propagation.
+            page.locator("#editor").focus()
+            page.evaluate("""() => {
+                const editor = document.getElementById('editor');
+                editor.addEventListener('keydown', event => {
+                    if (event.key === 'Shift' || event.code === 'AltRight') event.stopPropagation();
+                });
+                editor.addEventListener('keyup', event => {
+                    if (event.key === 'Shift' || event.code === 'AltRight') event.stopPropagation();
+                });
+            }""")
             # Physical modifiers must change the visual layer and restore it on release.
             page.keyboard.down("Shift")
             assert page.locator('button.keyboard-key[data-key="S"] .key-output').inner_text() == "শ"
             page.keyboard.up("Shift")
             assert page.locator('button.keyboard-key[data-key="S"] .key-output').inner_text() == "স"
-            page.evaluate("""() => document.dispatchEvent(
+            page.evaluate("""() => document.getElementById('editor').dispatchEvent(
                 new KeyboardEvent('keydown', {key:'AltGraph', code:'AltRight', altKey:true, bubbles:true})
             )""")
             assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "ৱ"
-            page.evaluate("""() => document.dispatchEvent(
+            page.evaluate("""() => document.getElementById('editor').dispatchEvent(
                 new KeyboardEvent('keyup', {key:'AltGraph', code:'AltRight', bubbles:true})
             )""")
             assert page.locator('button.keyboard-key[data-key="V"] .key-output').inner_text() == "অ"
