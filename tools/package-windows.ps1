@@ -37,7 +37,10 @@ foreach ($architecture in @(
 )) {
     $work = Join-Path $output $architecture.Label
     $null = New-Item -ItemType Directory -Force $work
-    Copy-Item (Join-Path $root "dist/windows/onnoy.klc") (Join-Path $work "onnoy.klc") -Force
+    # MSKLC's -u parser expects UTF-16LE text. Generated KLC is UTF-8.
+    $source = Get-Content (Join-Path $root "dist/windows/onnoy.klc") -Raw -Encoding UTF8
+    $encoded = [System.Text.UnicodeEncoding]::new($false, $true)
+    [System.IO.File]::WriteAllText((Join-Path $work "onnoy.klc"), $source, $encoded)
     Push-Location $work
     try {
         & $compiler -u -w $architecture.Flag "onnoy.klc"
