@@ -20,10 +20,19 @@
   const search = $("key-search");
   const searchFeedback = $("search-feedback");
   const layerButtons = [...document.querySelectorAll("[data-layer]")];
-  const rows = ["`1234567890-=", "QWERTYUIOP[]", "ASDFGHJKL;\'", "ZXCVBNM,./", " "];
+  const geometrySelect = $("geometry");
+  let geometry = "ansi";
+  const rowsFor = () => [
+    "`1234567890-=",
+    "QWERTYUIOP[]" + (geometry === "ansi" ? "\\" : ""),
+    "ASDFGHJKL;'" + (geometry === "iso" ? "\\" : ""),
+    (geometry === "iso" ? "§" : "") + "ZXCVBNM,./",
+    " "
+  ];
   const layerNames = ["Base", "Shift", "AltGr", "AltGr + Shift"];
   const physicalCode = (key) => {
     if (key === " ") return "Space";
+    if (key === "§") return "IntlBackslash";
     if (/^[A-Z]$/.test(key)) return "Key" + key;
     if (/^[0-9]$/.test(key)) return "Digit" + key;
     return ({
@@ -80,7 +89,7 @@
     if (!mapping || layer === visibleLayer && keyboard.childElementCount) return;
     visibleLayer = layer;
     const fragment = document.createDocumentFragment();
-    for (const rowKeys of rows) {
+    for (const rowKeys of rowsFor()) {
       const row = document.createElement("div");
       row.className = "keyboard-row";
       for (const key of rowKeys) {
@@ -98,7 +107,7 @@
         if (mapping[mapKey(key)][layer] === null) button.classList.add("unassigned");
         const label = document.createElement("span");
         label.className = "key-label";
-        label.textContent = key === " " ? "Space" : key;
+        label.textContent = key === " " ? "Space" : (key === "§" ? "ISO" : key);
         button.append(symbol, label);
         button.addEventListener("click", () => {
           selectedKey = key;
@@ -138,6 +147,12 @@
       ? matches + " matching keys across all four layers" : "Select a key to inspect all four layers";
   }
   if (search) search.addEventListener("input", filterKeys);
+  if (geometrySelect) geometrySelect.addEventListener("change", () => {
+    geometry = geometrySelect.value === "iso" ? "iso" : "ansi";
+    selectedKey = null;
+    visibleLayer = -1;
+    draw(activeLayer());
+  });
   for (const sample of document.querySelectorAll("[data-sample]")) {
     sample.addEventListener("click", () => {
       editor.value = sample.dataset.sample;
@@ -215,7 +230,7 @@
       const layout = await response.json();
       // Visualization reads generated, resolved physical-key data.
       const displayed = layout.keys;
-      if (!layout.keys || [...rows.join("")].some((key) =>
+      if (!layout.keys || [...rowsFor().join("")].some((key) =>
         !Array.isArray(displayed[mapKey(key)]) || displayed[mapKey(key)].length !== 4
       )) throw new Error("Invalid keyboard mapping");
       mapping = displayed;

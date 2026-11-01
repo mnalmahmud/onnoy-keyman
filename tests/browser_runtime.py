@@ -26,6 +26,10 @@ def main():
                 "() => document.getElementById('status-label').textContent === 'KeymanWeb ready'",
                 timeout=45000)
             assert page.locator('#keyboard .keyboard-key').count() > 35, "Visualizer did not load"
+            page.select_option("#geometry","iso")
+            assert page.locator('button.keyboard-key[data-key="§"]').count() == 1
+            page.select_option("#geometry","ansi")
+            assert page.locator('button.keyboard-key[data-key="§"]').count() == 0
             page.locator("#editor").focus()
             page.keyboard.press("k")
             page.wait_for_function("() => document.getElementById('editor').value === 'ক'")
