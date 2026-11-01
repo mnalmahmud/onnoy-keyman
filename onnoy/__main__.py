@@ -35,7 +35,7 @@ def generate(check=False):
         print(f'{"Verified" if check else "Generated"} {name}')
 
 
-def test(browser=False, package_check=False):
+def test(browser=False, package_check=False, windows=False):
     generate()
     suite = unittest.defaultTestLoader.discover(
         str(ROOT / "tests"), pattern="test_onnoy.py"
@@ -43,13 +43,15 @@ def test(browser=False, package_check=False):
     if not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful():
         raise SystemExit(1)
 
-    if browser or package_check:
+    if browser or package_check or windows:
         # unittest discovery imported the single test file as test_onnoy.
         checks = sys.modules["test_onnoy"]
         if package_check:
             checks.verify_mobile_package()
         if browser:
             checks.browser_smoke()
+        if windows:
+            checks.windows_smoke()
 
 
 def package(target):
@@ -81,10 +83,11 @@ def main():
     parser.add_argument("--target", choices=("linux", "macos", "windows", "keyman"))
     parser.add_argument("--browser", action="store_true")
     parser.add_argument("--package-check", action="store_true")
+    parser.add_argument("--windows", action="store_true", help="Run native Windows install/typing test")
     args = parser.parse_args()
 
-    if args.command != "test" and (args.browser or args.package_check):
-        parser.error("--browser and --package-check require the test command")
+    if args.command != "test" and (args.browser or args.package_check or args.windows):
+        parser.error("--browser, --package-check and --windows require the test command")
     if args.command != "package" and args.target:
         parser.error("--target requires the package command")
 
@@ -98,7 +101,7 @@ def main():
     elif args.command == "check":
         generate(check=True)
     elif args.command == "test":
-        test(browser=args.browser, package_check=args.package_check)
+        test(browser=args.browser, package_check=args.package_check, windows=args.windows)
     else:
         if args.target is None:
             parser.error("package requires --target")
