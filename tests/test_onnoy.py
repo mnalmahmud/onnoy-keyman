@@ -431,8 +431,7 @@ def browser_smoke():
             page.keyboard.up("Shift")
             assert page.locator("#modifier-indicator").inner_text() == "BASE"
 
-            # Physical characters highlight as soon as pressed inside the editor.
-            # The most recent key remains selected after release; no click required.
+            # Physical characters highlight only while held inside the editor.
             page.locator("#editor").focus()
             page.keyboard.down("k")
             key_k = page.locator('button.keyboard-key[data-key="K"]')
@@ -440,7 +439,8 @@ def browser_smoke():
             assert key_k.get_attribute("aria-pressed") == "true"
             page.keyboard.up("k")
             assert "pressed" not in key_k.get_attribute("class").split()
-            assert "selected" in key_k.get_attribute("class").split()
+            assert "pressed" not in key_k.get_attribute("class").split()
+            assert key_k.get_attribute("aria-pressed") == "false"
             page.keyboard.down("Shift")
             page.keyboard.down("v")
             key_v = page.locator('button.keyboard-key[data-key="V"]')
@@ -448,14 +448,22 @@ def browser_smoke():
             assert key_v.locator(".key-output").inner_text() == "ৗ"
             page.keyboard.up("v")
             page.keyboard.up("Shift")
-            assert "selected" in key_v.get_attribute("class").split()
+            assert "pressed" not in key_v.get_attribute("class").split()
             assert key_v.locator(".key-output").inner_text() == "অ"
 
-            # Clicking the visual keyboard selects a key without typing text.
-            page.locator('button.keyboard-key[data-key="B"]').click()
+            # Mouse selection lights only while the pointer is held down.
             key_b = page.locator('button.keyboard-key[data-key="B"]')
-            assert "selected" in key_b.get_attribute("class").split()
+            key_b.scroll_into_view_if_needed()
+            bounds = key_b.bounding_box()
+            page.mouse.move(bounds["x"] + bounds["width"] / 2,
+                            bounds["y"] + bounds["height"] / 2)
+            page.mouse.down()
+            assert "pressed" in key_b.get_attribute("class").split()
             assert key_b.get_attribute("aria-pressed") == "true"
+            page.mouse.up()
+            assert "pressed" not in key_b.get_attribute("class").split()
+            assert key_b.get_attribute("aria-pressed") == "false"
+            assert "Base:" in page.locator("#key-details").inner_text()
 
             # Theme follows System initially, supports explicit Light/Dark, and persists.
             assert page.locator("#theme").input_value() == "system"

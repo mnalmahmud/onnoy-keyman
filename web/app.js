@@ -49,7 +49,7 @@
   let mapping = null;
   let keymanReady = false;
   let selectedLayer = 0;
-  let selectedKey = null;
+  let pointerKey = null;
   let displayedLayer = -1;
   let displayedGeometry = "";
   let shiftDown = false;
@@ -91,14 +91,12 @@
     }
   }
 
-  // The same highlight state serves mouse clicks and physical key presses.
+  // Highlight only while a physical key or pointer is actually held.
   function syncHighlights() {
     for (const button of keyboard.querySelectorAll(".keyboard-key")) {
-      const selected = button.dataset.key === selectedKey;
-      const held = heldKeys.has(button.dataset.code);
-      button.classList.toggle("selected", selected);
+      const held = heldKeys.has(button.dataset.code) || button.dataset.key === pointerKey;
       button.classList.toggle("pressed", held);
-      button.setAttribute("aria-pressed", String(selected || held));
+      button.setAttribute("aria-pressed", String(held));
     }
   }
 
@@ -162,18 +160,19 @@
         caption.className = "key-label";
         caption.textContent = key === " " ? "SPACE" : key === "§" ? "ISO" : key;
         button.append(glyph, caption);
-        button.addEventListener("click", () => {
-          selectedKey = key;
+        button.addEventListener("pointerdown", (event) => {
+          if (event.button !== 0) return;
+          pointerKey = key;
           syncHighlights();
           showDetails(key);
         });
+        button.addEventListener("click", () => showDetails(key));
         row.append(button);
       }
       fragment.append(row);
     }
     keyboard.replaceChildren(fragment);
     syncHighlights();
-    showDetails(selectedKey);
   }
 
   for (const button of layerButtons) {
@@ -189,7 +188,7 @@
   }
 
   geometryControl.addEventListener("change", () => {
-    selectedKey = null;
+    pointerKey = null;
     heldKeys.clear();
     displayedGeometry = "";
     drawKeyboard();
@@ -222,7 +221,6 @@
     if (!key || !mapping) return;
     if (down) {
       heldKeys.add(event.code);
-      selectedKey = key;
       showDetails(key);
     } else {
       heldKeys.delete(event.code);
@@ -230,12 +228,21 @@
     syncHighlights();
   }
 
+  window.addEventListener("pointerup", () => {
+    pointerKey = null;
+    syncHighlights();
+  }, true);
+  window.addEventListener("pointercancel", () => {
+    pointerKey = null;
+    syncHighlights();
+  }, true);
   window.addEventListener("keydown", (event) => trackKey(event, true), true);
   window.addEventListener("keyup", (event) => trackKey(event, false), true);
   window.addEventListener("blur", () => {
     shiftDown = false;
     altGrDown = false;
     heldKeys.clear();
+    pointerKey = null;
     drawKeyboard();
   });
 
