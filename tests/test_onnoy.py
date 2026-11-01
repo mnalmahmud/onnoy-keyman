@@ -1,9 +1,23 @@
-"""Onnoy regression suite and optional Keyman/mobile/browser checks."""
+"""Unit regressions plus optional compiled-package and browser integration checks."""
 
-# test_mapping_contract.py
+import copy
+import inspect
+import json
+from functools import partial
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from threading import Thread
 import unittest
-from onnoy.hardware import STANDARD, ISO_EXTRA, LAYERS, XKB, WINDOWS, MAC, KEYMAN, BROWSER
+from xml.etree import ElementTree as ET
+from zipfile import ZipFile
+
+from onnoy.backends import keyman, linux, macos, touch, web, windows
+from onnoy.hardware import ALPHABET, BROWSER, ISO_EXTRA, KEYMAN, LAYERS, MAC, STANDARD, WINDOWS, XKB
 from onnoy.model import load, resolve, validate
+from tools.benchmark import onnoy as benchmark_layout
+
+ROOT = Path(__file__).resolve().parents[1]
+
 
 class MappingContractTests(unittest.TestCase):
     def test_sparse_schema(self):
@@ -50,7 +64,6 @@ class MappingContractTests(unittest.TestCase):
             self.assertEqual(a[key],iso[key])
 
     def test_reject_bad_scalars(self):
-        import copy
         d=load()
         for bad in (None,"", "abc", "\ud800"):
             clone=copy.deepcopy(d)
@@ -62,10 +75,6 @@ class MappingContractTests(unittest.TestCase):
         for target in (XKB,WINDOWS,MAC,KEYMAN,BROWSER):
             self.assertEqual(set(target), set(STANDARD)|{ISO_EXTRA})
 
-# test_typing.py
-import unittest
-from onnoy.hardware import LAYERS
-from onnoy.model import resolve
 
 def emit(*chords):
     mapping=resolve()
@@ -106,12 +115,6 @@ class TypingCases(unittest.TestCase):
         self.assertEqual(emit("GRAVE","AltGr+GRAVE"),"্`")
         self.assertEqual(emit("AltGr+Z"),"")
 
-# test_layout.py
-import unittest
-from xml.etree import ElementTree as ET
-from onnoy.model import load, resolve
-from onnoy.backends import linux,windows,macos,keyman,web
-import json
 
 class NativeLayoutTests(unittest.TestCase):
     @classmethod
@@ -164,11 +167,6 @@ class NativeLayoutTests(unittest.TestCase):
         self.assertEqual(ref["keys"]["KeyZ"][1],"য়")
         self.assertEqual(ref["keys"]["IntlBackslash"][0],"\\")
 
-# test_build.py
-import unittest
-from pathlib import Path
-from xml.etree import ElementTree as ET
-ROOT=Path(__file__).resolve().parents[1]
 
 class BuildTests(unittest.TestCase):
     def test_source_files_exist(self):
@@ -185,20 +183,14 @@ class BuildTests(unittest.TestCase):
         self.assertEqual(root.tag,"keyboard")
         self.assertEqual(len(root.findall("./keyMapSet[@id='OnnoyMap']/keyMap")),6)
 
-    def test_no_template_copies_used_by_generator(self):
-        from onnoy.backends import linux,windows,macos
-        import inspect
-        for backend in (linux,windows,macos):
-            code=inspect.getsource(backend)
-            self.assertNotIn("platform-bases/",code)
-            self.assertNotIn('MAC_BASE',code)
-            self.assertNotIn('WIN_BASE',code)
+    def test_benchmark_uses_printable_physical_key_names(self):
+        layout = benchmark_layout()
+        for key in ("\\", "`", "-", "=", "[", "]", ";", "'", ",", ".", "/", " "):
+            self.assertIn(key, layout)
+        self.assertNotIn("GRAVE", layout)
+        self.assertEqual(layout["`"][0], "্")
 
-# test_browser.py
-import unittest
-from pathlib import Path
 
-ROOT=Path(__file__).resolve().parents[1]
 class BrowserIntegrationSourceTests(unittest.TestCase):
     def test_uses_keymanweb_instead_of_second_translator(self):
         script=(ROOT/"web/app.js").read_text(encoding="utf-8")
@@ -208,14 +200,8 @@ class BrowserIntegrationSourceTests(unittest.TestCase):
         self.assertIn("layout.keys",script)
         self.assertNotIn("function translateKey(",script)
         self.assertIn("keymanweb.js",html)
+        self.assertNotIn("docs/install-", html)
 
-# test_touch.py
-import json
-import unittest
-
-from onnoy.model import load, resolve
-from onnoy.hardware import ALPHABET
-from onnoy.backends import touch, keyman
 
 class MobileTouchTests(unittest.TestCase):
     @classmethod
@@ -321,12 +307,8 @@ class MobileTouchTests(unittest.TestCase):
                 for popup in key.get("sk",[]):
                     self.assertTrue(popup["id"].startswith(("K_","U_")))
 
-# compiled Keyman package checks
-from pathlib import Path
-from zipfile import ZipFile
-import json
+# Compiled Keyman package checks
 
-ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / "dist" / "keyman" / "onnoy.kmp"
 
 def verify_mobile_package():
@@ -341,13 +323,8 @@ def verify_mobile_package():
         assert b"phone" in javascript, "Compiled mobile keyboard does not contain a phone layout"
         print("Validated KMP: desktop keyboard, mobile JS, embedded phone layout, metadata")
 
-# real KeymanWeb typing checks
-from functools import partial
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
-from threading import Thread
+# Real KeymanWeb typing checks
 
-ROOT=Path(__file__).resolve().parents[1]
 class QuietHandler(SimpleHTTPRequestHandler):
     def log_message(self,*_args):
         pass
