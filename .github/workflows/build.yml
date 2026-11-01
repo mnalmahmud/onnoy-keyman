@@ -65,6 +65,7 @@ jobs:
         run: |
           test -s dist/keyman/onnoy.kmx
           test -s dist/keyman/onnoy.js
+          test -s dist/keyman/onnoy.kmp
           node --check dist/keyman/onnoy.js
       - name: Assemble custom website and compiled Keyman keyboard
         run: |
@@ -78,8 +79,10 @@ jobs:
           name: onnoy-keyman-and-website
           path: |
             dist/keyman/onnoy.kmn
+            dist/keyman/onnoy.kps
             dist/keyman/onnoy.kmx
             dist/keyman/onnoy.js
+            dist/keyman/onnoy.kmp
             site/
       - name: Upload Pages artifact
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
