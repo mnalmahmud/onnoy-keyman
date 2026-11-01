@@ -51,7 +51,7 @@ def main():
     elif args.command=="test":
         import unittest
         generate()
-        suite=unittest.defaultTestLoader.discover(str(ROOT/"tests"),pattern="test_onnoy.py",top_level_dir=str(ROOT))
+        suite=unittest.defaultTestLoader.discover(str(ROOT/"tests"),pattern="test_onnoy.py")
         result=unittest.TextTestRunner(verbosity=2).run(suite)
         if not result.wasSuccessful():raise SystemExit(1)
         if args.browser or args.package_check:
