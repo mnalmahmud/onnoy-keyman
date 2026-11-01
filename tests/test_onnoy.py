@@ -431,6 +431,32 @@ def browser_smoke():
             page.keyboard.up("Shift")
             assert page.locator("#modifier-indicator").inner_text() == "BASE"
 
+            # Physical characters highlight as soon as pressed inside the editor.
+            # The most recent key remains selected after release; no click required.
+            page.locator("#editor").focus()
+            page.keyboard.down("k")
+            key_k = page.locator('button.keyboard-key[data-key="K"]')
+            assert "pressed" in key_k.get_attribute("class").split()
+            assert key_k.get_attribute("aria-pressed") == "true"
+            page.keyboard.up("k")
+            assert "pressed" not in key_k.get_attribute("class").split()
+            assert "selected" in key_k.get_attribute("class").split()
+            page.keyboard.down("Shift")
+            page.keyboard.down("v")
+            key_v = page.locator('button.keyboard-key[data-key="V"]')
+            assert "pressed" in key_v.get_attribute("class").split()
+            assert key_v.locator(".key-output").inner_text() == "ৗ"
+            page.keyboard.up("v")
+            page.keyboard.up("Shift")
+            assert "selected" in key_v.get_attribute("class").split()
+            assert key_v.locator(".key-output").inner_text() == "অ"
+
+            # Clicking the visual keyboard selects a key without typing text.
+            page.locator('button.keyboard-key[data-key="B"]').click()
+            key_b = page.locator('button.keyboard-key[data-key="B"]')
+            assert "selected" in key_b.get_attribute("class").split()
+            assert key_b.get_attribute("aria-pressed") == "true"
+
             # Theme follows System initially, supports explicit Light/Dark, and persists.
             assert page.locator("#theme").input_value() == "system"
             page.select_option("#theme", "dark")

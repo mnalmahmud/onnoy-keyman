@@ -54,6 +54,7 @@
   let displayedGeometry = "";
   let shiftDown = false;
   let altGrDown = false;
+  const heldKeys = new Set();
 
   // The keymap only visualizes characters. KeymanWeb owns actual typing.
   function readable(value) {
@@ -90,6 +91,17 @@
     }
   }
 
+  // The same highlight state serves mouse clicks and physical key presses.
+  function syncHighlights() {
+    for (const button of keyboard.querySelectorAll(".keyboard-key")) {
+      const selected = button.dataset.key === selectedKey;
+      const held = heldKeys.has(button.dataset.code);
+      button.classList.toggle("selected", selected);
+      button.classList.toggle("pressed", held);
+      button.setAttribute("aria-pressed", String(selected || held));
+    }
+  }
+
   function showDetails(key) {
     if (!mapping || !key) return;
     const values = mapping[physicalCode(key)];
@@ -119,6 +131,7 @@
       button.setAttribute("aria-pressed", String(active));
     }
     if (layer === displayedLayer && geometry === displayedGeometry && keyboard.querySelector(".keyboard-key")) {
+      syncHighlights();
       return;
     }
     displayedLayer = layer;
@@ -134,9 +147,8 @@
         button.type = "button";
         button.className = "keyboard-key";
         button.dataset.key = key;
-        button.classList.toggle("selected", selectedKey === key);
+        button.dataset.code = physicalCode(key);
         button.classList.toggle("unassigned", output === null || output === undefined);
-        button.setAttribute("aria-pressed", String(selectedKey === key));
         button.setAttribute("aria-label", (key === "§" ? "ISO extra key" : key === " " ? "Space" : key) + ", " +
           layerNames[layer] + ": " + readable(output));
 
@@ -152,11 +164,7 @@
         button.append(glyph, caption);
         button.addEventListener("click", () => {
           selectedKey = key;
-          for (const existing of keyboard.querySelectorAll(".keyboard-key")) {
-            const current = existing.dataset.key === selectedKey;
-            existing.classList.toggle("selected", current);
-            existing.setAttribute("aria-pressed", String(current));
-          }
+          syncHighlights();
           showDetails(key);
         });
         row.append(button);
@@ -164,6 +172,7 @@
       fragment.append(row);
     }
     keyboard.replaceChildren(fragment);
+    syncHighlights();
     showDetails(selectedKey);
   }
 
@@ -181,6 +190,7 @@
 
   geometryControl.addEventListener("change", () => {
     selectedKey = null;
+    heldKeys.clear();
     displayedGeometry = "";
     drawKeyboard();
     details.textContent = "Select a key to inspect all four outputs.";
@@ -204,13 +214,28 @@
     if (shiftDown !== wasShift || altGrDown !== wasAltGr) drawKeyboard();
   }
 
-  // KeymanWeb may stop keyboard events while the editor has focus.
-  // Capture on window so modifiers update before Keyman processes typing.
-  window.addEventListener("keydown", (event) => modifierState(event, true), true);
-  window.addEventListener("keyup", (event) => modifierState(event, false), true);
+  // Capture before KeymanWeb handles the focused editor. Physical codes,
+  // unlike event.key, are stable across Shift, AltGr and keyboard layouts.
+  function trackKey(event, down) {
+    modifierState(event, down);
+    const key = [...rowsFor().join("")].find((label) => physicalCode(label) === event.code);
+    if (!key || !mapping) return;
+    if (down) {
+      heldKeys.add(event.code);
+      selectedKey = key;
+      showDetails(key);
+    } else {
+      heldKeys.delete(event.code);
+    }
+    syncHighlights();
+  }
+
+  window.addEventListener("keydown", (event) => trackKey(event, true), true);
+  window.addEventListener("keyup", (event) => trackKey(event, false), true);
   window.addEventListener("blur", () => {
     shiftDown = false;
     altGrDown = false;
+    heldKeys.clear();
     drawKeyboard();
   });
 
