@@ -40,9 +40,10 @@ class MappingContractTests(unittest.TestCase):
             ("SLASH","shift"):"?", ("COMMA","base"):",",
             ("COMMA","shift"):"<", ("S","shift"):"শ",
             ("X","base"):"ষ", ("X","shift"):"ঢ়",
-            ("Z","shift"):"য়", ("L","shift"):"ং",
-            ("M","shift"):"ঙ", ("J","altgr"):"‍",
-            ("S","altgr"):"‌", ("B","altgr"):"ঁ",
+            ("Y","shift"):"য়", ("Z","shift"):"ঈ",
+            ("L","shift"):"ং", ("M","shift"):"ঙ",
+            ("R","altgr"):"ঢ়", ("S","altgr"):"ষ",
+            ("H","altgr"):"ঽ", ("B","altgr"):"ঁ",
             ("W","altgr"):"ৱ", ("F","altgr"):"ৎ",
             ("N","altgr"):"ঞ", ("4","shift"):"৳",
             ("4","shift_altgr"):"$"
@@ -57,13 +58,22 @@ class MappingContractTests(unittest.TestCase):
         self.assertEqual(a["W"][2:], ("ৱ", None))
         for key in ("V", "Y", "T", "L", "M"):
             self.assertIsNone(a[key][2], key)
-        self.assertIsNone(a["J"][3])
+        self.assertEqual(a["J"][2:], (None,None))
         self.assertIsNone(a["M"][3])
         self.assertEqual(a["COMMA"], (",","<",None,None))
         self.assertEqual(a["SLASH"], ("/","?",None,None))
         self.assertEqual(a["MINUS"], ("-","_",None,None))
         self.assertEqual(a["SPACE"], (" "," "," "," "))
         self.assertNotIn(ISO_EXTRA,a)
+
+    def test_only_explicit_duplicates_allowed(self):
+        data = load()
+        self.assertEqual(data["keys"]["R"]["altgr"], data["keys"]["X"]["shift"])
+        self.assertEqual(data["keys"]["S"]["altgr"], data["keys"]["X"]["base"])
+        clone = copy.deepcopy(data)
+        clone["keys"]["J"]["altgr"] = "ষ"
+        with self.assertRaisesRegex(ValueError, "Unexpected duplicate"):
+            validate(clone)
 
     def test_iso(self):
         a=resolve(geometry="ansi")
@@ -103,8 +113,7 @@ class TypingCases(unittest.TestCase):
             ("K","GRAVE","X"):"ক্ষ",
             ("Shift+S","I","K","GRAVE","X","A"):"শিক্ষা",
             ("B","A","Shift+L","L","A"):"বাংলা",
-            ("R","AltGr+J","GRAVE","Z"):"র‍্য",
-            ("K","GRAVE","AltGr+S","X"):"ক্‌ষ",
+            ("R","GRAVE","Z"):"র্য",
             ("Shift+4","4","AltGr+PERIOD","5","0"):"৳৪.৫০",
             ("D","Shift+GRAVE"):"ড়",
             ("Shift+D","Shift+GRAVE"):"ঢ়",
@@ -112,14 +121,17 @@ class TypingCases(unittest.TestCase):
         for chords, expected in cases.items():
             with self.subTest(chords=chords):
                 self.assertEqual(emit(*chords),expected)
-    def test_special_codepoints_and_removed_aliases(self):
-        self.assertEqual(emit("Shift+Z"),chr(0x09DF))
+    def test_special_codepoints_and_approved_aliases(self):
+        self.assertEqual(emit("Shift+Y"),chr(0x09DF))
+        self.assertEqual(emit("Shift+Z"),chr(0x0988))
         self.assertEqual(emit("Shift+L"),chr(0x0982))
         self.assertEqual(emit("AltGr+B"),chr(0x0981))
         self.assertEqual(emit("Shift+GRAVE"),chr(0x09BC))
         self.assertEqual(emit("Shift+AltGr+GRAVE"),"~")
-        self.assertEqual(emit("AltGr+J"),chr(0x200D))
-        self.assertEqual(emit("AltGr+S"),chr(0x200C))
+        self.assertEqual(emit("AltGr+J"),"")
+        self.assertEqual(emit("AltGr+S"),"ষ")
+        self.assertEqual(emit("AltGr+R"),"ঢ়")
+        self.assertEqual(emit("AltGr+H"),"ঽ")
         for chord in ("AltGr+Y", "AltGr+V", "AltGr+T", "AltGr+L",
                       "AltGr+M", "Shift+AltGr+J", "Shift+AltGr+M"):
             self.assertEqual(emit(chord),"")
@@ -141,9 +153,11 @@ class NativeLayoutTests(unittest.TestCase):
         self.assertIn('include "us(basic)"',symbols)
         self.assertIn('key <LSGT> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U005C, U007C',symbols)
         self.assertIn('key <TLDE> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U09CD, U09BC, U0060, U007E',symbols)
-        self.assertIn('key <AC07> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U099C, U099D, U200D, VoidSymbol',symbols)
+        self.assertIn('key <AC07> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U099C, U099D, VoidSymbol, VoidSymbol',symbols)
         self.assertIn('key <AC09> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U09B2, U0982, VoidSymbol',symbols)
-        self.assertIn('key <AC02> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U09B8, U09B6, U200C',symbols)
+        self.assertIn('key <AC02> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U09B8, U09B6, U09B7',symbols)
+        self.assertIn('key <AC06> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U09B9, U0983, U09BD',symbols)
+        self.assertIn('key <AD04> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U09B0, U09DC, U09DD',symbols)
 
     def test_windows_unicode_and_grave_layers(self):
         text=windows.render(self.map)
@@ -166,15 +180,21 @@ class NativeLayoutTests(unittest.TestCase):
         self.assertEqual(output(3,50),"~")
         self.assertEqual(output(0,10),"\\")
         self.assertEqual(output(1,10),"|")
-        self.assertEqual(output(2,38),"‍")
+        self.assertEqual(output(2,38),"")
         self.assertEqual(output(3,38),"")
-        self.assertEqual(output(2,1),"‌")
+        self.assertEqual(output(2,1),"ষ")
+        self.assertEqual(output(2,4),"ঽ")
+        self.assertEqual(output(2,15),"ঢ়")
+        self.assertEqual(output(1,16),"য়")
+        self.assertEqual(output(1,6),"ঈ")
         self.assertEqual(output(4,38),"j")
 
     def test_keyman_physical_rules(self):
         source=keyman.render(self.map)
-        self.assertIn("+ [RALT K_J] > U+200D",source)
-        self.assertIn("+ [RALT K_S] > U+200C",source)
+        self.assertIn("+ [RALT K_J] > nul",source)
+        self.assertIn("+ [RALT K_S] > U+09B7",source)
+        self.assertIn("+ [RALT K_R] > U+09DD",source)
+        self.assertIn("+ [RALT K_H] > U+09BD",source)
         self.assertIn("+ [SHIFT RALT K_J] > nul",source)
         self.assertIn("+ [SHIFT K_BKQUOTE] > U+09BC",source)
         self.assertIn("+ [SHIFT RALT K_BKQUOTE] > U+007E",source)
@@ -188,8 +208,12 @@ class NativeLayoutTests(unittest.TestCase):
 
     def test_browser_visualizer_data(self):
         ref=json.loads(web.render(self.map))
-        self.assertEqual(ref["keys"]["KeyJ"][2],"‍")
-        self.assertEqual(ref["keys"]["KeyZ"][1],"য়")
+        self.assertIsNone(ref["keys"]["KeyJ"][2])
+        self.assertEqual(ref["keys"]["KeyZ"][1],"ঈ")
+        self.assertEqual(ref["keys"]["KeyY"][1],"য়")
+        self.assertEqual(ref["keys"]["KeyS"][2],"ষ")
+        self.assertEqual(ref["keys"]["KeyR"][2],"ঢ়")
+        self.assertEqual(ref["keys"]["KeyH"][2],"ঽ")
         self.assertIsNone(ref["keys"]["KeyV"][2])
         self.assertEqual(ref["keys"]["KeyW"][2], "ৱ")
         self.assertEqual(ref["keys"]["KeyB"][2], "ঁ")
@@ -314,12 +338,14 @@ class MobileTouchTests(unittest.TestCase):
         self.assertTrue(any(k.get("nextlayer")=="default" for k in self.flattened(self.layers["numeric"])))
         self.assertTrue(any(k.get("nextlayer")=="shift" for k in base))
 
-    def test_joiners_nukta_and_assamese_wa(self):
+    def test_nukta_avagraha_and_extended_characters(self):
         keys=set()
         for layer in self.layers.values():
             keys |= self.outputs(layer)
-        for value in ("\u200D","\u200C","়","ৱ","ঁ","ং","ৎ"):
+        for value in ("়","ঽ","ৱ","ঁ","ং","ৎ","ষ","ঢ়"):
             self.assertIn(touch.unicode_key(value),keys)
+        for joiner in ("\u200D","\u200C"):
+            self.assertNotIn(touch.unicode_key(joiner),keys)
 
     def test_digits_and_ascii_fallbacks(self):
         numeric = self.layers["numeric"]
@@ -593,8 +619,11 @@ def windows_smoke():
                 ((0x4B, 0x25), {}, "ক"),
                 ((0x53, 0x1F), {"shift": True}, "শ"),
                 ((0xC0, 0x29), {}, "্"),
-                ((0x4A, 0x24), {"altgr": True}, "\u200d"),
-                ((0x53, 0x1F), {"altgr": True}, "\u200c"),
+                ((0x53, 0x1F), {"altgr": True}, "\u09b7"),
+                ((0x52, 0x13), {"altgr": True}, "\u09dd"),
+                ((0x48, 0x23), {"altgr": True}, "\u09bd"),
+                ((0x59, 0x15), {"shift": True}, "\u09df"),
+                ((0x5A, 0x2C), {"shift": True}, "\u0988"),
                 ((0xC0, 0x29), {"shift": True}, "\u09bc"),
                 ((0x4C, 0x26), {"shift": True}, "\u0982"),
                 ((0x42, 0x30), {"altgr": True}, "\u0981"),
