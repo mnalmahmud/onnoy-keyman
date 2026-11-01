@@ -50,8 +50,7 @@
   let keymanReady = false;
   let selectedLayer = 0;
   let pointerKey = null;
-  let displayedLayer = -1;
-  let displayedGeometry = "";
+  let renderedGeometry = null;
   let shiftDown = false;
   let altGrDown = false;
   const heldKeys = new Set();
@@ -114,66 +113,72 @@
   }
 
   function drawKeyboard() {
-    const layer = activeLayer();
-    const geometry = geometryControl.value;
     if (!mapping) return;
-
+    const layer = activeLayer();
     layerHint.textContent = shiftDown || altGrDown
       ? "Physical modifier held · Visual layer updates as you type"
       : "Select a layer above or hold Shift / Right Alt to preview";
     modifierIndicator.textContent = layerNames[layer].toUpperCase();
-
     for (const button of layerButtons) {
       const active = Number(button.dataset.layer) === layer;
       button.classList.toggle("active", active);
       button.setAttribute("aria-pressed", String(active));
     }
-    if (layer === displayedLayer && geometry === displayedGeometry && keyboard.querySelector(".keyboard-key")) {
-      syncHighlights();
-      return;
-    }
-    displayedLayer = layer;
-    displayedGeometry = geometry;
-    const fragment = document.createDocumentFragment();
 
-    for (const rowKeys of rowsFor()) {
-      const row = document.createElement("div");
-      row.className = "keyboard-row";
-      for (const key of rowKeys) {
-        const output = mapping[physicalCode(key)]?.[layer];
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "keyboard-key";
-        button.dataset.key = key;
-        button.dataset.code = physicalCode(key);
-        button.classList.toggle("unassigned", output === null || output === undefined);
-        button.setAttribute("aria-label", (key === "§" ? "ISO extra key" : key === " " ? "Space" : key) + ", " +
-          layerNames[layer] + ": " + readable(output));
-
-        const glyph = document.createElement("span");
-        glyph.className = "key-output";
-        if (output === "\u200c" || output === "\u200d") glyph.classList.add("key-joiner");
-        glyph.lang = output === "\u200c" || output === "\u200d" ? "en" : "bn";
-        glyph.textContent = readable(output);
-
-        const caption = document.createElement("span");
-        caption.className = "key-label";
-        caption.textContent = key === " " ? "SPACE" : key === "§" ? "ISO" : key;
-        button.append(glyph, caption);
-        button.addEventListener("pointerdown", (event) => {
-          if (event.button !== 0) return;
-          pointerKey = key;
-          syncHighlights();
-          showDetails(key);
-        });
-        button.addEventListener("click", () => showDetails(key));
-        row.append(button);
+    // Key geometry rarely changes. Keep the DOM and pointer handlers stable
+    // when Shift/AltGr changes; update the characters in place instead.
+    if (renderedGeometry !== geometryControl.value) {
+      const fragment = document.createDocumentFragment();
+      for (const rowKeys of rowsFor()) {
+        const row = document.createElement("div");
+        row.className = "keyboard-row";
+        for (const key of rowKeys) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "keyboard-key";
+          button.dataset.key = key;
+          button.dataset.code = physicalCode(key);
+          const glyph = document.createElement("span");
+          glyph.className = "key-output";
+          const caption = document.createElement("span");
+          caption.className = "key-label";
+          caption.textContent = key === " " ? "SPACE" : key === "§" ? "ISO" : key;
+          button.append(glyph, caption);
+          row.append(button);
+        }
+        fragment.append(row);
       }
-      fragment.append(row);
+      keyboard.replaceChildren(fragment);
+      renderedGeometry = geometryControl.value;
     }
-    keyboard.replaceChildren(fragment);
+
+    for (const button of keyboard.querySelectorAll(".keyboard-key")) {
+      const key = button.dataset.key;
+      const value = mapping[button.dataset.code][layer];
+      const glyph = button.querySelector(".key-output");
+      glyph.textContent = readable(value);
+      const joiner = value === "\u200c" || value === "\u200d";
+      glyph.classList.toggle("key-joiner", joiner);
+      glyph.lang = joiner ? "en" : "bn";
+      button.classList.toggle("unassigned", value === null);
+      button.setAttribute("aria-label",
+        (key === "§" ? "ISO extra key" : key === " " ? "Space" : key) +
+        ", " + layerNames[layer] + ": " + readable(value));
+    }
     syncHighlights();
   }
+
+  keyboard.addEventListener("pointerdown", (event) => {
+    const button = event.target.closest(".keyboard-key");
+    if (!button || event.button !== 0) return;
+    pointerKey = button.dataset.key;
+    syncHighlights();
+    showDetails(pointerKey);
+  });
+  keyboard.addEventListener("click", (event) => {
+    const button = event.target.closest(".keyboard-key");
+    if (button) showDetails(button.dataset.key);
+  });
 
   for (const button of layerButtons) {
     button.addEventListener("click", () => {
@@ -182,7 +187,6 @@
       // swallowed a modifier keyup while the editor was focused.
       shiftDown = false;
       altGrDown = false;
-      displayedLayer = -1;
       drawKeyboard();
     });
   }
@@ -190,7 +194,7 @@
   geometryControl.addEventListener("change", () => {
     pointerKey = null;
     heldKeys.clear();
-    displayedGeometry = "";
+    renderedGeometry = null;
     drawKeyboard();
     details.textContent = "Select a key to inspect all four outputs.";
   });
