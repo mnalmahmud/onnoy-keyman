@@ -123,7 +123,7 @@ def measure(text, layout, shift_weight=.5, altgr_weight=1):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--corpus", type=Path, default=ROOT / "tests/data/demo-bengali.txt")
+    parser.add_argument("--corpus", type=Path, default=ROOT / "tools/demo-bengali.txt")
     parser.add_argument("--xkb", type=Path, default=Path("/usr/share/X11/xkb/symbols/in"))
     parser.add_argument("--shift-weight", type=float, default=.5)
     parser.add_argument("--altgr-weight", type=float, default=1)

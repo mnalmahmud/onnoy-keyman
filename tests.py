@@ -19,7 +19,7 @@ from onnoy.hardware import ALPHABET, BROWSER, ISO_EXTRA, KEYMAN, LAYERS, MAC, ST
 from onnoy.model import load, resolve, validate
 from tools.benchmark import onnoy as benchmark_layout
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parent
 
 
 class MappingContractTests(unittest.TestCase):
