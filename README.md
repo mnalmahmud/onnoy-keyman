@@ -18,7 +18,7 @@ The layout stays in the same positions on ANSI and ISO keyboards. Use **Shift** 
 | `Grave` | ্ (virama) |
 | `AltGr+J` / `Shift+AltGr+J` | ZWJ / ZWNJ |
 | `AltGr+L` | ় (nukta) |
-| `AltGr+B` / `AltGr+W` | ৰ / ৱ |
+| `AltGr+B` / `AltGr+V` | ৰ / ৱ |
 
 For example, `K → Grave → X` produces **ক্ষ**, and `Shift+S → I → K → Grave → X → A` produces **শিক্ষা**.
 
