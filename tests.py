@@ -44,6 +44,7 @@ class MappingContractTests(unittest.TestCase):
             ("L","shift"):"ং", ("M","shift"):"ঙ",
             ("R","altgr"):"ঢ়", ("S","altgr"):"ষ",
             ("H","altgr"):"ঽ", ("B","altgr"):"ঁ",
+            ("J","altgr"):"\u200D", ("D","altgr"):"\u200C",
             ("W","altgr"):"ৱ", ("F","altgr"):"ৎ",
             ("N","altgr"):"ঞ", ("4","shift"):"৳",
             ("4","shift_altgr"):"$"
@@ -58,7 +59,8 @@ class MappingContractTests(unittest.TestCase):
         self.assertEqual(a["W"][2:], ("ৱ", None))
         for key in ("V", "Y", "T", "L", "M"):
             self.assertIsNone(a[key][2], key)
-        self.assertEqual(a["J"][2:], (None,None))
+        self.assertEqual(a["J"][2:], ("\u200D",None))
+        self.assertEqual(a["D"][2:], ("\u200C",None))
         self.assertIsNone(a["M"][3])
         self.assertEqual(a["COMMA"], (",","<",None,None))
         self.assertEqual(a["SLASH"], ("/","?",None,None))
@@ -114,6 +116,8 @@ class TypingCases(unittest.TestCase):
             ("Shift+S","I","K","GRAVE","X","A"):"শিক্ষা",
             ("B","A","Shift+L","L","A"):"বাংলা",
             ("R","GRAVE","Z"):"র্য",
+            ("R","AltGr+J","GRAVE","Z"):"র‍্য",
+            ("K","GRAVE","AltGr+D","X"):"ক্‌ষ",
             ("Shift+4","4","AltGr+PERIOD","5","0"):"৳৪.৫০",
             ("D","Shift+GRAVE"):"ড়",
             ("Shift+D","Shift+GRAVE"):"ঢ়",
@@ -128,7 +132,8 @@ class TypingCases(unittest.TestCase):
         self.assertEqual(emit("AltGr+B"),chr(0x0981))
         self.assertEqual(emit("Shift+GRAVE"),chr(0x09BC))
         self.assertEqual(emit("Shift+AltGr+GRAVE"),"~")
-        self.assertEqual(emit("AltGr+J"),"")
+        self.assertEqual(emit("AltGr+J"),chr(0x200D))
+        self.assertEqual(emit("AltGr+D"),chr(0x200C))
         self.assertEqual(emit("AltGr+S"),"ষ")
         self.assertEqual(emit("AltGr+R"),"ঢ়")
         self.assertEqual(emit("AltGr+H"),"ঽ")
@@ -153,7 +158,8 @@ class NativeLayoutTests(unittest.TestCase):
         self.assertIn('include "us(basic)"',symbols)
         self.assertIn('key <LSGT> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U005C, U007C',symbols)
         self.assertIn('key <TLDE> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U09CD, U09BC, U0060, U007E',symbols)
-        self.assertIn('key <AC07> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U099C, U099D, VoidSymbol, VoidSymbol',symbols)
+        self.assertIn('key <AC07> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U099C, U099D, U200D, VoidSymbol',symbols)
+        self.assertIn('key <AC03> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U09A1, U09A2, U200C, VoidSymbol',symbols)
         self.assertIn('key <AC09> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U09B2, U0982, VoidSymbol',symbols)
         self.assertIn('key <AC02> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U09B8, U09B6, U09B7',symbols)
         self.assertIn('key <AC06> { type[Group1]="FOUR_LEVEL", symbols[Group1]=[ U09B9, U0983, U09BD',symbols)
@@ -180,7 +186,8 @@ class NativeLayoutTests(unittest.TestCase):
         self.assertEqual(output(3,50),"~")
         self.assertEqual(output(0,10),"\\")
         self.assertEqual(output(1,10),"|")
-        self.assertEqual(output(2,38),"")
+        self.assertEqual(output(2,38),"\u200D")
+        self.assertEqual(output(2,2),"\u200C")
         self.assertEqual(output(3,38),"")
         self.assertEqual(output(2,1),"ষ")
         self.assertEqual(output(2,4),"ঽ")
@@ -191,7 +198,8 @@ class NativeLayoutTests(unittest.TestCase):
 
     def test_keyman_physical_rules(self):
         source=keyman.render(self.map)
-        self.assertIn("+ [RALT K_J] > nul",source)
+        self.assertIn("+ [RALT K_J] > U+200D",source)
+        self.assertIn("+ [RALT K_D] > U+200C",source)
         self.assertIn("+ [RALT K_S] > U+09B7",source)
         self.assertIn("+ [RALT K_R] > U+09DD",source)
         self.assertIn("+ [RALT K_H] > U+09BD",source)
@@ -208,7 +216,8 @@ class NativeLayoutTests(unittest.TestCase):
 
     def test_browser_visualizer_data(self):
         ref=json.loads(web.render(self.map))
-        self.assertIsNone(ref["keys"]["KeyJ"][2])
+        self.assertEqual(ref["keys"]["KeyJ"][2],"\u200D")
+        self.assertEqual(ref["keys"]["KeyD"][2],"\u200C")
         self.assertEqual(ref["keys"]["KeyZ"][1],"ঈ")
         self.assertEqual(ref["keys"]["KeyY"][1],"য়")
         self.assertEqual(ref["keys"]["KeyS"][2],"ষ")
@@ -338,14 +347,14 @@ class MobileTouchTests(unittest.TestCase):
         self.assertTrue(any(k.get("nextlayer")=="default" for k in self.flattened(self.layers["numeric"])))
         self.assertTrue(any(k.get("nextlayer")=="shift" for k in base))
 
-    def test_nukta_avagraha_and_extended_characters(self):
+    def test_joiners_nukta_avagraha_and_extended_characters(self):
         keys=set()
         for layer in self.layers.values():
             keys |= self.outputs(layer)
         for value in ("়","ঽ","ৱ","ঁ","ং","ৎ","ষ","ঢ়"):
             self.assertIn(touch.unicode_key(value),keys)
         for joiner in ("\u200D","\u200C"):
-            self.assertNotIn(touch.unicode_key(joiner),keys)
+            self.assertIn(touch.unicode_key(joiner),keys)
 
     def test_digits_and_ascii_fallbacks(self):
         numeric = self.layers["numeric"]
@@ -620,6 +629,8 @@ def windows_smoke():
                 ((0x53, 0x1F), {"shift": True}, "শ"),
                 ((0xC0, 0x29), {}, "্"),
                 ((0x53, 0x1F), {"altgr": True}, "\u09b7"),
+                ((0x4A, 0x24), {"altgr": True}, "\u200d"),
+                ((0x44, 0x20), {"altgr": True}, "\u200c"),
                 ((0x52, 0x13), {"altgr": True}, "\u09dd"),
                 ((0x48, 0x23), {"altgr": True}, "\u09bd"),
                 ((0x59, 0x15), {"shift": True}, "\u09df"),
