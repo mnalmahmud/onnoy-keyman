@@ -341,6 +341,13 @@
         filename: "./onnoy.js"
       });
       await engine.setActiveKeyboard("onnoy", "bn");
+      // Desktop already has our own visual keyboard. Disable KeymanWeb's
+      // separate floating OSK so it cannot cover the editor or page.
+      // Keep the touch OSK available on phones and tablets.
+      if (window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+          engine.osk && typeof engine.osk.hide === "function") {
+        engine.osk.hide();
+      }
       keymanReady = true;
       displayStatus();
     } catch (error) {

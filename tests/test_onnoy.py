@@ -434,6 +434,12 @@ def browser_smoke():
             assert bounds["keysTop"] >= bounds["editorBottom"], bounds
             page.set_viewport_size({"width": 1280, "height": 720})
             page.locator("#editor").focus()
+            # KeymanWeb must not show its own floating OSK over the page;
+            # our visual keyboard is the only desktop keyboard reference.
+            assert page.evaluate("""() =>
+                !(window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
+                  window.keyman.osk.isEnabled())
+            """), "KeymanWeb floating OSK was not disabled for desktop"
             page.keyboard.press("k")
             page.wait_for_function("() => document.getElementById('editor').value === 'ক'")
             page.keyboard.press("Shift+z")
