@@ -263,7 +263,6 @@ button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visi
   transition: background .12s, border-color .12s, transform .12s;
 }
 .keyboard-key:hover { border-color: var(--accent); transform: translateY(-1px); }
-.keyboard-key.selected { border-color: var(--accent); background: var(--highlight); }
 .keyboard-key.pressed { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); border-bottom-color: var(--accent-hover); transform: translateY(2px); }
 .keyboard-key.pressed .key-label { color: var(--accent-ink); }
 .keyboard-key.unassigned .key-output { opacity: .34; }
