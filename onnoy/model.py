@@ -7,7 +7,7 @@ where character-producing fallback occurs.
 """
 from pathlib import Path
 import json
-from .hardware import ALPHABET, DIGITS, SYMBOLS, STANDARD, ISO_EXTRA, LAYERS
+from .hardware import ALPHABET, STANDARD, ISO_EXTRA, LAYERS
 from .reference import PAIRS
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -66,8 +66,3 @@ def resolve(data=None, geometry="ansi"):
             fallback = (base, shift, None, None)
         result[key] = tuple(explicit.get(layer, fallback[i]) for i, layer in enumerate(LAYERS))
     return result
-
-def reference_shortcuts():
-    # macOS Command and Control layers use ordinary ASCII, not Bengali symbols.
-    from .reference import ordinary_ascii
-    return {key: ordinary_ascii(key) for key in STANDARD}

@@ -1,6 +1,5 @@
 """Generate Windows KLC source directly; no imported US .klc template."""
 from ..hardware import WINDOWS, STANDARD, ISO_EXTRA
-from ..reference import ordinary_ascii
 
 CTRL_SPECIAL = {
     "LBRACKET": "001b", "RBRACKET": "001d", "BACKSLASH": "001c",

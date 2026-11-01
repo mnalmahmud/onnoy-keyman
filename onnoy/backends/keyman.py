@@ -5,7 +5,7 @@ The KMN is generated, never hand-maintained as a parallel keyboard.
 from ..hardware import KEYMAN, STANDARD, ISO_EXTRA
 
 def render(mapping):
-    lines=["c Generated from layout/onnoy.json; do not edit.",
+    lines=["c Generated from layout.json; do not edit.",
            "store(&VERSION) '15.0'",
            "store(&NAME) 'Onnoy'",
            "store(&KEYBOARDVERSION) '1.0'",

@@ -19,8 +19,20 @@ ASCII = {"exclam":"!","at":"@","numbersign":"#","dollar":"$","percent":"%","asci
 
 def onnoy():
     from onnoy.model import resolve
-    return {key: list(values) for key, values in resolve().items()
-            if key not in ("ISO_EXTRA",)}
+
+    # Benchmarks use printable US key labels, unlike the canonical JSON.
+    # Translate key IDs once so the same physical-key model is used for
+    # Onnoy, legacy variants, Probhat, and KaGaPa.
+    symbols = {
+        "GRAVE": "`", "MINUS": "-", "EQUAL": "=",
+        "LBRACKET": "[", "RBRACKET": "]", "BACKSLASH": "\\",
+        "SEMICOLON": ";", "APOSTROPHE": "'", "COMMA": ",",
+        "PERIOD": ".", "SLASH": "/", "SPACE": " ",
+    }
+    return {
+        symbols.get(key, key): list(values)
+        for key, values in resolve().items()
+    }
 
 
 def xkb(text, name):

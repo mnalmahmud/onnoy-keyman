@@ -3,7 +3,7 @@ from ..hardware import XKB, STANDARD, ISO_EXTRA
 
 def render(mapping):
     lines = [
-        "// Generated from layout/onnoy.json. Do not edit.",
+        "// Generated from layout.json. Do not edit.",
         "default partial alphanumeric_keys",
         'xkb_symbols "basic" {',
         '    include "us(basic)"',
