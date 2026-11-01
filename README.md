@@ -72,8 +72,9 @@ Native outputs:
 | Windows | `dist/windows/onnoy.klc` | KLC source generated; MSKLC DLL/installer testing pending |
 | Keyman desktop/mobile | `.kmn` + generated touch layout → `.kmx`, `.js`, `.kmp` | CI compilation; Android/iOS installation and typing tests pending |
 
-See [Linux](docs/install-linux.md), [macOS](docs/install-macos.md), and
-[Windows](docs/install-windows.md) installation guides.
+See [Linux](docs/install-linux.md), [macOS](docs/install-macos.md),
+[Windows](docs/install-windows.md), and
+[Android/iOS](docs/install-mobile.md) installation guides.
 
 ## Architecture and contribution
 

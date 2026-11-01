@@ -33,3 +33,12 @@ assets. Native keyboard users do not need Node.js or Keyman.
 Report precise key chords, Unicode code points, operating-system and
 keyboard type for bugs. GitHub Actions source generation and compiler checks
 are **not** substitutes for real-device testing.
+
+## Mobile checks
+
+The mobile touch layout is generated in `onnoy/backends/touch.py` from the
+resolved canonical characters, never edited as a separate keyboard map.
+`tests/test_touch.py` checks its complete Unicode coverage, and
+`tests/check_mobile_package.py` checks the compiled KMP archive for the
+mobile keyboard and Keyman metadata. Physical Android/iOS tests are required
+before claiming full mobile-device compatibility.

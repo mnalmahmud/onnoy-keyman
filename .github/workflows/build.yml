@@ -68,6 +68,7 @@ jobs:
           test -s dist/keyman/onnoy.kmp
           test -s dist/keyman/onnoy.keyman-touch-layout
           node --check dist/keyman/onnoy.js
+          python3 tests/check_mobile_package.py
       - name: Assemble custom website and compiled Keyman keyboard
         run: |
           mkdir -p site
