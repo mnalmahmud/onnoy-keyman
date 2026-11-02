@@ -1,6 +1,7 @@
 # Generated files from Kalamine / Keyman Developer
 dist/
 site/
+keyman/*.kmn
 keyman/*.kmx
 keyman/*.js
 keyman/*.kmp

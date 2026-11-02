@@ -4,16 +4,16 @@ A direct, positional Unicode keyboard for **Bangla and Bengali-script Kokborok**
 
 ## Architecture
 
-No custom OS-specific keyboard generators. The two upstream source formats are built by their respective compilers:
+No custom OS-specific keyboard generators. **`layout.toml` is the single source of truth for physical key assignments.** A small script translates Kalamine's parsed mapping to Keyman source:
 
 | Target | Source | Tool |
 | --- | --- | --- |
 | Linux XKB, Windows KLC/AHK, macOS keylayout | [layout.toml](layout.toml) | [Kalamine](https://github.com/OneDeadKey/kalamine) |
-| Keyman desktop, Android, iOS, web text input | [keyman/onnoy.kmn](keyman/onnoy.kmn) and [touch layout](keyman/onnoy.keyman-touch-layout) | [Keyman Developer](https://keyman.com/developer/) |
+| Keyman desktop, Android, iOS, web text input | Generated `keyman/onnoy.kmn` and [touch layout](keyman/onnoy.keyman-touch-layout) | [Keyman Developer](https://keyman.com/developer/) |
 | Web keyboard diagram | Kalamine-generated JSON | [x-keyboard](https://github.com/OneDeadKey/x-keyboard) |
 | Web typing | Keyman-generated JavaScript | KeymanWeb |
 
-Kalamine doesn't compile Keyman keyboards, and Keyman Developer doesn't read Kalamine TOML. The two editable keyboard sources are intentionally kept side by side; CI compares all physical keys and modifier layers to prevent drift. The visual diagram does not translate text: **KeymanWeb is the only web typing engine**.
+Kalamine doesn't compile Keyman keyboards directly, so [`tools/toml_to_kmn.py`](tools/toml_to_kmn.py) converts its parsed layers to the Keyman `.kmn` format. **Do not edit the generated `.kmn`.** The Keyman touch layout remains an independently editable mobile UI definition. The visual diagram does not translate text: **KeymanWeb is the only web typing engine**.
 
 ## Build
 
@@ -27,7 +27,7 @@ npm run build:keyman
 python -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-Kalamine writes native layouts and `onnoy.json` into `dist/`. Keyman Developer writes `onnoy.kmx`, `onnoy.js`, and `onnoy.kmp` into `keyman/` (generated files are ignored). The `--qwerty-shortcuts` option keeps the physical US virtual-key assignments on Windows.
+Kalamine writes native layouts and `onnoy.json` into `dist/`. `npm run build:keyman` first runs `python tools/toml_to_kmn.py` and then compiles `onnoy.kmn` into `onnoy.kmx`, `onnoy.js` and `onnoy.kmp` in `keyman/`. Generated files are git-ignored. The `--qwerty-shortcuts` option keeps the physical US virtual-key assignments on Windows.
 
 To preview the native layout while editing it, run `kalamine watch layout.toml`. GitHub Actions publishes a build artifact including native layouts, the Keyman package, and the hosted web site.
 
@@ -56,10 +56,11 @@ Bengali digits are on the number row; AltGr accesses ASCII digits. K → Grave �
 
 ## Editing the keyboard
 
-1. Update `layout.toml` (Kalamine) and `keyman/onnoy.kmn` (Keyman) together.
-2. Rebuild both and run the contract tests to check every output, including empty AltGr combinations, ZWJ/ZWNJ and the layout's expected fixed mappings.
-3. Edit the Keyman touch layout separately if the mobile placement or long-press options change.
+1. Edit **only `layout.toml`** to change physical keyboard mappings.
+2. Run `kalamine build layout.toml --qwerty-shortcuts` and `npm run build:keyman`. The latter regenerates the Keyman source; there is no mapping parity to maintain.
+3. Run `python -m unittest discover -s tests -p 'test_*.py'` to check Unicode behavior and reproducibility.
+4. Edit the Keyman touch layout separately if mobile key placement or long-press options change.
 
-All output generators, native packagers, and browser text translators previously implemented in Python/JavaScript have been removed.
+The old OS-specific generators, packagers, and browser text translators are removed. The only custom conversion remaining is the compact Kalamine → Keyman adapter.
 
 [MIT License](LICENSE).

@@ -2,7 +2,7 @@
   "name": "onnoy-keyboard",
   "private": true,
   "scripts": {
-    "build:keyman": "kmc build keyman/onnoy.kmn && kmc build keyman/onnoy.kps"
+    "build:keyman": "python tools/toml_to_kmn.py && kmc build keyman/onnoy.kmn && kmc build keyman/onnoy.kps"
   },
   "devDependencies": {
     "@keymanapp/kmc": "18.0.254"

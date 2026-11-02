@@ -1,73 +1,62 @@
-"""Kalamine's native mapping must agree with the Keyman source."""
+"""Regression tests for the generated Keyman keyboard and mobile layout."""
 import json
 import re
+import sys
 import unittest
 from pathlib import Path
 
+from kalamine.layout import KeyboardLayout, load_layout
+from kalamine.utils import Layer
+
 ROOT = Path(__file__).resolve().parents[1]
-NATIVE = ROOT / "dist/onnoy.json"
-KEYMAN = ROOT / "keyman/onnoy.kmn"
-EXTRAS = {
-    "Backquote": "K_BKQUOTE", "Minus": "K_HYPHEN", "Equal": "K_EQUAL",
-    "BracketLeft": "K_LBRKT", "BracketRight": "K_RBRKT",
-    "Backslash": "K_BKSLASH", "Semicolon": "K_COLON",
-    "Quote": "K_QUOTE", "Comma": "K_COMMA", "Period": "K_PERIOD",
-    "Slash": "K_SLASH", "IntlBackslash": "K_oE2", "Space": "K_SPACE",
-}
+sys.path.insert(0, str(ROOT / "tools"))
+from toml_to_kmn import generate, render  # noqa: E402
 
-def keyman_id(code):
-    if code.startswith("Key"):
-        return "K_" + code[3:]
-    if code.startswith("Digit"):
-        return "K_" + code[5:]
-    return EXTRAS[code]
 
-def keyman_rules():
+def keyman_rules(source):
     rules = {}
-    for line in KEYMAN.read_text(encoding="utf-8-sig").splitlines():
+    for line in source.splitlines():
         if not line.startswith("+ ["):
             continue
         match = re.fullmatch(r"\+ \[([^]]+)\] > (nul|U\+[0-9A-Fa-f]{4,6})", line)
         if not match:
-            raise AssertionError(f"Invalid Keyman rule: {line}")
-        chord, output = match.groups()
-        fields = chord.split()
-        layer = int("SHIFT" in fields) + 2 * int("RALT" in fields)
-        position = (fields[-1], layer)
-        if position in rules:
-            raise AssertionError(f"Duplicate Keyman rule: {position}")
-        rules[position] = None if output == "nul" else chr(int(output[2:], 16))
+            raise AssertionError(f"Invalid generated Keyman rule: {line}")
+        chord, value = match.groups()
+        if chord in rules:
+            raise AssertionError(f"Duplicate Keyman rule: {chord}")
+        rules[chord] = None if value == "nul" else chr(int(value[2:], 16))
     return rules
 
-class KeyboardContract(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.native = json.loads(NATIVE.read_text(encoding="utf-8"))["keymap"]
-        cls.keyman = keyman_rules()
 
-    def test_all_layers_match(self):
-        expected = {}
-        for code, values in self.native.items():
-            for layer in range(4):
-                expected[(keyman_id(code), layer)] = values[layer] if layer < len(values) else None
-        # Kalamine versions may omit the spacebar from the web descriptor.
-        if ("K_SPACE", 0) not in expected:
-            for layer in range(4):
-                expected[("K_SPACE", layer)] = " "
-        self.assertEqual(expected, self.keyman)
+class KeymanGeneration(unittest.TestCase):
+    def test_build_regenerates_source(self):
+        compiled = (ROOT / "keyman/onnoy.kmn").read_text(encoding="utf-8")
+        self.assertEqual(compiled, generate(ROOT / "layout.toml"))
 
-    def test_core_outputs(self):
-        required = {
-            ("K_K", 0): "ক", ("K_K", 1): "খ",
-            ("K_BKQUOTE", 0): "্", ("K_BKQUOTE", 1): "়",
-            ("K_J", 2): "\u200d", ("K_D", 2): "\u200c",
-            ("K_W", 2): "ৱ", ("K_4", 1): "৳",
-            ("K_4", 2): "4", ("K_4", 3): "$",
-            ("K_S", 2): "ষ",
+    def test_core_outputs_and_unmapped_chords(self):
+        rules = keyman_rules(generate(ROOT / "layout.toml"))
+        expected = {
+            "K_K": "ক", "SHIFT K_K": "খ",
+            "K_BKQUOTE": "্", "SHIFT K_BKQUOTE": "়",
+            "RALT K_J": "\u200d", "RALT K_D": "\u200c",
+            "RALT K_W": "ৱ", "SHIFT K_4": "৳",
+            "RALT K_4": "4", "SHIFT RALT K_4": "$",
+            "RALT K_S": "ষ",
+            "RALT K_Q": None, "SHIFT RALT K_J": None,
         }
-        for chord, output in required.items():
+        for chord, value in expected.items():
             with self.subTest(chord=chord):
-                self.assertEqual(self.keyman[chord], output)
+                self.assertEqual(rules[chord], value)
+        self.assertEqual(len(rules) % 4, 0)
+
+    def test_editing_toml_changes_keyman_output(self):
+        layout = KeyboardLayout(load_layout(ROOT / "layout.toml"))
+        before = keyman_rules(render(layout))
+        layout.layers[Layer.BASE]["ac08"] = "ঙ"
+        after = keyman_rules(render(layout))
+        self.assertEqual(before["K_K"], "ক")
+        self.assertEqual(after["K_K"], "ঙ")
+        self.assertEqual(after["SHIFT K_K"], before["SHIFT K_K"])
 
     def test_mobile_coverage(self):
         touch = json.loads((ROOT / "keyman/onnoy.keyman-touch-layout").read_text(encoding="utf-8"))
@@ -79,6 +68,7 @@ class KeyboardContract(unittest.TestCase):
             self.assertIn("U_" + f"{ord(output):04X}", ids)
         self.assertEqual({layer["id"] for layer in touch["phone"]["layer"]},
                          {"default", "shift", "numeric"})
+
 
 if __name__ == "__main__":
     unittest.main()

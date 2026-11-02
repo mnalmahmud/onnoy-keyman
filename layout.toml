@@ -1,4 +1,4 @@
-# Onnoy native layout. Maintain alongside keyman/onnoy.kmn; CI checks parity.
+# Onnoy canonical physical layout. Keyman source is generated from this file.
 name = "Onnoy"
 name8 = "onnoy"
 locale = "bn-BD"
