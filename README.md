@@ -17,7 +17,7 @@ Kalamine doesn't compile Keyman keyboards directly, so [`tools/toml_to_kmn.py`](
 
 ## Build
 
-Requires Python 3.11+, Node.js and pnpm 10.19.0.
+Requires Python 3.11+, Node.js 22, and pnpm 10.19.0.
 
 ```sh
 python -m pip install 'kalamine==0.40'
@@ -27,7 +27,7 @@ pnpm run build:keyman
 python -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-Kalamine writes native layouts and `onnoy.json` into `dist/`. `pnpm run build:keyman` first runs `python tools/toml_to_kmn.py` and then compiles `onnoy.kmn` into `onnoy.kmx`, `onnoy.js` and `onnoy.kmp` in `keyman/`. Generated files are git-ignored. The `--qwerty-shortcuts` option keeps the physical US virtual-key assignments on Windows.
+Kalamine writes native layouts and `onnoy.json` into `dist/`. `pnpm run build:keyman` first runs `python tools/toml_to_kmn.py` and then compiles `onnoy.kmn` into `onnoy.kmx`, `onnoy.js` and `onnoy.kmp` in `keyman/`. Generated build artifacts are git-ignored; `pnpm-lock.yaml` is committed for reproducible installs. The `--qwerty-shortcuts` option keeps the physical US virtual-key assignments on Windows.
 
 To preview the native layout while editing it, run `kalamine watch layout.toml`. GitHub Actions publishes a build artifact including native layouts, the Keyman package, and the hosted web site.
 

@@ -28,16 +28,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: pnpm
       - name: Build native layouts using Kalamine
         run: |
           python -m pip install 'kalamine==0.40'
           kalamine build layout.toml --qwerty-shortcuts
       - name: Build Keyman
         run: |
-          pnpm install --no-frozen-lockfile
-          echo 'PNPM_LOCK_BEGIN'
-          cat pnpm-lock.yaml
-          echo 'PNPM_LOCK_END'
+          pnpm install --frozen-lockfile
           pnpm run build:keyman
           node --check keyman/onnoy.js
           node --check web/app.js
