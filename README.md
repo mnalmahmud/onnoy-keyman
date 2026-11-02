@@ -1,54 +1,62 @@
 # Onnoy · অন্বয়
 
-A **positional Unicode keyboard** for Bangla and Bengali-script Kokborok. Onnoy uses physical US-QWERTY key positions; it is **not** a phonetic input method.
+**Write Bangla with the keys on your computer or phone.** Press a key to type a Bengali letter or vowel sign. Hold Shift or Right Alt for more characters. You don't have to spell words in English to convert them into Bangla.
 
-**[Try it online](https://mnalmahmud.github.io/onnoy-keyman/)** · [Builds and downloads](https://github.com/mnalmahmud/onnoy-keyman/actions) · [Full layout](layout.toml)
+[**Try Onnoy online**](https://mnalmahmud.github.io/onnoy-keyman/) · [Get the keyboard](https://github.com/mnalmahmud/onnoy-keyman/actions)
 
-## Typing
+## Languages
 
-Use **Shift** for alternate characters and **Right Alt (AltGr)** for the additional layer. The layout works on ANSI and ISO keyboards.
+Onnoy is made for **Bangla**. You can also use it to write these languages **with Bengali letters**:
 
-| Keys | Output |
-| --- | --- |
-| `K` / `Shift+K` | ক / খ |
-| `S` / `Shift+S` | স / শ |
-| `F` / `Shift+F` / `AltGr+F` | ত / থ / ৎ |
-| `Grave` / `Shift+Grave` | ্ (virama) / ় (nukta) |
-| `AltGr+J` / `AltGr+D` | ZWJ / ZWNJ |
-| `AltGr+W` | ৱ |
+- **Kokborok (Tripuri)** — including its special vowel combinations **অৗ** and **উা**.
+- **Kurmali (Kudmali)** — the Bengali-script writing used in West Bengal.
+- **Hajong** — the Bengali-script writing used in Bangladesh.
+- **Meitei (Manipuri)** — its Bengali-script writing, distinct from the Meitei Mayek alphabet.
 
-For example, `K → Grave → X` produces **ক্ষ**. The number row types Bengali numerals; use AltGr for ASCII digits. The extra ISO key types `\` and `|`.
+This is a Bengali-letter keyboard; it does not type other alphabets used for these languages. **Assamese and Bishnupriya Manipuri are not fully covered yet** because **ৰ** is missing. Assamese support is planned for later.
 
-The [online keyboard](https://mnalmahmud.github.io/onnoy-keyman/) shows the full layout and lets you type without installing anything.
+The language coverage is based on [Unicode's Kokborok spelling rules](https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-12/), [SIL Bangladesh's language-writing projects](https://www.silbangladesh.org/language_education/orthography), [Kurmali writing samples](https://omniglot.com/writing/kurmali.htm), and [research on Bengali-script Manipuri](https://aclanthology.org/2026.wmt-main.200/).
+
+## How to type
+
+The layout follows the positions of the keys on a regular English keyboard.
+
+- Press **K** for **ক**, or **Shift + K** for **খ**.
+- The `\` `~` key (beside **1**) types **্**, the sign used to join consonants. Press **K**, that key, and **X** to type **ক্ষ**.
+- The number keys type **০–৯**. Hold **Right Alt** (also called **AltGr**) to type **0–9**.
+- Other letters and marks are shown on the [online keyboard](https://mnalmahmud.github.io/onnoy-keyman/).
 
 ## Install
 
-Download the `onnoy-native-keyman-web` artifact from a successful [GitHub Actions build](https://github.com/mnalmahmud/onnoy-keyman/actions), or [build it yourself](#build).
+**Try it first:** You can type in your browser without installing anything.
 
-- **Keyman (Windows, macOS, Linux, Android, iOS):** Install `keyman/onnoy.kmp` using [Keyman](https://keyman.com/). On mobile, enable the keyboard in your device settings.
-- **Windows native:** Open `dist/onnoy.klc` in Microsoft Keyboard Layout Creator and build an installer.
-- **macOS native:** Copy `dist/onnoy.keylayout` to `~/Library/Keyboard Layouts/`, log out and back in, then enable Onnoy in Keyboard settings.
-- **Linux native:** Use `dist/onnoy.xkb_symbols` or `dist/onnoy.xkb_keymap` with your XKB configuration.
+For desktop and mobile, open a successful [build](https://github.com/mnalmahmud/onnoy-keyman/actions) and download the **onnoy-native-keyman-web** artifact.
 
-Native layouts do not require Keyman. Native installations have not yet been tested across all target operating systems.
+- **Windows, macOS, Android, iPhone or iPad with Keyman:** Install [Keyman](https://keyman.com/), then import the included `keyman/onnoy.kmp` package.
+- **Windows without Keyman:** Open `dist/onnoy.klc` in Microsoft Keyboard Layout Creator to build a Windows keyboard installer.
+- **macOS without Keyman:** Copy `dist/onnoy.keylayout` into `~/Library/Keyboard Layouts/`, sign out and back in, then enable it in Keyboard settings.
+- **Linux:** Install the `dist/onnoy.xkb_symbols` or `dist/onnoy.xkb_keymap` layout through your XKB configuration.
 
-## Build
+The native Windows, macOS and Linux installation methods still need testing on those systems.
 
-Requires Python 3.11+, Node.js 22, and pnpm 10.19.0.
+## Build from source
+
+You need Python 3.11+, Node.js 22 and pnpm 10.19.0.
 
 ```sh
 python -m pip install kalamine==0.40
 kalamine build layout.toml --qwerty-shortcuts
-
 pnpm install --frozen-lockfile
 pnpm run build:keyman
+```
 
+The native keyboard files appear in `dist/`; Keyman's files appear in `keyman/`. Run the tests with:
+
+```sh
 python -m unittest discover -s tests -p 'test_*.py'
 ```
 
-Kalamine creates the native layouts in `dist/`. The Keyman build generates `keyman/onnoy.kmn` from `layout.toml` and compiles the keyboard and `.kmp` package.
-
-**To change the mapping, edit `layout.toml` only.** Do not edit the generated `.kmn`. Mobile key positions and long-press options are defined separately in [`keyman/onnoy.keyman-touch-layout`](keyman/onnoy.keyman-touch-layout).
+To change which character a key types, edit [`layout.toml`](layout.toml). The Keyman keyboard is generated from it automatically. Mobile key placement and long-press options are in [`keyman/onnoy.keyman-touch-layout`](keyman/onnoy.keyman-touch-layout).
 
 ## License
 

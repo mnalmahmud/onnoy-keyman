@@ -3,11 +3,11 @@
   <System><KeymanDeveloperVersion>18.0.254.0</KeymanDeveloperVersion><FileVersion>7.0</FileVersion></System>
   <Options><FollowKeyboardVersion/></Options>
   <StartMenu><Folder></Folder><Items/></StartMenu>
-  <Info><Version URL=""></Version><Name URL="">Onnoy</Name><Copyright URL="">Onnoy contributors</Copyright><Author URL="">Onnoy contributors</Author><Description URL="">Positional Unicode keyboard for Bangla and Bengali-script Kokborok.</Description></Info>
+  <Info><Version URL=""></Version><Name URL="">Onnoy</Name><Copyright URL="">Onnoy contributors</Copyright><Author URL="">Onnoy contributors</Author><Description URL="">A keyboard for Bangla and other languages written with Bengali letters.</Description></Info>
   <Files>
     <File><Name>onnoy.kmx</Name><Description>Onnoy desktop keyboard</Description><CopyLocation>0</CopyLocation><FileType>.kmx</FileType></File>
     <File><Name>onnoy.js</Name><Description>Onnoy web keyboard</Description><CopyLocation>0</CopyLocation><FileType>.js</FileType></File>
   </Files>
-  <Keyboards><Keyboard><ID>onnoy</ID><Languages><Language ID="bn">Bangla</Language><Language ID="as">Assamese</Language></Languages></Keyboard></Keyboards>
+  <Keyboards><Keyboard><ID>onnoy</ID><Languages><Language ID="bn">Bangla</Language><Language ID="trp-Beng">Kokborok (Bengali script)</Language><Language ID="kyw-Beng">Kurmali (Bengali script)</Language><Language ID="haj-Beng">Hajong (Bengali script)</Language><Language ID="mni-Beng">Meitei (Bengali script)</Language></Languages></Keyboard></Keyboards>
   <Strings/>
 </Package>
