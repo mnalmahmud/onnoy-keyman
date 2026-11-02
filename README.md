@@ -17,17 +17,17 @@ Kalamine doesn't compile Keyman keyboards directly, so [`tools/toml_to_kmn.py`](
 
 ## Build
 
-Requires Python 3.11+ and Node.js.
+Requires Python 3.11+, Node.js and pnpm 10.19.0.
 
 ```sh
 python -m pip install 'kalamine==0.40'
 kalamine build layout.toml --qwerty-shortcuts
-npm install
-npm run build:keyman
+pnpm install --frozen-lockfile
+pnpm run build:keyman
 python -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-Kalamine writes native layouts and `onnoy.json` into `dist/`. `npm run build:keyman` first runs `python tools/toml_to_kmn.py` and then compiles `onnoy.kmn` into `onnoy.kmx`, `onnoy.js` and `onnoy.kmp` in `keyman/`. Generated files are git-ignored. The `--qwerty-shortcuts` option keeps the physical US virtual-key assignments on Windows.
+Kalamine writes native layouts and `onnoy.json` into `dist/`. `pnpm run build:keyman` first runs `python tools/toml_to_kmn.py` and then compiles `onnoy.kmn` into `onnoy.kmx`, `onnoy.js` and `onnoy.kmp` in `keyman/`. Generated files are git-ignored. The `--qwerty-shortcuts` option keeps the physical US virtual-key assignments on Windows.
 
 To preview the native layout while editing it, run `kalamine watch layout.toml`. GitHub Actions publishes a build artifact including native layouts, the Keyman package, and the hosted web site.
 
@@ -57,7 +57,7 @@ Bengali digits are on the number row; AltGr accesses ASCII digits. K â†’ Grave â
 ## Editing the keyboard
 
 1. Edit **only `layout.toml`** to change physical keyboard mappings.
-2. Run `kalamine build layout.toml --qwerty-shortcuts` and `npm run build:keyman`. The latter regenerates the Keyman source; there is no mapping parity to maintain.
+2. Run `kalamine build layout.toml --qwerty-shortcuts` and `pnpm run build:keyman`. The latter regenerates the Keyman source; there is no mapping parity to maintain.
 3. Run `python -m unittest discover -s tests -p 'test_*.py'` to check Unicode behavior and reproducibility.
 4. Edit the Keyman touch layout separately if mobile key placement or long-press options change.
 

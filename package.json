@@ -6,5 +6,6 @@
   },
   "devDependencies": {
     "@keymanapp/kmc": "18.0.254"
-  }
+  },
+  "packageManager": "pnpm@10.19.0"
 }

@@ -21,6 +21,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.19.0
+          run_install: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -30,8 +34,11 @@ jobs:
           kalamine build layout.toml --qwerty-shortcuts
       - name: Build Keyman
         run: |
-          npm install --no-audit --no-fund
-          npm run build:keyman
+          pnpm install --no-frozen-lockfile
+          echo 'PNPM_LOCK_BEGIN'
+          cat pnpm-lock.yaml
+          echo 'PNPM_LOCK_END'
+          pnpm run build:keyman
           node --check keyman/onnoy.js
           node --check web/app.js
       - name: Test converter and Unicode regressions
