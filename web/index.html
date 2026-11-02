@@ -93,6 +93,18 @@
               <h4>Unicode code points</h4>
               <div id="codepoints" class="codepoints">Nothing to inspect yet.</div>
             </div>
+            <section class="keystroke-panel" aria-labelledby="keystroke-heading">
+              <div class="keystroke-header">
+                <div>
+                  <h4 id="keystroke-heading">Keystrokes</h4>
+                  <p>lowercase · Shift = UPPERCASE · ⇮ = AltGr</p>
+                </div>
+                <button id="clear-keystrokes" type="button" class="keystroke-clear" disabled>Clear keys</button>
+              </div>
+              <div id="keystroke-log" class="keystroke-log" role="log" aria-label="Keys pressed in the writing area" aria-live="off">
+                <span id="keystroke-placeholder" class="keystroke-placeholder">Your keystrokes appear here as you type.</span>
+              </div>
+            </section>
           </section>
 
           <section class="pane keyboard-pane" aria-labelledby="keyboard-heading">

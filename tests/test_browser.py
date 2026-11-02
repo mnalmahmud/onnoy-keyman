@@ -42,6 +42,31 @@ class BrowserSmoke(unittest.TestCase):
                 page.keyboard.press("Backquote")
                 page.keyboard.press("x")
                 self.assertEqual(page.locator("#editor").input_value(), "ক্ষ")
+                self.assertEqual(
+                    page.locator("#keystroke-log kbd").all_inner_texts(),
+                    ["k", "`", "x"],
+                )
+                page.keyboard.press("Shift+k")
+                self.assertEqual(page.locator("#keystroke-log kbd").last.inner_text(), "K")
+                # Emulate browsers that express AltGr through Ctrl+Alt.
+                page.evaluate("""() => {
+                    const editor = document.querySelector('#editor');
+                    for (const [key, shift] of [['w', false], ['W', true]]) {
+                        editor.dispatchEvent(new KeyboardEvent('keydown', {
+                            bubbles: true, key, code: 'KeyW',
+                            altKey: true, ctrlKey: true, shiftKey: shift
+                        }));
+                    }
+                }""")
+                self.assertEqual(
+                    page.locator("#keystroke-log kbd").all_inner_texts()[-2:],
+                    ["⇮w", "⇮W"],
+                )
+                page.keyboard.press("Backspace")
+                self.assertEqual(page.locator("#keystroke-log kbd").last.inner_text(), "⌫")
+                page.locator("#clear-keystrokes").click()
+                self.assertEqual(page.locator("#keystroke-log kbd").count(), 0)
+                self.assertTrue(page.locator("#keystroke-placeholder").is_visible())
                 page.locator("#inspect").click()
                 self.assertFalse(page.locator("#unicode-panel").is_hidden())
                 self.assertIn("U+0995", page.locator("#codepoints").inner_text())
@@ -78,6 +103,7 @@ class BrowserSmoke(unittest.TestCase):
                 page.locator("#editor").focus()
                 page.keyboard.press("k")
                 self.assertEqual(page.locator("#editor").input_value(), "ক")
+                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
                 browser.close()
         finally:
             server.shutdown()
