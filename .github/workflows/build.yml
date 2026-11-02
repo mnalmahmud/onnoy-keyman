@@ -16,6 +16,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -29,6 +30,10 @@ jobs:
         with:
           node-version: '22'
           cache: pnpm
+      - name: Check Python and JavaScript syntax
+        run: |
+          python -m compileall -q tools tests
+          node --check web/app.js
       - name: Build native layouts using Kalamine
         run: |
           python -m pip install 'kalamine==0.40'
@@ -39,7 +44,12 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm run build:keyman
           node --check keyman/onnoy.js
-          node --check web/app.js
+          test -s keyman/onnoy.kmx
+          test -s keyman/onnoy.js
+          test -s keyman/onnoy.kmp
+          test -s dist/onnoy.klc
+          test -s dist/onnoy.keylayout
+          test -s dist/onnoy-visualizer.json
       - name: Test converter and Unicode regressions
         run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Assemble web demo
@@ -49,6 +59,9 @@ jobs:
           cp dist/onnoy-visualizer.json site/layout.json
           cp keyman/onnoy.js site/onnoy.js
           touch site/.nojekyll
+          test -s site/index.html
+          test -s site/layout.json
+          test -s site/onnoy.js
       - name: Browser smoke test
         run: |
           python -m pip install 'playwright==1.56.0'

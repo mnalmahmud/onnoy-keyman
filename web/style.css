@@ -270,11 +270,20 @@ button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visi
 .footer > a { text-decoration: none; font-weight: 700; }
 .footer > a:hover { color: var(--accent); }
 
+#key-details { display: flex; align-items: center; flex: 1; gap: 14px; min-width: 0; }
+.inspector-key { min-width: 58px; font-size: 15px; }
+.inspector-outputs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); flex: 1; gap: 7px; }
+.inspector-output { display: flex; flex-direction: column; justify-content: space-between; gap: 4px; min-width: 0; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-soft); }
+.inspector-layer { color: var(--muted); font-size: 10px; font-weight: 600; white-space: nowrap; }
+.inspector-output strong { font: 600 17px/1.5 "Noto Sans Bengali", "DM Sans", sans-serif; color: var(--ink); overflow-wrap: anywhere; }
+.keyboard-scroll-hint { display: none; margin: 0 17px 15px; font-size: 11px; color: var(--muted); }
+
 @media (max-width: 1150px) {
   .workspace-grid { grid-template-columns: minmax(0, 1fr); }
   .pane { min-height: 0; }
   .editor-pane textarea { min-height: 260px; }
   .keyboard { min-width: 620px; }
+  .key-inspector { flex-wrap: wrap; }
   .keyboard-pane { min-height: 530px; }
 }
 
@@ -293,7 +302,10 @@ button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visi
   .editor-bottom, .editor-toolbar, .unicode-panel { padding-left: 17px; padding-right: 17px; }
   .keyboard-context { padding: 12px 17px; }
   .keyboard-scroll { padding: 12px 17px 20px; }
-  .key-inspector { padding: 16px 17px; align-items: flex-start; flex-direction: column; gap: 5px; }
+  .key-inspector { padding: 16px 17px; align-items: flex-start; flex-direction: column; gap: 9px; }
+  #key-details { width: 100%; align-items: flex-start; flex-direction: column; }
+  .inspector-outputs { grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
+  .keyboard-scroll-hint { display: block; }
   .practice { align-items: flex-start; flex-direction: column; gap: 13px; }
   .info-section, .install-section { grid-template-columns: 1fr; gap: 18px; }
   .detail-grid, .platform-links { grid-template-columns: 1fr; }

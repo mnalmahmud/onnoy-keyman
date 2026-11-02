@@ -43,9 +43,9 @@
     <main>
       <section class="intro" aria-labelledby="intro-title">
         <div>
-          <p class="eyebrow"><span class="green-dot" aria-hidden="true"></span> A native Unicode keyboard</p>
+          <p class="eyebrow"><span class="green-dot" aria-hidden="true"></span> Write in Bengali script</p>
           <h1 id="intro-title">Your language.<br><em>Your keys.</em></h1>
-          <p class="intro-description">Write Bangla, Kokborok, and other languages using Bengali letters. Explore all four keyboard layers while you type.</p>
+          <p class="intro-description">Write Bangla, Kokborok, and other languages using Bengali letters. Try the keyboard below and see what every key types.</p>
         </div>
         <div class="intro-aside" aria-hidden="true">
           <span class="intro-aside-label">A little more room for every word</span>
@@ -57,7 +57,7 @@
         <div class="workspace-heading">
           <div>
             <p class="eyebrow">THE PLAYGROUND <span class="eyebrow-index">/ 01</span></p>
-            <h2 id="workspace-heading">Make yourself heard.</h2>
+            <h2 id="workspace-heading">Type and explore.</h2>
           </div>
           <div id="status" class="engine-status" role="status" aria-live="polite">
             <span class="status-dot" aria-hidden="true"></span>
@@ -70,7 +70,7 @@
             <div class="pane-heading">
               <div>
                 <span class="pane-overline">01 / WRITE</span>
-                <h3 id="editor-heading">A space for your words</h3>
+                <h3 id="editor-heading">Write here</h3>
               </div>
               <span class="pane-symbol" aria-hidden="true">✎</span>
             </div>
@@ -99,7 +99,7 @@
             <div class="pane-heading keyboard-heading">
               <div>
                 <span class="pane-overline">02 / EXPLORE</span>
-                <h3 id="keyboard-heading">The keyboard, live</h3>
+                <h3 id="keyboard-heading">Explore the keyboard</h3>
               </div>
               <label class="geometry-field" for="geometry">
                 <span>Hardware</span>
@@ -122,11 +122,13 @@
               <span class="hardware-indicator" id="modifier-indicator" aria-live="polite">BASE</span>
             </div>
 
-            <div class="keyboard-scroll">
+            <div class="keyboard-scroll" role="region" tabindex="0" aria-label="Keyboard layout; scroll horizontally on small screens">
               <div id="keyboard" class="keyboard" aria-label="Onnoy visual keyboard">
                 <p class="loading-keyboard">Loading keyboard…</p>
               </div>
             </div>
+
+            <p class="keyboard-scroll-hint">Swipe sideways to see the rest of the keys.</p>
 
             <div class="key-inspector" aria-live="polite">
               <span class="inspector-label">KEY DETAILS</span>
@@ -136,8 +138,8 @@
         </div>
 
         <div id="error-help" class="error-help" hidden role="alert">
-          <strong>Keyboard unavailable.</strong>
-          <span>The writing area remains usable, but Onnoy typing or the key reference could not load. Reload the page or <a href="https://github.com/mnalmahmud/onnoy-keyman/issues">report a problem</a>.</span>
+          <strong>Some keyboard features could not load.</strong>
+          <span>The text area is still available. A feature may be temporarily unavailable. Reload the page or <a href="https://github.com/mnalmahmud/onnoy-keyman/issues">report a problem</a>.</span>
           <small id="error-detail"></small>
         </div>
 
@@ -168,7 +170,7 @@
         <div class="section-label">GET ONNOY <span>/ 03</span></div>
         <div class="install-content">
           <h2 id="install-heading">Take it everywhere.</h2>
-          <p>Build the native keyboard for your operating system, or install the Keyman package for desktop and mobile.</p>
+          <p>Choose the Keyman keyboard for desktop or mobile, or build a native layout for your computer.</p>
           <div class="platform-links">
             <a href="https://github.com/mnalmahmud/onnoy-keyman#install"><span>Linux</span><small>XKB keyboard layout</small><span aria-hidden="true">↗</span></a>
             <a href="https://github.com/mnalmahmud/onnoy-keyman#install"><span>macOS</span><small>Native input source</small><span aria-hidden="true">↗</span></a>
