@@ -1,0 +1,486 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    devDependencies:
+      '@keymanapp/kmc':
+        specifier: 18.0.254
+        version: 18.0.254
+
+packages:
+
+  '@keymanapp/common-types@18.0.254':
+    resolution: {integrity: sha512-DL8BnuWjZbqryYm/P4pTSstj1cB8VzJHoINwMoZeGATWsEkS1cj8ygS+P2BtEJP0R+xsvVEZL+o4NCX3sbWDZA==}
+
+  '@keymanapp/developer-utils@18.0.254':
+    resolution: {integrity: sha512-8T97a5ktDNYFY6poHc8whqCVzrWaAovdBfBsA13rW0GP1ZHgQL5eAyuKzf1HKYub4bxTQKpbnaiHSJwObKYrkA==}
+
+  '@keymanapp/keyman-version@18.0.254':
+    resolution: {integrity: sha512-b+NckxSe1vWPi8Fux7KvPjWc1uW04bGbsnaBd08uXr33nIQcCmtvkkq8xXr1XjC73SS2CfayfueygCbLObsB1A==}
+
+  '@keymanapp/kmc-analyze@18.0.254':
+    resolution: {integrity: sha512-fU79T0MEnvFVHWQLja4rranuQ4J8Sf9oiSJobK4QIVAjvLML3ULqaHhnA/PZut2yMNl7DNVm4dZ7CtkPhGl+iQ==}
+
+  '@keymanapp/kmc-copy@18.0.254':
+    resolution: {integrity: sha512-se+pvJcQ7mhMgc5je+ElvQUK/6xWNEClznbSayGZkWkRGBrylki350gCpa9JlOC4AghyxL6abBbyStwSfU1Rqg==}
+
+  '@keymanapp/kmc-generate@18.0.254':
+    resolution: {integrity: sha512-d0RdEPpUTWSQJhjvbqeanfwFdWz6Bavo+t/mruJ2wudjXAzfl8PljCSHVAsjUjkdLAcyAc1NBJQAauIietU8mw==}
+
+  '@keymanapp/kmc-keyboard-info@18.0.254':
+    resolution: {integrity: sha512-dyLygUbwK1obJchIdpLw48U1RGBUcRJSJmzUqZY5fjF9eCzNcm0kxAJ8NCLKe8yMi3dwRlgtBgRKZXPfDnQJaQ==}
+
+  '@keymanapp/kmc-kmn@18.0.254':
+    resolution: {integrity: sha512-LQKsbIFSV8yt6hdkRB0p8Zy0eEeDfL2+WHSsS7BfnNjASWim1yWLTxN8wfc4RZLG7pPuAWpndLnZ/eIsJ7e2IQ==}
+
+  '@keymanapp/kmc-ldml@18.0.254':
+    resolution: {integrity: sha512-SwLS1R9y4O2pebOXv+lqIKm9+p+pZ1JpSnvAMFdC+GLn03CUEMDwrtD5dQxjl1rRYuR2GU9UCQ4cQ2l5xt6s0w==}
+
+  '@keymanapp/kmc-model-info@18.0.254':
+    resolution: {integrity: sha512-w9swMmiYFHSZy0Avu5JhK/ucgvhI/rWDty8uPZuLlLSHn/0tPhgqUAtzMIg8R3g5Y7crOoYcARNFdFRgODOn2g==}
+
+  '@keymanapp/kmc-model@18.0.254':
+    resolution: {integrity: sha512-0NJKgJ3zefNKRKKzAQX55OKp4hAOU7bHxU/Bs+wMmcfCdRTxnjxoD0b9cwJtjdC47qvmhNX/Jt8jOyhxn+g8AA==}
+
+  '@keymanapp/kmc-package@18.0.254':
+    resolution: {integrity: sha512-Qg0F/AwSXPEcEzYdCrbSXI/4+oqGz6i4sDlNvGMkxTIGK48OE/HpDTlBkJe/2jEq3JA8+Hm5q3NL6bDINAz+Gw==}
+
+  '@keymanapp/kmc@18.0.254':
+    resolution: {integrity: sha512-MX9//1QpzT3E+6NguLLbxfu4WL8VOPc3c+/9j8REddp2J8xWsNi2oUFCTsf26mxdaFxmXhREzeBuK+/UfUEgew==}
+    hasBin: true
+
+  '@keymanapp/langtags@18.0.254':
+    resolution: {integrity: sha512-tzpO9mBZl3zvbxDARaMa1lD3MjvaEDso5Qsr6pQCF70IE/tY2ntvaBA/EaSb5GyrF8IeDGjqXPKxV7HPOKOhgA==}
+
+  '@keymanapp/ldml-keyboard-constants@18.0.254':
+    resolution: {integrity: sha512-4LXy1j2dt45X3Cu8YdmjfBzV73lBR9veanWWktNIQOL3qdzQWLcsJBYZY0Gl5RpZ0XvyIvgoOFpxbti670COhA==}
+
+  '@nodable/entities@2.2.0':
+    resolution: {integrity: sha512-9uGyhaQavEUMC8AIddIjau4NsnsXhou+j5sBAGojCM1oxmQpVKTWR/9JxABD6UAv12vpIms55fPZKFQEhG6uBg==}
+
+  '@sentry-internal/tracing@7.120.4':
+    resolution: {integrity: sha512-Fz5+4XCg3akeoFK+K7g+d7HqGMjmnLoY2eJlpONJmaeT9pXY7yfUyXKZMmMajdE2LxxKJgQ2YKvSCaGVamTjHw==}
+    engines: {node: '>=8'}
+
+  '@sentry/core@7.120.4':
+    resolution: {integrity: sha512-TXu3Q5kKiq8db9OXGkWyXUbIxMMuttB5vJ031yolOl5T/B69JRyAoKuojLBjRv1XX583gS1rSSoX8YXX7ATFGA==}
+    engines: {node: '>=8'}
+
+  '@sentry/integrations@7.120.4':
+    resolution: {integrity: sha512-kkBTLk053XlhDCg7OkBQTIMF4puqFibeRO3E3YiVc4PGLnocXMaVpOSCkMqAc1k1kZ09UgGi8DxfQhnFEjUkpA==}
+    engines: {node: '>=8'}
+
+  '@sentry/node@7.120.4':
+    resolution: {integrity: sha512-qq3wZAXXj2SRWhqErnGCSJKUhPSlZ+RGnCZjhfjHpP49KNpcd9YdPTIUsFMgeyjdh6Ew6aVCv23g1hTP0CHpYw==}
+    engines: {node: '>=8'}
+
+  '@sentry/types@7.120.4':
+    resolution: {integrity: sha512-cUq2hSSe6/qrU6oZsEP4InMI5VVdD86aypE+ENrQ6eZEVLTCYm1w6XhW1NvIu3UuWh7gZec4a9J7AFpYxki88Q==}
+    engines: {node: '>=8'}
+
+  '@sentry/utils@7.120.4':
+    resolution: {integrity: sha512-zCKpyDIWKHwtervNK2ZlaK8mMV7gVUijAgFeJStH+CU/imcdquizV3pFLlSQYRswG+Lbyd6CT/LGRh3IbtkCFw==}
+    engines: {node: '>=8'}
+
+  ansi-styles@3.2.1:
+    resolution: {integrity: sha512-VT0ZI6kZRdTh8YyJw3SMbYm/u+NqfsAxEpWO0Pf9sq8/e94WxxOpPKx9FR1FlyCtOVDNOQ+8ntlqFxiRc+r5qA==}
+    engines: {node: '>=4'}
+
+  anynum@1.0.1:
+    resolution: {integrity: sha512-N6//FLET/tXYNM/F6ABca1oH6fWB+KlTt909Le28WMDBk8oaT4vY17DCrwg2MvmuqUKt3Ni4N5dGJ/EoBgcO6A==}
+
+  chalk@2.4.2:
+    resolution: {integrity: sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==}
+    engines: {node: '>=4'}
+
+  color-convert@1.9.3:
+    resolution: {integrity: sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg==}
+
+  color-name@1.1.3:
+    resolution: {integrity: sha512-72fSenhMw2HZMTVHeCA9KCmpEIbzWiQsjN+BHcBbS9vr1mtt+vJjPdksIBNUmKAW8TFUDPJK5SUU3QhE9NEXDw==}
+
+  commander@10.0.1:
+    resolution: {integrity: sha512-y4Mg2tXshplEbSGzx7amzPwKKOCGuoSRP/CjEdwwk0FOGlUbq6lKuoyDZTNZkmxHdJtp54hdfY/JUrdL7Xfdug==}
+    engines: {node: '>=14'}
+
+  core-util-is@1.0.3:
+    resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
+
+  escape-string-regexp@1.0.5:
+    resolution: {integrity: sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==}
+    engines: {node: '>=0.8.0'}
+
+  eventemitter3@5.0.4:
+    resolution: {integrity: sha512-mlsTRyGaPBjPedk6Bvw+aqbsXDtoAyAzm5MO7JgU+yVRyMQ5O8bD4Kcci7BS85f93veegeCPkL8R4GLClnjLFw==}
+
+  fast-xml-builder@1.3.1:
+    resolution: {integrity: sha512-pIM/1n3ntFXKYrUZwW7QCK0gAW7XY+wzj1YMIV3tLDvPj/V+zTGJK5e3/4WJfwj0qWw2ElNXiTixda/R+3YSug==}
+
+  fast-xml-parser@5.8.0:
+    resolution: {integrity: sha512-6bIM7fsJxeo3uXv7OncQYsBAMPJ7V16Slahl/6M98C/i2q+vB1+4a0MtrvYwDFEUrwDSbAmeLDRXsOBwrL7yAg==}
+    hasBin: true
+
+  has-flag@3.0.0:
+    resolution: {integrity: sha512-sKJf1+ceQBr4SMkvQnBDNDtf4TXpVhVGateu0t918bl30FnbE2m4vNLX+VWe/dpjlb+HugGYzW7uQXH98HPEYw==}
+    engines: {node: '>=4'}
+
+  immediate@3.0.6:
+    resolution: {integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==}
+
+  inherits@2.0.4:
+    resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
+
+  isarray@1.0.0:
+    resolution: {integrity: sha512-VLghIWNM6ELQzo7zwmcg0NmTVyWKYjvIeM83yjp0wRDTmUnrM678fQbcKBo6n2CJEF0szoG//ytg+TKla89ALQ==}
+
+  jszip@3.10.2:
+    resolution: {integrity: sha512-3l+rb15IOWtUhU0H5MFqES/T6Kh7abYwjosBey/vD6hDt8zoEffkSC5Ws5SGtgVw3gBx2NEbhTeSW1+kWkpyTQ==}
+
+  lie@3.1.1:
+    resolution: {integrity: sha512-RiNhHysUjhrDQntfYSfY4MU24coXXdEOgw9WGcKHNeEwffDYbF//u87M1EWaMGzuFoSbqW0C9C6lEEhDOAswfw==}
+
+  lie@3.3.0:
+    resolution: {integrity: sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==}
+
+  localforage@1.10.0:
+    resolution: {integrity: sha512-14/H1aX7hzBBmmh7sGPd+AOMkkIrHM3Z1PAyGgZigA1H1p5O5ANnMyWzvpAETtG68/dC4pC0ncy3+PPGzXZHPg==}
+
+  marked@7.0.5:
+    resolution: {integrity: sha512-lwNAFTfXgqpt/XvK17a/8wY9/q6fcSPZT1aP6QW0u74VwaJF/Z9KbRcX23sWE4tODM+AolJNcUtErTkgOeFP/Q==}
+    engines: {node: '>= 16'}
+    hasBin: true
+
+  pako@1.0.11:
+    resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
+
+  path-browserify@1.0.1:
+    resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
+
+  path-expression-matcher@1.6.2:
+    resolution: {integrity: sha512-enSlaiat05iasnzmgNxRj8reFdj3puY2QpNgP1aPIaVfT6nn9ICuPoFlKHk8EN22HcwewshO+mN2DGbkCEOtqQ==}
+    engines: {node: '>=14.0.0'}
+
+  process-nextick-args@2.0.1:
+    resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
+
+  readable-stream@2.3.8:
+    resolution: {integrity: sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA==}
+
+  restructure@3.0.1:
+    resolution: {integrity: sha512-6neDpI/yE9eogQo22qmWwKIA9wFPRyYjQleDEh6zaNAf2ZPqLJYUvNBJBWEWNoBlCeQMQkvIOe2YI/K2GOag+g==}
+
+  restructure@3.0.2:
+    resolution: {integrity: sha512-gSfoiOEA0VPE6Tukkrr7I0RBdE0s7H1eFCDBk05l1KIQT1UIKNc5JZy6jdyW6eYH3aR3g5b3PuL77rq0hvwtAw==}
+
+  safe-buffer@5.1.2:
+    resolution: {integrity: sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==}
+
+  sax@1.6.1:
+    resolution: {integrity: sha512-42tBVwLWnaQvW5zc4HbZrTuWccECCZfBi92FDuwtqxasH+JbPB3/FOKb1m222K42R4WxuxzzMsTswfzgtSu64Q==}
+    engines: {node: '>=11.0.0'}
+
+  semver@7.8.5:
+    resolution: {integrity: sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==}
+    engines: {node: '>=10'}
+    hasBin: true
+
+  setimmediate@1.0.5:
+    resolution: {integrity: sha512-MATJdZp8sLqDl/68LfQmbP8zKPLQNV6BIZoIgrscFDQ+RsvK/BxeDQOgyxKKoh0y/8h3BqVFnCqQ/gd+reiIXA==}
+
+  string_decoder@1.1.1:
+    resolution: {integrity: sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg==}
+
+  strnum@2.5.1:
+    resolution: {integrity: sha512-UM4nTLWzQiDBseVxUGxN0wJzIk0UU89Qi7pKXz9qISo+lhviJikTuikBsK/oFRlpvYHvSdz0TVoLyQ+sEpYwxA==}
+
+  supports-color@5.5.0:
+    resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
+    engines: {node: '>=4'}
+
+  supports-color@9.4.0:
+    resolution: {integrity: sha512-VL+lNrEoIXww1coLPOmiEmK/0sGigko5COxI09KzHc2VJXJsQ37UaQ+8quuxjDeA7+KnLGTWRyOXSLLR2Wb4jw==}
+    engines: {node: '>=12'}
+
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
+  util-deprecate@1.0.2:
+    resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+
+  xml-naming@0.1.0:
+    resolution: {integrity: sha512-k8KO9hrMyNk6tUWqUfkTEZbezRRpONVOzUTnc97VnCvyj6Tf9lyUR9EDAIeiVLv56jsMcoXEwjW8Kv5yPY52lw==}
+    engines: {node: '>=16.0.0'}
+
+  xml-naming@0.3.0:
+    resolution: {integrity: sha512-ghig2TBE/H11aOVgmahA3MhimvkBr6JIYknH/Dhdk10nXwdbIqBJsbfMxpvFPG8bAw77gN29aQWvKpmVoPlvPQ==}
+    engines: {node: '>=16.0.0'}
+
+  xmlbuilder@11.0.1:
+    resolution: {integrity: sha512-fDlsI/kFEx7gLvbecc0/ohLG50fugQp8ryHzMTuW9vSa1GJ0XYWKnhsUx7oie3G98+r56aTQIUB4kht42R3JvA==}
+    engines: {node: '>=4.0'}
+
+snapshots:
+
+  '@keymanapp/common-types@18.0.254':
+    dependencies:
+      '@keymanapp/keyman-version': 18.0.254
+      '@keymanapp/ldml-keyboard-constants': 18.0.254
+      restructure: 3.0.1
+
+  '@keymanapp/developer-utils@18.0.254':
+    dependencies:
+      '@keymanapp/common-types': 18.0.254
+      '@sentry/node': 7.120.4
+      eventemitter3: 5.0.4
+      fast-xml-parser: 5.8.0
+      path-browserify: 1.0.1
+      restructure: 3.0.2
+      sax: 1.6.1
+      semver: 7.8.5
+      xmlbuilder: 11.0.1
+
+  '@keymanapp/keyman-version@18.0.254': {}
+
+  '@keymanapp/kmc-analyze@18.0.254':
+    dependencies:
+      '@keymanapp/common-types': 18.0.254
+      '@keymanapp/developer-utils': 18.0.254
+      '@keymanapp/kmc-kmn': 18.0.254
+
+  '@keymanapp/kmc-copy@18.0.254':
+    dependencies:
+      '@keymanapp/common-types': 18.0.254
+      '@keymanapp/developer-utils': 18.0.254
+      '@keymanapp/keyman-version': 18.0.254
+
+  '@keymanapp/kmc-generate@18.0.254':
+    dependencies:
+      '@keymanapp/common-types': 18.0.254
+      '@keymanapp/developer-utils': 18.0.254
+      '@keymanapp/keyman-version': 18.0.254
+      '@keymanapp/langtags': 18.0.254
+
+  '@keymanapp/kmc-keyboard-info@18.0.254':
+    dependencies:
+      '@keymanapp/common-types': 18.0.254
+      '@keymanapp/developer-utils': 18.0.254
+      '@keymanapp/kmc-package': 18.0.254
+      '@keymanapp/langtags': 18.0.254
+
+  '@keymanapp/kmc-kmn@18.0.254':
+    dependencies:
+      '@keymanapp/common-types': 18.0.254
+      '@keymanapp/developer-utils': 18.0.254
+      '@keymanapp/keyman-version': 18.0.254
+
+  '@keymanapp/kmc-ldml@18.0.254':
+    dependencies:
+      '@keymanapp/developer-utils': 18.0.254
+      '@keymanapp/keyman-version': 18.0.254
+      '@keymanapp/kmc-kmn': 18.0.254
+      '@keymanapp/ldml-keyboard-constants': 18.0.254
+      semver: 7.8.5
+
+  '@keymanapp/kmc-model-info@18.0.254':
+    dependencies:
+      '@keymanapp/common-types': 18.0.254
+      '@keymanapp/developer-utils': 18.0.254
+
+  '@keymanapp/kmc-model@18.0.254':
+    dependencies:
+      '@keymanapp/common-types': 18.0.254
+      '@keymanapp/keyman-version': 18.0.254
+      typescript: 5.9.3
+
+  '@keymanapp/kmc-package@18.0.254':
+    dependencies:
+      '@keymanapp/common-types': 18.0.254
+      '@keymanapp/developer-utils': 18.0.254
+      jszip: 3.10.2
+      marked: 7.0.5
+
+  '@keymanapp/kmc@18.0.254':
+    dependencies:
+      '@keymanapp/common-types': 18.0.254
+      '@keymanapp/developer-utils': 18.0.254
+      '@keymanapp/keyman-version': 18.0.254
+      '@keymanapp/kmc-analyze': 18.0.254
+      '@keymanapp/kmc-copy': 18.0.254
+      '@keymanapp/kmc-generate': 18.0.254
+      '@keymanapp/kmc-keyboard-info': 18.0.254
+      '@keymanapp/kmc-kmn': 18.0.254
+      '@keymanapp/kmc-ldml': 18.0.254
+      '@keymanapp/kmc-model': 18.0.254
+      '@keymanapp/kmc-model-info': 18.0.254
+      '@keymanapp/kmc-package': 18.0.254
+      '@sentry/node': 7.120.4
+      chalk: 2.4.2
+      commander: 10.0.1
+      supports-color: 9.4.0
+
+  '@keymanapp/langtags@18.0.254': {}
+
+  '@keymanapp/ldml-keyboard-constants@18.0.254': {}
+
+  '@nodable/entities@2.2.0': {}
+
+  '@sentry-internal/tracing@7.120.4':
+    dependencies:
+      '@sentry/core': 7.120.4
+      '@sentry/types': 7.120.4
+      '@sentry/utils': 7.120.4
+
+  '@sentry/core@7.120.4':
+    dependencies:
+      '@sentry/types': 7.120.4
+      '@sentry/utils': 7.120.4
+
+  '@sentry/integrations@7.120.4':
+    dependencies:
+      '@sentry/core': 7.120.4
+      '@sentry/types': 7.120.4
+      '@sentry/utils': 7.120.4
+      localforage: 1.10.0
+
+  '@sentry/node@7.120.4':
+    dependencies:
+      '@sentry-internal/tracing': 7.120.4
+      '@sentry/core': 7.120.4
+      '@sentry/integrations': 7.120.4
+      '@sentry/types': 7.120.4
+      '@sentry/utils': 7.120.4
+
+  '@sentry/types@7.120.4': {}
+
+  '@sentry/utils@7.120.4':
+    dependencies:
+      '@sentry/types': 7.120.4
+
+  ansi-styles@3.2.1:
+    dependencies:
+      color-convert: 1.9.3
+
+  anynum@1.0.1: {}
+
+  chalk@2.4.2:
+    dependencies:
+      ansi-styles: 3.2.1
+      escape-string-regexp: 1.0.5
+      supports-color: 5.5.0
+
+  color-convert@1.9.3:
+    dependencies:
+      color-name: 1.1.3
+
+  color-name@1.1.3: {}
+
+  commander@10.0.1: {}
+
+  core-util-is@1.0.3: {}
+
+  escape-string-regexp@1.0.5: {}
+
+  eventemitter3@5.0.4: {}
+
+  fast-xml-builder@1.3.1:
+    dependencies:
+      path-expression-matcher: 1.6.2
+      xml-naming: 0.3.0
+
+  fast-xml-parser@5.8.0:
+    dependencies:
+      '@nodable/entities': 2.2.0
+      fast-xml-builder: 1.3.1
+      path-expression-matcher: 1.6.2
+      strnum: 2.5.1
+      xml-naming: 0.1.0
+
+  has-flag@3.0.0: {}
+
+  immediate@3.0.6: {}
+
+  inherits@2.0.4: {}
+
+  isarray@1.0.0: {}
+
+  jszip@3.10.2:
+    dependencies:
+      lie: 3.3.0
+      pako: 1.0.11
+      readable-stream: 2.3.8
+      setimmediate: 1.0.5
+
+  lie@3.1.1:
+    dependencies:
+      immediate: 3.0.6
+
+  lie@3.3.0:
+    dependencies:
+      immediate: 3.0.6
+
+  localforage@1.10.0:
+    dependencies:
+      lie: 3.1.1
+
+  marked@7.0.5: {}
+
+  pako@1.0.11: {}
+
+  path-browserify@1.0.1: {}
+
+  path-expression-matcher@1.6.2: {}
+
+  process-nextick-args@2.0.1: {}
+
+  readable-stream@2.3.8:
+    dependencies:
+      core-util-is: 1.0.3
+      inherits: 2.0.4
+      isarray: 1.0.0
+      process-nextick-args: 2.0.1
+      safe-buffer: 5.1.2
+      string_decoder: 1.1.1
+      util-deprecate: 1.0.2
+
+  restructure@3.0.1: {}
+
+  restructure@3.0.2: {}
+
+  safe-buffer@5.1.2: {}
+
+  sax@1.6.1: {}
+
+  semver@7.8.5: {}
+
+  setimmediate@1.0.5: {}
+
+  string_decoder@1.1.1:
+    dependencies:
+      safe-buffer: 5.1.2
+
+  strnum@2.5.1:
+    dependencies:
+      anynum: 1.0.1
+
+  supports-color@5.5.0:
+    dependencies:
+      has-flag: 3.0.0
+
+  supports-color@9.4.0: {}
+
+  typescript@5.9.3: {}
+
+  util-deprecate@1.0.2: {}
+
+  xml-naming@0.1.0: {}
+
+  xml-naming@0.3.0: {}
+
+  xmlbuilder@11.0.1: {}

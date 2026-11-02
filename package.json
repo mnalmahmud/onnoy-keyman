@@ -1,8 +1,11 @@
 {
-  "name": "onnoy-build",
+  "name": "onnoy-keyboard",
   "private": true,
-  "description": "Build-time Keyman compiler; native users do not need Node.js",
+  "scripts": {
+    "build:keyman": "python tools/toml_to_kmn.py && kmc build keyman/onnoy.kmn && kmc build keyman/onnoy.kps"
+  },
   "devDependencies": {
     "@keymanapp/kmc": "18.0.254"
-  }
+  },
+  "packageManager": "pnpm@10.19.0"
 }

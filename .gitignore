@@ -1,9 +1,17 @@
-# Generated platform layouts, build and website output
-build/
+# Generated files from Kalamine / Keyman Developer
 dist/
 site/
+keyman/*.kmn
+keyman/*.kmx
+keyman/*.js
+keyman/*.kmp
+keyman/*.kvk
+keyman/*.keyboard_info
+node_modules/
 __pycache__/
 *.py[cod]
+.pytest_cache/
 .venv/
-node_modules/
 .DS_Store
+package-lock.json
+npm-shrinkwrap.json
