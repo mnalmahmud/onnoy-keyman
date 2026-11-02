@@ -262,6 +262,13 @@
     clearKeystrokesButton.disabled = true;
   }
 
+  function removeLastKeystroke() {
+    keystrokeLog.querySelector(".keystroke-token:last-child")?.remove();
+    const empty = !keystrokeLog.querySelector(".keystroke-token");
+    keystrokePlaceholder.hidden = !empty;
+    clearKeystrokesButton.disabled = empty;
+  }
+
   function recordKeystroke(event, key) {
     if (event.target !== editor || event.isComposing || event.metaKey) return;
 
@@ -270,12 +277,15 @@
       (event.ctrlKey && event.altKey);
     if ((event.ctrlKey || event.altKey) && !altGr) return;
 
+    // Backspace edits the history; it is not a recorded keystroke.
+    if (event.code === "Backspace") {
+      if (!event.ctrlKey && !event.altKey) removeLastKeystroke();
+      return;
+    }
+
     let label;
     let name;
-    if (event.code === "Backspace") {
-      label = "⌫";
-      name = "Backspace";
-    } else if (event.code === "Enter") {
+    if (event.code === "Enter") {
       label = "↵";
       name = "Enter";
     } else if (key) {

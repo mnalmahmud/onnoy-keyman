@@ -63,7 +63,19 @@ class BrowserSmoke(unittest.TestCase):
                     ["⇮w", "⇮W"],
                 )
                 page.keyboard.press("Backspace")
-                self.assertEqual(page.locator("#keystroke-log kbd").last.inner_text(), "⌫")
+                self.assertEqual(
+                    page.locator("#keystroke-log kbd").all_inner_texts()[-2:],
+                    ["K", "⇮w"],
+                )
+                self.assertNotIn("⌫", page.locator("#keystroke-log").inner_text())
+                # Repeated backspaces consume the history, never append ⌫.
+                for _ in range(5):
+                    page.keyboard.press("Backspace")
+                self.assertEqual(page.locator("#keystroke-log kbd").count(), 0)
+                self.assertTrue(page.locator("#keystroke-placeholder").is_visible())
+                self.assertTrue(page.locator("#clear-keystrokes").is_disabled())
+                page.keyboard.press("k")
+                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
                 page.locator("#clear-keystrokes").click()
                 self.assertEqual(page.locator("#keystroke-log kbd").count(), 0)
                 self.assertTrue(page.locator("#keystroke-placeholder").is_visible())
