@@ -16,6 +16,9 @@
   const unicodePanel = byId("unicode-panel");
   const codepoints = byId("codepoints");
   const count = byId("count");
+  const keystrokeLog = byId("keystroke-log");
+  const keystrokePlaceholder = byId("keystroke-placeholder");
+  const clearKeystrokesButton = byId("clear-keystrokes");
   const themeControl = byId("theme");
   const geometryControl = byId("geometry");
   const layerHint = byId("layer-hint");
@@ -249,11 +252,68 @@
     if (shiftDown !== wasShift || altGrDown !== wasAltGr) drawKeyboard();
   }
 
+  // Record only physical keys pressed in the writing area, not text content.
+  // Shortcuts, modifier-only presses, paste and other controls are ignored.
+  const MAX_KEYSTROKES = 100;
+
+  function clearKeystrokes() {
+    keystrokeLog.replaceChildren(keystrokePlaceholder);
+    keystrokePlaceholder.hidden = false;
+    clearKeystrokesButton.disabled = true;
+  }
+
+  function recordKeystroke(event, key) {
+    if (event.target !== editor || event.isComposing || event.metaKey) return;
+
+    const altGr = altGrDown ||
+      (typeof event.getModifierState === "function" && event.getModifierState("AltGraph")) ||
+      (event.ctrlKey && event.altKey);
+    if ((event.ctrlKey || event.altKey) && !altGr) return;
+
+    let label;
+    let name;
+    if (event.code === "Backspace") {
+      label = "⌫";
+      name = "Backspace";
+    } else if (event.code === "Enter") {
+      label = "↵";
+      name = "Enter";
+    } else if (key) {
+      const letter = /^[A-Z]$/.test(key);
+      const base = key === " " ? "␣" : key === "§" ? "ISO" :
+        letter ? (event.shiftKey ? key : key.toLowerCase()) : key;
+      label = (altGr ? "⇮" : "") +
+        (event.shiftKey && !letter ? "⇧" : "") + base;
+      name = (altGr ? "AltGr + " : "") +
+        (event.shiftKey ? "Shift + " : "") +
+        (key === " " ? "Space" : key === "§" ? "ISO extra key" : key);
+    } else {
+      return;
+    }
+
+    keystrokePlaceholder.hidden = true;
+    const token = document.createElement("kbd");
+    token.className = "keystroke-token";
+    if (altGr) token.classList.add("keystroke-altgr");
+    token.textContent = label;
+    token.setAttribute("aria-label", name);
+    token.title = name;
+    keystrokeLog.append(token);
+    while (keystrokeLog.children.length > MAX_KEYSTROKES + 1) {
+      keystrokeLog.children[1].remove();
+    }
+    clearKeystrokesButton.disabled = false;
+    keystrokeLog.scrollTop = keystrokeLog.scrollHeight;
+  }
+
+  clearKeystrokesButton.addEventListener("click", clearKeystrokes);
+
   // Capture before KeymanWeb handles the focused editor. Physical codes,
   // unlike event.key, are stable across Shift, AltGr and keyboard layouts.
   function trackKey(event, down) {
     modifierState(event, down);
     const key = [...rowsFor().join("")].find((label) => physicalCode(label) === event.code);
+    if (down) recordKeystroke(event, key);
     if (!key || !mapping) return;
     if (down) {
       heldKeys.add(event.code);
@@ -357,6 +417,7 @@
   clearButton.addEventListener("click", () => {
     editor.value = "";
     feedback.textContent = "";
+    clearKeystrokes();
     updateEditor();
     editor.focus();
   });
@@ -373,6 +434,7 @@
   for (const button of document.querySelectorAll("[data-sample]")) {
     button.addEventListener("click", () => {
       editor.value = button.dataset.sample || "";
+      clearKeystrokes();
       feedback.textContent = "Example inserted";
       updateEditor();
       editor.focus();
