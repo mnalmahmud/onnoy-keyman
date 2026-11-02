@@ -33,6 +33,7 @@ jobs:
         run: |
           python -m pip install 'kalamine==0.40'
           kalamine build layout.toml --qwerty-shortcuts
+          python tools/export_web_layout.py
       - name: Build Keyman
         run: |
           pnpm install --frozen-lockfile
@@ -45,7 +46,7 @@ jobs:
         run: |
           mkdir -p site
           cp web/index.html web/style.css web/app.js site/
-          cp dist/onnoy.json site/onnoy.json
+          cp dist/onnoy-visualizer.json site/layout.json
           cp keyman/onnoy.js site/onnoy.js
           touch site/.nojekyll
       - name: Browser smoke test

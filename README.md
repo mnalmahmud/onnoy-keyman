@@ -13,7 +13,7 @@ Onnoy is made for **Bangla**. You can also use it to write these languages **wit
 - **Hajong** — the Bengali-script writing used in Bangladesh.
 - **Meitei (Manipuri)** — its Bengali-script writing, distinct from the Meitei Mayek alphabet.
 
-This is a Bengali-letter keyboard; it does not type other alphabets used for these languages. **Assamese and Bishnupriya Manipuri are not fully covered yet** because **ৰ** is missing. Assamese support is planned for later.
+This is a Bengali-letter keyboard; it does not type other alphabets used for these languages. Bishnupriya Manipuri can be typed using the Bengali-র spelling convention. An alternate layout using Assamese-style **ৰ** in place of **র** may be added later; full Assamese support is deferred.
 
 The language coverage is based on [Unicode's Kokborok spelling rules](https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-12/), [SIL Bangladesh's language-writing projects](https://www.silbangladesh.org/language_education/orthography), [Kurmali writing samples](https://omniglot.com/writing/kurmali.htm), and [research on Bengali-script Manipuri](https://aclanthology.org/2026.wmt-main.200/).
 
@@ -24,7 +24,7 @@ The layout follows the positions of the keys on a regular English keyboard.
 - Press **K** for **ক**, or **Shift + K** for **খ**.
 - The `\` `~` key (beside **1**) types **্**, the sign used to join consonants. Press **K**, that key, and **X** to type **ক্ষ**.
 - The number keys type **০–৯**. Hold **Right Alt** (also called **AltGr**) to type **0–9**.
-- Other letters and marks are shown on the [online keyboard](https://mnalmahmud.github.io/onnoy-keyman/).
+- The [online keyboard](https://mnalmahmud.github.io/onnoy-keyman/#workspace) shows all four layers (Base, Shift, AltGr and Shift + AltGr), lets you inspect individual keys, and includes Unicode details.
 
 ## Install
 
