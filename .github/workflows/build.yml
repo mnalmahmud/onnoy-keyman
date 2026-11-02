@@ -1,9 +1,8 @@
-name: CI
+name: Build and test
 
 on:
   push:
     branches: [main]
-    tags: ['v*']
   pull_request:
   workflow_dispatch:
 
@@ -15,92 +14,7 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  native:
-    name: Native / ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Validate and test
-        shell: bash
-        run: |
-          python -m onnoy validate
-          python -m onnoy test
-          python -m onnoy check
-
-      - name: Compile and package Linux XKB
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq x11-xkb-utils xkb-data
-          printf 'xkb_keymap { xkb_keycodes { include "evdev+aliases(qwerty)" }; xkb_types { include "complete" }; xkb_compat { include "complete" }; xkb_symbols { include "pc+onnoy(basic)+inet(evdev)" }; xkb_geometry { include "pc(pc105)" }; };' > /tmp/onnoy.xkb
-          xkbcomp -w 0 -I"$PWD/dist/linux" /tmp/onnoy.xkb /tmp/onnoy.xkm
-          python tools/benchmark.py > /tmp/onnoy-benchmark.json
-          python -m json.tool /tmp/onnoy-benchmark.json > /dev/null
-          python -m onnoy package --target linux
-
-      - name: Package macOS layout
-        if: runner.os == 'macOS'
-        run: python -m onnoy package --target macos
-
-      - uses: actions/upload-artifact@v4
-        if: runner.os == 'Linux'
-        with:
-          name: onnoy-linux
-          path: |
-            build/onnoy-linux-native.tar.gz
-            dist/linux/symbols/onnoy
-          if-no-files-found: error
-
-      - uses: actions/upload-artifact@v4
-        if: runner.os == 'macOS'
-        with:
-          name: onnoy-macos
-          path: |
-            build/onnoy-macos.pkg
-            dist/macos/Onnoy.keylayout
-          if-no-files-found: error
-
-      - name: Install Microsoft Keyboard Layout Creator (build-time only)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          choco install keyboard-layout-creator --version=1.4.0.20241119 --yes --no-progress
-          if ($LASTEXITCODE -ne 0) { throw "MSKLC installation failed" }
-
-      - name: Compile native Windows DLLs and installer archive
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          python -m onnoy package --target windows
-          if ($LASTEXITCODE -ne 0) { throw "Native Windows packaging failed" }
-          if (-not (Test-Path build/windows/onnoy-windows-native.zip)) { throw "Installer archive missing" }
-
-      - name: Install and test native Windows keyboard
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          python -m onnoy test --windows
-          if ($LASTEXITCODE -ne 0) { throw "Native Windows installation test failed" }
-
-      - uses: actions/upload-artifact@v4
-        if: runner.os == 'Windows'
-        with:
-          name: onnoy-windows
-          path: |
-            dist/windows/onnoy.klc
-            build/windows/onnoy-windows-native.zip
-          if-no-files-found: error
-
-  keyman:
-    name: Keyman and browser
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -110,48 +24,47 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Build native layouts using Kalamine
+        run: |
+          python -m pip install 'kalamine==0.40'
+          kalamine build layout.toml --qwerty-shortcuts
       - name: Build Keyman
         run: |
           npm install --no-audit --no-fund
-          python -m onnoy package --target keyman
-          node --check dist/keyman/onnoy.js
+          npm run build:keyman
+          node --check keyman/onnoy.js
           node --check web/app.js
-
-      - name: Assemble website
+      - name: Test source parity
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Assemble web demo
         run: |
           mkdir -p site
           cp web/index.html web/style.css web/app.js site/
-          cp dist/web/layout.json site/layout.json
-          cp dist/keyman/onnoy.js site/onnoy.js
+          cp dist/onnoy.json site/onnoy.json
+          cp keyman/onnoy.js site/onnoy.js
           touch site/.nojekyll
-
-      - name: Test compiled package and browser typing
+      - name: Browser smoke test
         run: |
-          python -m pip install playwright==1.56.0
+          python -m pip install 'playwright==1.56.0'
           python -m playwright install --with-deps chromium
-          python -m onnoy test --package-check --browser
-
+          RUN_BROWSER_TESTS=1 python -m unittest discover -s tests -p 'test_browser.py' -v
       - uses: actions/upload-artifact@v4
         with:
-          name: onnoy-keyman-and-website
+          name: onnoy-native-keyman-web
           path: |
-            dist/keyman/onnoy.kmn
-            dist/keyman/onnoy.kps
-            dist/keyman/onnoy.keyman-touch-layout
-            dist/keyman/onnoy.kmx
-            dist/keyman/onnoy.js
-            dist/keyman/onnoy.kmp
+            dist/
+            keyman/onnoy.kmx
+            keyman/onnoy.js
+            keyman/onnoy.kmp
             site/
           if-no-files-found: error
-
       - uses: actions/upload-pages-artifact@v4
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         with:
           path: site
-
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [native, keyman]
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: read

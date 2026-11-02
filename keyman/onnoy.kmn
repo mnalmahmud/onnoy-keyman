@@ -1,0 +1,205 @@
+﻿c Onnoy: positional Unicode keyboard; maintain alongside layout.toml.
+store(&VERSION) '15.0'
+store(&NAME) 'Onnoy'
+store(&KEYBOARDVERSION) '1.0'
+store(&TARGETS) 'any'
+store(&layoutfile) 'onnoy.keyman-touch-layout'
+begin Unicode > use(main)
+
+group(main) using keys
++ [K_BKQUOTE] > U+09CD
++ [SHIFT K_BKQUOTE] > U+09BC
++ [RALT K_BKQUOTE] > U+0060
++ [SHIFT RALT K_BKQUOTE] > U+007E
++ [K_1] > U+09E7
++ [SHIFT K_1] > U+0021
++ [RALT K_1] > U+0031
++ [SHIFT RALT K_1] > nul
++ [K_2] > U+09E8
++ [SHIFT K_2] > U+0040
++ [RALT K_2] > U+0032
++ [SHIFT RALT K_2] > nul
++ [K_3] > U+09E9
++ [SHIFT K_3] > U+0023
++ [RALT K_3] > U+0033
++ [SHIFT RALT K_3] > nul
++ [K_4] > U+09EA
++ [SHIFT K_4] > U+09F3
++ [RALT K_4] > U+0034
++ [SHIFT RALT K_4] > U+0024
++ [K_5] > U+09EB
++ [SHIFT K_5] > U+0025
++ [RALT K_5] > U+0035
++ [SHIFT RALT K_5] > nul
++ [K_6] > U+09EC
++ [SHIFT K_6] > U+005E
++ [RALT K_6] > U+0036
++ [SHIFT RALT K_6] > nul
++ [K_7] > U+09ED
++ [SHIFT K_7] > U+0026
++ [RALT K_7] > U+0037
++ [SHIFT RALT K_7] > nul
++ [K_8] > U+09EE
++ [SHIFT K_8] > U+002A
++ [RALT K_8] > U+0038
++ [SHIFT RALT K_8] > nul
++ [K_9] > U+09EF
++ [SHIFT K_9] > U+0028
++ [RALT K_9] > U+0039
++ [SHIFT RALT K_9] > nul
++ [K_0] > U+09E6
++ [SHIFT K_0] > U+0029
++ [RALT K_0] > U+0030
++ [SHIFT RALT K_0] > nul
++ [K_HYPHEN] > U+002D
++ [SHIFT K_HYPHEN] > U+005F
++ [RALT K_HYPHEN] > nul
++ [SHIFT RALT K_HYPHEN] > nul
++ [K_EQUAL] > U+003D
++ [SHIFT K_EQUAL] > U+002B
++ [RALT K_EQUAL] > nul
++ [SHIFT RALT K_EQUAL] > nul
++ [K_Q] > U+09A6
++ [SHIFT K_Q] > U+09A7
++ [RALT K_Q] > nul
++ [SHIFT RALT K_Q] > nul
++ [K_W] > U+09C2
++ [SHIFT K_W] > U+098A
++ [RALT K_W] > U+09F1
++ [SHIFT RALT K_W] > nul
++ [K_E] > U+09C7
++ [SHIFT K_E] > U+098F
++ [RALT K_E] > nul
++ [SHIFT RALT K_E] > nul
++ [K_R] > U+09B0
++ [SHIFT K_R] > U+09DC
++ [RALT K_R] > U+09DD
++ [SHIFT RALT K_R] > nul
++ [K_T] > U+099F
++ [SHIFT K_T] > U+09A0
++ [RALT K_T] > nul
++ [SHIFT RALT K_T] > nul
++ [K_Y] > U+09C0
++ [SHIFT K_Y] > U+09DF
++ [RALT K_Y] > nul
++ [SHIFT RALT K_Y] > nul
++ [K_U] > U+09C1
++ [SHIFT K_U] > U+0989
++ [RALT K_U] > nul
++ [SHIFT RALT K_U] > nul
++ [K_I] > U+09BF
++ [SHIFT K_I] > U+0987
++ [RALT K_I] > nul
++ [SHIFT RALT K_I] > nul
++ [K_O] > U+09CB
++ [SHIFT K_O] > U+0993
++ [RALT K_O] > nul
++ [SHIFT RALT K_O] > nul
++ [K_P] > U+09AA
++ [SHIFT K_P] > U+09AB
++ [RALT K_P] > nul
++ [SHIFT RALT K_P] > nul
++ [K_LBRKT] > U+09C8
++ [SHIFT K_LBRKT] > U+0990
++ [RALT K_LBRKT] > U+005B
++ [SHIFT RALT K_LBRKT] > U+007B
++ [K_RBRKT] > U+09CC
++ [SHIFT K_RBRKT] > U+0994
++ [RALT K_RBRKT] > U+005D
++ [SHIFT RALT K_RBRKT] > U+007D
++ [K_A] > U+09BE
++ [SHIFT K_A] > U+0986
++ [RALT K_A] > nul
++ [SHIFT RALT K_A] > nul
++ [K_S] > U+09B8
++ [SHIFT K_S] > U+09B6
++ [RALT K_S] > U+09B7
++ [SHIFT RALT K_S] > nul
++ [K_D] > U+09A1
++ [SHIFT K_D] > U+09A2
++ [RALT K_D] > U+200C
++ [SHIFT RALT K_D] > nul
++ [K_F] > U+09A4
++ [SHIFT K_F] > U+09A5
++ [RALT K_F] > U+09CE
++ [SHIFT RALT K_F] > nul
++ [K_G] > U+0997
++ [SHIFT K_G] > U+0998
++ [RALT K_G] > nul
++ [SHIFT RALT K_G] > nul
++ [K_H] > U+09B9
++ [SHIFT K_H] > U+0983
++ [RALT K_H] > U+09BD
++ [SHIFT RALT K_H] > nul
++ [K_J] > U+099C
++ [SHIFT K_J] > U+099D
++ [RALT K_J] > U+200D
++ [SHIFT RALT K_J] > nul
++ [K_K] > U+0995
++ [SHIFT K_K] > U+0996
++ [RALT K_K] > nul
++ [SHIFT RALT K_K] > nul
++ [K_L] > U+09B2
++ [SHIFT K_L] > U+0982
++ [RALT K_L] > nul
++ [SHIFT RALT K_L] > nul
++ [K_COLON] > U+09C3
++ [SHIFT K_COLON] > U+098B
++ [RALT K_COLON] > U+003B
++ [SHIFT RALT K_COLON] > U+003A
++ [K_QUOTE] > U+0027
++ [SHIFT K_QUOTE] > U+0022
++ [RALT K_QUOTE] > nul
++ [SHIFT RALT K_QUOTE] > nul
++ [K_BKSLASH] > U+005C
++ [SHIFT K_BKSLASH] > U+007C
++ [RALT K_BKSLASH] > nul
++ [SHIFT RALT K_BKSLASH] > nul
++ [K_oE2] > U+005C
++ [SHIFT K_oE2] > U+007C
++ [RALT K_oE2] > nul
++ [SHIFT RALT K_oE2] > nul
++ [K_Z] > U+09AF
++ [SHIFT K_Z] > U+0988
++ [RALT K_Z] > nul
++ [SHIFT RALT K_Z] > nul
++ [K_X] > U+09B7
++ [SHIFT K_X] > U+09DD
++ [RALT K_X] > nul
++ [SHIFT RALT K_X] > nul
++ [K_C] > U+099A
++ [SHIFT K_C] > U+099B
++ [RALT K_C] > nul
++ [SHIFT RALT K_C] > nul
++ [K_V] > U+0985
++ [SHIFT K_V] > U+09D7
++ [RALT K_V] > nul
++ [SHIFT RALT K_V] > nul
++ [K_B] > U+09AC
++ [SHIFT K_B] > U+09AD
++ [RALT K_B] > U+0981
++ [SHIFT RALT K_B] > nul
++ [K_N] > U+09A8
++ [SHIFT K_N] > U+09A3
++ [RALT K_N] > U+099E
++ [SHIFT RALT K_N] > nul
++ [K_M] > U+09AE
++ [SHIFT K_M] > U+0999
++ [RALT K_M] > nul
++ [SHIFT RALT K_M] > nul
++ [K_COMMA] > U+002C
++ [SHIFT K_COMMA] > U+003C
++ [RALT K_COMMA] > nul
++ [SHIFT RALT K_COMMA] > nul
++ [K_PERIOD] > U+0964
++ [SHIFT K_PERIOD] > U+003E
++ [RALT K_PERIOD] > U+002E
++ [SHIFT RALT K_PERIOD] > nul
++ [K_SLASH] > U+002F
++ [SHIFT K_SLASH] > U+003F
++ [RALT K_SLASH] > nul
++ [SHIFT RALT K_SLASH] > nul
++ [K_SPACE] > U+0020
++ [SHIFT K_SPACE] > U+0020
++ [RALT K_SPACE] > U+0020
++ [SHIFT RALT K_SPACE] > U+0020
