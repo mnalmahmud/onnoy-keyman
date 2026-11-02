@@ -48,6 +48,8 @@
 
   let mapping = null;
   let keymanReady = false;
+  let layoutError = null;
+  let typingError = null;
   let selectedLayer = 0;
   let pointerKey = null;
   let renderedGeometry = null;
@@ -61,6 +63,7 @@
     if (value === "\u200d") return "ZWJ";
     if (value === "\u200c") return "ZWNJ";
     if (value === " ") return "Space";
+    if (/^\p{Mark}$/u.test(value)) return "◌" + value;
     return value;
   }
 
@@ -70,23 +73,39 @@
       : selectedLayer;
   }
 
-  function displayError(message) {
-    status.classList.remove("ready");
-    status.classList.add("error");
-    statusLabel.textContent = "Preview unavailable";
-    errorHelp.hidden = false;
-    errorDetail.textContent = String(message);
+  // The visual reference and Keyman input load independently. One failing
+  // should never hide the other when it is working.
+  function displayError(source, message) {
+    if (source === "layout") layoutError = String(message);
+    else typingError = String(message);
+    displayStatus();
   }
 
   function displayStatus() {
-    if (status.classList.contains("error")) return;
-    if (mapping && keymanReady) {
-      status.classList.add("ready");
-      statusLabel.textContent = "KeymanWeb ready";
+    const problems = [];
+    if (layoutError) problems.push("Keyboard reference: " + layoutError);
+    if (typingError) problems.push("Typing: " + typingError);
+    const hasError = problems.length > 0;
+
+    status.classList.toggle("error", hasError);
+    status.classList.toggle("ready", !hasError && !!mapping && keymanReady);
+    errorHelp.hidden = !hasError;
+    errorDetail.textContent = problems.join(" · ");
+
+    if (typingError) {
+      statusLabel.textContent = "Typing unavailable";
+    } else if (layoutError) {
+      statusLabel.textContent = keymanReady
+        ? "Typing ready · Reference unavailable"
+        : "Reference unavailable · Connecting keyboard…";
+    } else if (mapping && keymanReady) {
+      statusLabel.textContent = "Onnoy ready";
     } else if (mapping) {
-      statusLabel.textContent = "Keymap ready · Connecting keyboard…";
+      statusLabel.textContent = "Keyboard reference ready · Connecting…";
     } else if (keymanReady) {
-      statusLabel.textContent = "Keyboard ready · Loading keymap…";
+      statusLabel.textContent = "Typing ready · Loading reference…";
+    } else {
+      statusLabel.textContent = "Connecting keyboard…";
     }
   }
 
@@ -103,13 +122,26 @@
     if (!mapping || !key) return;
     const values = mapping[physicalCode(key)];
     if (!values) return;
-    details.replaceChildren();
-    const title = document.createElement("strong");
-    title.textContent = key === " " ? "Space" : key === "§" ? "ISO extra key" : key;
-    const description = document.createElement("span");
-    description.textContent = "  ·  " + values.map((value, index) =>
-      layerNames[index] + ": " + readable(value)).join("   |   ");
-    details.append(title, description);
+
+    const heading = document.createElement("strong");
+    heading.className = "inspector-key";
+    heading.textContent = key === " " ? "Space" : key === "§" ? "ISO extra key" : key;
+
+    const grid = document.createElement("div");
+    grid.className = "inspector-outputs";
+    values.forEach((value, index) => {
+      const cell = document.createElement("div");
+      cell.className = "inspector-output";
+      const label = document.createElement("span");
+      label.className = "inspector-layer";
+      label.textContent = layerNames[index];
+      const glyph = document.createElement("strong");
+      glyph.textContent = readable(value);
+      glyph.lang = value === "\u200c" || value === "\u200d" ? "en" : "bn";
+      cell.append(label, glyph);
+      grid.append(cell);
+    });
+    details.replaceChildren(heading, grid);
   }
 
   function drawKeyboard() {
@@ -333,7 +365,9 @@
       await navigator.clipboard.writeText(editor.value);
       feedback.textContent = "Copied!";
     } catch {
-      feedback.textContent = "Copy unavailable — select your text manually.";
+      editor.focus();
+      editor.select();
+      feedback.textContent = "Clipboard unavailable — text selected. Press Ctrl+C or ⌘C.";
     }
   });
   for (const button of document.querySelectorAll("[data-sample]")) {
@@ -351,10 +385,15 @@
       const response = await fetch("./layout.json");
       if (!response.ok) throw new Error("Unable to fetch generated keymap (HTTP " + response.status + ")");
       const layout = await response.json();
-      if (!layout.keys || rowsFor().some((row) => [...row].some((key) => {
-        const values = layout.keys[physicalCode(key)];
-        return !Array.isArray(values) || values.length !== 4;
-      }))) {
+      // Verify the complete ANSI and ISO set, not only the initially chosen
+      // geometry; sparse modifier slots must stay explicitly null.
+      const codes = new Set([...rowsFor().join("")].map(physicalCode));
+      codes.add("IntlBackslash");
+      if (!layout.keys || [...codes].some((code) => {
+        const values = layout.keys[code];
+        return !Array.isArray(values) || values.length !== 4 ||
+          values.some((value) => value !== null && (typeof value !== "string" || [...value].length !== 1));
+      })) {
         throw new Error("Invalid four-layer keymap");
       }
       mapping = layout.keys;
@@ -362,7 +401,7 @@
       displayStatus();
     } catch (error) {
       keyboard.textContent = "Could not load the Onnoy keyboard reference.";
-      displayError(error.message || error);
+      displayError("layout", error.message || error);
     }
   }
 
@@ -390,7 +429,7 @@
       keymanReady = true;
       displayStatus();
     } catch (error) {
-      displayError(error.message || error);
+      displayError("typing", error.message || error);
     }
   }
 
