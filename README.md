@@ -1,28 +1,19 @@
 # Onnoy · অন্বয়
 
-**Write Bangla with the keys on your computer or phone.** Press a key to type a Bengali letter or vowel sign. Hold Shift or Right Alt for more characters. You don't have to spell words in English to convert them into Bangla.
+Onnoy is a keyboard for writing Bangla and other languages using Bengali letters. It works on computers and phones, with Shift and Right Alt giving access to additional characters.
 
-[**Try Onnoy online**](https://mnalmahmud.github.io/onnoy-keyman/) · [Get the keyboard](https://github.com/mnalmahmud/onnoy-keyman/actions)
+[**Try the keyboard**](https://mnalmahmud.github.io/onnoy-keyman/) · [Download builds](https://github.com/mnalmahmud/onnoy-keyman/actions)
 
 ## Languages
 
-Onnoy is made for **Bangla**. You can also use it to write these languages **with Bengali letters**:
-
-- **Kokborok (Tripuri)** — including its special vowel combinations **অৗ** and **উা**.
-- **Kurmali (Kudmali)** — the Bengali-script writing used in West Bengal.
-- **Hajong** — the Bengali-script writing used in Bangladesh.
-- **Meitei (Manipuri)** — its Bengali-script writing, distinct from the Meitei Mayek alphabet.
-
-This is a Bengali-letter keyboard; it does not type other alphabets used for these languages. Bishnupriya Manipuri can be typed using the Bengali-র spelling convention. An alternate layout using Assamese-style **ৰ** in place of **র** may be added later; full Assamese support is deferred.
-
-The language coverage is based on [Unicode's Kokborok spelling rules](https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-12/), [SIL Bangladesh's language-writing projects](https://www.silbangladesh.org/language_education/orthography), [Kurmali writing samples](https://omniglot.com/writing/kurmali.htm), and [research on Bengali-script Manipuri](https://aclanthology.org/2026.wmt-main.200/).
+Onnoy is designed for **Bangla** and also supports writing **Kokborok, Bishnupriya Manipuri, Kurmali (Kudmali), Hajong, and Meitei (Manipuri)** in Bengali script.
 
 ## How to type
 
 The layout follows the positions of the keys on a regular English keyboard.
 
 - Press **K** for **ক**, or **Shift + K** for **খ**.
-- The `\` `~` key (beside **1**) types **্**, the sign used to join consonants. Press **K**, that key, and **X** to type **ক্ষ**.
+- The **Grave** key (immediately left of **1**) types **্**, which joins consonants. Press **K**, **Grave**, then **X** to type **ক্ষ**.
 - The number keys type **০–৯**. Hold **Right Alt** (also called **AltGr**) to type **0–9**.
 - The [online keyboard](https://mnalmahmud.github.io/onnoy-keyman/#workspace) shows all four layers (Base, Shift, AltGr and Shift + AltGr), lets you inspect individual keys, and includes Unicode details.
 
