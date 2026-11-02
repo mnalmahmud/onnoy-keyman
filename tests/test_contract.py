@@ -1,7 +1,9 @@
 """Regression tests for the generated Keyman keyboard and mobile layout."""
 import json
 import re
+import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -29,9 +31,19 @@ def keyman_rules(source):
 
 
 class KeymanGeneration(unittest.TestCase):
-    def test_build_regenerates_source(self):
-        compiled = (ROOT / "keyman/onnoy.kmn").read_text(encoding="utf-8")
-        self.assertEqual(compiled, generate(ROOT / "layout.toml"))
+    def test_cli_generates_source(self):
+        # Run from a fresh checkout: no compiled Keyman artifacts are needed.
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / "onnoy.kmn"
+            subprocess.run(
+                [sys.executable, str(ROOT / "tools/toml_to_kmn.py"),
+                 str(ROOT / "layout.toml"), str(output)],
+                check=True,
+                cwd=ROOT,
+            )
+            self.assertEqual(
+                output.read_text(encoding="utf-8"), generate(ROOT / "layout.toml")
+            )
 
     def test_core_outputs_and_unmapped_chords(self):
         rules = keyman_rules(generate(ROOT / "layout.toml"))
