@@ -277,9 +277,22 @@
       (event.ctrlKey && event.altKey);
     if ((event.ctrlKey || event.altKey) && !altGr) return;
 
-    // Backspace edits the history; it is not a recorded keystroke.
+    // Deletion at the end can undo the last recorded key. For selections
+    // or edits earlier in the text there is no reliable one-to-one mapping
+    // between characters and keys (especially for conjunct shortcuts).
     if (event.code === "Backspace") {
-      if (!event.ctrlKey && !event.altKey) removeLastKeystroke();
+      if (!event.ctrlKey && !event.altKey) {
+        if (editor.selectionStart !== editor.selectionEnd ||
+            editor.selectionStart < editor.value.length) {
+          clearKeystrokes();
+        } else if (editor.selectionStart > 0) {
+          removeLastKeystroke();
+        }
+      }
+      return;
+    }
+    if (event.code === "Delete") {
+      if (editor.selectionStart < editor.value.length) clearKeystrokes();
       return;
     }
 
@@ -304,6 +317,14 @@
         (key === " " ? "Space" : key === "§" ? "ISO extra key" : key);
     } else {
       return;
+    }
+
+    // Replacement (including Ctrl+A then typing) and edits in the middle
+    // invalidate the recorded key sequence. Start a new sequence instead
+    // of displaying stale keystrokes beside the new text.
+    if (editor.selectionStart !== editor.selectionEnd ||
+        editor.selectionStart < editor.value.length) {
+      clearKeystrokes();
     }
 
     keystrokePlaceholder.hidden = true;
@@ -420,7 +441,13 @@
       }
     }
   }
-  editor.addEventListener("input", () => {
+  editor.addEventListener("input", (event) => {
+    // Paste, cut, drag/drop, undo and forward deletion change the text
+    // without corresponding physical character-key tokens.
+    const inputType = event.inputType || "";
+    if (/^(insertFrom|insertReplacementText|history|deleteByCut|deleteWord|deleteSoftLine|deleteHardLine|deleteContentForward)/.test(inputType)) {
+      clearKeystrokes();
+    }
     feedback.textContent = "";
     updateEditor();
   });

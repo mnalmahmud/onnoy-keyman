@@ -99,15 +99,19 @@ class BrowserSmoke(unittest.TestCase):
                     page.locator("#keystroke-log kbd").all_inner_texts()[-2:],
                     ["⇮w", "⇮D"],
                 )
+                # Synthetic modifier events above do not insert text.
+                # Test Backspace against real text and real key tokens.
+                page.locator("#clear-keystrokes").click()
+                page.locator("#editor").fill("")
+                page.locator("#editor").focus()
+                page.keyboard.press("k")
+                page.keyboard.press("Shift+k")
+                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k", "K"])
                 page.keyboard.press("Backspace")
-                self.assertEqual(
-                    page.locator("#keystroke-log kbd").all_inner_texts()[-2:],
-                    ["K", "⇮w"],
-                )
+                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
                 self.assertNotIn("⌫", page.locator("#keystroke-log").inner_text())
-                # Repeated backspaces consume the history, never append ⌫.
-                for _ in range(5):
-                    page.keyboard.press("Backspace")
+                page.keyboard.press("Backspace")
+                page.keyboard.press("Backspace")
                 self.assertEqual(page.locator("#keystroke-log kbd").count(), 0)
                 self.assertTrue(page.locator("#keystroke-placeholder").is_visible())
                 self.assertTrue(page.locator("#clear-keystrokes").is_disabled())
@@ -214,5 +218,63 @@ class BrowserSmoke(unittest.TestCase):
                     page.locator("#keystroke-log kbd").all_inner_texts(),
                     ["k", "Q", "⇮w", "⇮D"],
                 )
+            finally:
+                browser.close()
+
+    def test_replacing_or_editing_text_resets_keystroke_history(self):
+        """The panel must not retain keys from text replaced with Ctrl+A."""
+        from playwright.sync_api import sync_playwright
+
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch()
+            try:
+                page = browser.new_page()
+                page.goto(self.url, wait_until="load")
+                page.wait_for_function(
+                    "document.querySelector('#status').classList.contains('ready')",
+                    timeout=30000,
+                )
+                page.locator("#editor").focus()
+                page.keyboard.press("k")
+                page.keyboard.press("Shift+k")
+                self.assertEqual(page.locator("#editor").input_value(), "কখ")
+                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k", "K"])
+
+                # Ctrl+A is a selection, not a new keystroke. Replacing the
+                # selected text should discard the previously recorded keys.
+                page.keyboard.press("Control+a")
+                page.keyboard.press("q")
+                self.assertEqual(page.locator("#editor").input_value(), "দ")
+                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["q"])
+
+                # Backspace at the start deletes nothing; history stays put.
+                page.keyboard.press("Home")
+                page.keyboard.press("Backspace")
+                self.assertEqual(page.locator("#editor").input_value(), "দ")
+                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["q"])
+
+                # Editing at the beginning invalidates the previous sequence.
+                page.keyboard.press("k")
+                self.assertEqual(page.locator("#editor").input_value(), "কদ")
+                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
+
+                # Forward Delete removes text without a character keystroke.
+                page.keyboard.press("Delete")
+                self.assertEqual(page.locator("#editor").input_value(), "ক")
+                self.assertEqual(page.locator("#keystroke-log kbd").count(), 0)
+
+                # Pasting also changes the text without a physical key.
+                page.locator("#editor").focus()
+                page.keyboard.press("k")
+                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
+                page.evaluate("""() => {
+                    const editor = document.querySelector('#editor');
+                    editor.value = 'পেস্ট';
+                    editor.dispatchEvent(new InputEvent('input', {
+                        bubbles: true, inputType: 'insertFromPaste', data: 'পেস্ট'
+                    }));
+                }""")
+                self.assertEqual(page.locator("#keystroke-log kbd").count(), 0)
+                self.assertTrue(page.locator("#keystroke-placeholder").is_visible())
             finally:
                 browser.close()
