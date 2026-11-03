@@ -65,19 +65,34 @@ class BrowserSmoke(unittest.TestCase):
                 )
                 page.keyboard.press("Shift+k")
                 self.assertEqual(page.locator("#keystroke-log kbd").last.inner_text(), "K")
+                # AltGr+A (and AltGr+Q) have no mapping: do not record them.
+                page.evaluate("""() => {
+                    const editor = document.querySelector('#editor');
+                    for (const code of ['KeyA', 'KeyQ']) {
+                        for (const shift of [false, true]) {
+                            editor.dispatchEvent(new KeyboardEvent('keydown', {
+                                bubbles: true, key: code === 'KeyA' ? 'a' : 'q',
+                                code, altKey: true, ctrlKey: true,
+                                shiftKey: shift
+                            }));
+                        }
+                    }
+                }""")
+                self.assertEqual(page.locator("#keystroke-log kbd").last.inner_text(), "K")
+                self.assertEqual(page.locator("#keystroke-log kbd").count(), 4)
                 # Emulate browsers that express AltGr through Ctrl+Alt.
                 page.evaluate("""() => {
                     const editor = document.querySelector('#editor');
-                    for (const [key, shift] of [['w', false], ['W', true]]) {
+                    for (const [key, code, shift] of [['w', 'KeyW', false], ['D', 'KeyD', true]]) {
                         editor.dispatchEvent(new KeyboardEvent('keydown', {
-                            bubbles: true, key, code: 'KeyW',
+                            bubbles: true, key, code,
                             altKey: true, ctrlKey: true, shiftKey: shift
                         }));
                     }
                 }""")
                 self.assertEqual(
                     page.locator("#keystroke-log kbd").all_inner_texts()[-2:],
-                    ["⇮w", "⇮W"],
+                    ["⇮w", "⇮D"],
                 )
                 page.keyboard.press("Backspace")
                 self.assertEqual(
@@ -125,6 +140,15 @@ class BrowserSmoke(unittest.TestCase):
                 page.locator("#editor").focus()
                 page.keyboard.press("k")
                 self.assertEqual(page.locator("#editor").input_value(), "ক")
+                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
+                page.evaluate("""() => {
+                    document.querySelector('#editor').dispatchEvent(
+                        new KeyboardEvent('keydown', {
+                            bubbles: true, key: 'a', code: 'KeyA',
+                            altKey: true, ctrlKey: true
+                        })
+                    );
+                }""")
                 self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
             finally:
                 browser.close()
