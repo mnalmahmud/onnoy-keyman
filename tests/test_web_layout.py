@@ -27,6 +27,8 @@ class WebReference(unittest.TestCase):
         self.assertEqual(keys["KeyQ"][:2], ["দ", "ধ"])
         self.assertEqual(keys["KeyF"][:2], ["ত", "থ"])
         self.assertEqual(keys["KeyJ"][3], "\u200c")
+        self.assertEqual(keys["KeyH"], ["হ", "ঃ", "্", None])
+        self.assertFalse(any("ঽ" in output for layers in keys.values() for output in layers if output))
         self.assertEqual(keys["Backquote"][:2], ["্", "়"])
         self.assertIsNone(keys["KeyL"][2])
 
