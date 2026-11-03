@@ -49,6 +49,7 @@ class BrowserSmoke(unittest.TestCase):
                 self.assertEqual(page.locator("#keyboard .keyboard-key[data-code='KeyK'] .key-output").inner_text(), "ক্ষ")
                 self.assertEqual(page.locator("#keyboard .keyboard-key[data-code='KeyG'] .key-output").inner_text(), "জ্ঞ")
                 self.assertEqual(page.locator("#keyboard .keyboard-key[data-code='KeyY'] .key-output").inner_text(), "ঈ")
+                self.assertEqual(page.locator("#keyboard .keyboard-key[data-code='KeyH'] .key-output").inner_text(), "◌্")
                 self.assertEqual(page.locator("#keyboard .keyboard-key[data-code='KeyD'] .key-output").inner_text(), "দ")
                 self.assertEqual(page.locator("#keyboard .keyboard-key[data-code='KeyT'] .key-output").inner_text(), "ত")
                 page.locator("[data-layer='3']").click()

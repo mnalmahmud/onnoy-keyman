@@ -60,7 +60,7 @@ class KeymanGeneration(unittest.TestCase):
             "K_F": "ত", "SHIFT K_F": "থ",
             "RALT K_W": "ৱ", "SHIFT K_4": "৳",
             "RALT K_4": "4", "SHIFT RALT K_4": "$",
-            "RALT K_S": "ষ",
+            "RALT K_S": "ষ", "RALT K_H": "্", "SHIFT K_H": "ঃ",
             "RALT K_Y": "ঈ", "RALT K_K": "ক্ষ", "RALT K_G": "জ্ঞ",
             "RALT K_Q": None,
         }
@@ -68,6 +68,7 @@ class KeymanGeneration(unittest.TestCase):
             with self.subTest(chord=chord):
                 self.assertEqual(rules[chord], value)
         self.assertEqual(len(rules) % 4, 0)
+        self.assertNotIn("ঽ", [value for value in rules.values() if value])
 
     def test_editing_toml_changes_keyman_output(self):
         layout = KeyboardLayout(load_layout(ROOT / "layout.toml"))
@@ -86,6 +87,7 @@ class KeymanGeneration(unittest.TestCase):
                for value in [key, *key.get("sk", [])]}
         for output in "়্ৱঁংৎষঢ়\u200d\u200c":
             self.assertIn("U_" + f"{ord(output):04X}", ids)
+        self.assertNotIn("U_09BD", ids)
         self.assertEqual({layer["id"] for layer in touch["phone"]["layer"]},
                          {"default", "shift", "numeric"})
 
