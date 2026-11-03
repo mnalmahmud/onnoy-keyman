@@ -18,7 +18,6 @@
   const count = byId("count");
   const keystrokeLog = byId("keystroke-log");
   const keystrokePlaceholder = byId("keystroke-placeholder");
-  const clearKeystrokesButton = byId("clear-keystrokes");
   const themeControl = byId("theme");
   const geometryControl = byId("geometry");
   const layerHint = byId("layer-hint");
@@ -343,7 +342,6 @@
     }
     keystrokePlaceholder.hidden = strokes.length !== 0;
     keystrokeLog.replaceChildren(keystrokePlaceholder, fragment);
-    clearKeystrokesButton.disabled = !editor.value.length;
     keystrokeLog.scrollTop = keystrokeLog.scrollHeight;
   }
 
@@ -405,12 +403,6 @@
       pendingStroke = null;
     }
   }
-
-  // Rebuild from the current text instead of clearing an independent history.
-  clearKeystrokesButton.addEventListener("click", () => {
-    strokes = decodeText(editor.value);
-    renderKeystrokes();
-  });
 
   // Capture before KeymanWeb handles the focused editor. Physical codes,
   // unlike event.key, are stable across Shift, AltGr and keyboard layouts.

@@ -196,8 +196,6 @@ button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visi
 .keystroke-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .keystroke-header h4 { margin: 0; font-size: 13px; font-weight: 700; }
 .keystroke-header p { color: var(--muted); font-size: 11px; margin: 3px 0 11px; }
-.keystroke-clear { border: 0; background: transparent; color: var(--accent); font-size: 11px; font-weight: 700; padding: 3px 0; white-space: nowrap; }
-.keystroke-clear:not(:disabled):hover { text-decoration: underline; }
 .keystroke-log { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 6px; max-height: 112px; min-height: 40px; overflow-y: auto; padding: 5px 0; }
 .keystroke-placeholder { color: var(--muted); font-size: 12px; align-self: center; }
 .keystroke-token { display: inline-grid; place-items: center; min-width: 30px; height: 30px; padding: 3px 8px; border: 1px solid var(--line); border-bottom: 2px solid var(--key-shadow); border-radius: 6px; background: var(--surface-soft); color: var(--ink); font: 600 13px/1.3 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: nowrap; }

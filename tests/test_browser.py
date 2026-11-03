@@ -116,14 +116,13 @@ class BrowserSmoke(unittest.TestCase):
                 page.keyboard.press("Backspace")
                 self.assertEqual(page.locator("#keystroke-log kbd").count(), 0)
                 self.assertTrue(page.locator("#keystroke-placeholder").is_visible())
-                self.assertTrue(page.locator("#clear-keystrokes").is_disabled())
                 page.keyboard.press("k")
-                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
-                page.locator("#clear-keystrokes").click()
                 self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
                 page.locator("#clear").click()
                 self.assertEqual(page.locator("#keystroke-log kbd").count(), 0)
                 self.assertTrue(page.locator("#keystroke-placeholder").is_visible())
+                page.locator("#editor").focus()
+                page.keyboard.press("k")
                 page.locator("#inspect").click()
                 self.assertFalse(page.locator("#unicode-panel").is_hidden())
                 self.assertIn("U+0995", page.locator("#codepoints").inner_text())
@@ -227,8 +226,8 @@ class BrowserSmoke(unittest.TestCase):
             finally:
                 browser.close()
 
-    def test_replacing_or_editing_text_resets_keystroke_history(self):
-        """The panel must not retain keys from text replaced with Ctrl+A."""
+    def test_replacing_or_editing_text_keeps_keystrokes_in_sync(self):
+        """Keys for unchanged text survive edits and replacements."""
         from playwright.sync_api import sync_playwright
 
         with sync_playwright() as playwright:
@@ -259,20 +258,20 @@ class BrowserSmoke(unittest.TestCase):
                 self.assertEqual(page.locator("#editor").input_value(), "দ")
                 self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["q"])
 
-                # Editing at the beginning invalidates the previous sequence.
+                # Inserting at the beginning keeps the key for unchanged text.
                 page.keyboard.press("k")
                 self.assertEqual(page.locator("#editor").input_value(), "কদ")
-                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
+                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k", "q"])
 
-                # Forward Delete removes text without a character keystroke.
+                # Forward Delete removes only the corresponding output.
                 page.keyboard.press("Delete")
                 self.assertEqual(page.locator("#editor").input_value(), "ক")
-                self.assertEqual(page.locator("#keystroke-log kbd").count(), 0)
+                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
 
-                # Pasting also changes the text without a physical key.
+                # Pasted text is represented using inferred mappings.
                 page.locator("#editor").focus()
                 page.keyboard.press("k")
-                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
+                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k", "k"])
                 page.evaluate("""() => {
                     const editor = document.querySelector('#editor');
                     editor.dispatchEvent(new Event('paste', { bubbles: true }));
@@ -281,7 +280,13 @@ class BrowserSmoke(unittest.TestCase):
                         bubbles: true, inputType: 'insertFromPaste', data: 'পেস্ট'
                     }));
                 }""")
-                self.assertEqual(page.locator("#keystroke-log kbd").count(), 0)
-                self.assertTrue(page.locator("#keystroke-placeholder").is_visible())
+                self.assertGreater(page.locator("#keystroke-log kbd").count(), 0)
+                self.assertEqual(page.locator("#editor").input_value(), "পেস্ট")
+                self.assertTrue(
+                    all("inferred from text" in label for label in
+                        page.locator("#keystroke-log kbd").evaluate_all(
+                            "(nodes) => nodes.map(n => n.getAttribute('aria-label'))"
+                        ))
+                )
             finally:
                 browser.close()
