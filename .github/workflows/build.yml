@@ -43,6 +43,8 @@ jobs:
           kalamine build layout.toml --qwerty-shortcuts
           python tools/export_web_layout.py
           python tools/apply_native_sequences.py
+      - name: Verify native shortcut outputs
+        run: python -m unittest discover -s tests -p 'test_native_sequences.py' -v
       - name: Build Keyman
         run: |
           pnpm install --frozen-lockfile

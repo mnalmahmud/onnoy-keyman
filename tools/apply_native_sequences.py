@@ -8,7 +8,6 @@ intentionally left unchanged.
 """
 import re
 from pathlib import Path
-from xml.etree import ElementTree as ET
 
 from kalamine.layout import KeyboardLayout, load_layout
 from kalamine.utils import SCAN_CODES
@@ -79,7 +78,14 @@ def apply(source: Path, dist: Path) -> None:
             patch_mac, f"macOS {code}"
         )
     xml = xml[:start] + option_map + xml[end:]
-    ET.fromstring(xml)  # fail on invalid XML
+    # Kalamine emits legacy control-character references (e.g. &#x0010;)
+    # elsewhere in the file, which XML 1.0 parsers reject. Validate just
+    # the affected Option entries rather than parsing the whole base file.
+    for code, output in sequences.items():
+        ident = MAC_CODE[code]
+        match = re.search(rf'<key code="{ident}"\s+output="([^"]*)"\s*/>', option_map)
+        if match is None or match.group(1) != output:
+            raise ValueError(f"Invalid macOS shortcut for {code}")
     mac.write_text(xml, encoding="utf-8")
 
     # AutoHotkey v1.1: input text directly, not one code point at a time.
