@@ -269,6 +269,7 @@ class BrowserSmoke(unittest.TestCase):
                 self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
                 page.evaluate("""() => {
                     const editor = document.querySelector('#editor');
+                    editor.dispatchEvent(new Event('paste', { bubbles: true }));
                     editor.value = 'পেস্ট';
                     editor.dispatchEvent(new InputEvent('input', {
                         bubbles: true, inputType: 'insertFromPaste', data: 'পেস্ট'
