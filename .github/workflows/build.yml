@@ -34,9 +34,12 @@ jobs:
         run: |
           python -m compileall -q tools tests
           node --check web/app.js
+      - name: Install Kalamine
+        run: python -m pip install 'kalamine==0.40'
+      - name: Test generators and Unicode
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Build native layouts using Kalamine
         run: |
-          python -m pip install 'kalamine==0.40'
           kalamine build layout.toml --qwerty-shortcuts
           python tools/export_web_layout.py
       - name: Build Keyman
@@ -50,8 +53,6 @@ jobs:
           test -s dist/onnoy.klc
           test -s dist/onnoy.keylayout
           test -s dist/onnoy-visualizer.json
-      - name: Test converter and Unicode regressions
-        run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Assemble web demo
         run: |
           mkdir -p site

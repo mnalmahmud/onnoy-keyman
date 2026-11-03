@@ -1,6 +1,8 @@
 """The four-layer web reference must preserve empty modifier slots."""
 import json
+import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -26,9 +28,20 @@ class WebReference(unittest.TestCase):
         self.assertEqual(keys["Backquote"][:2], ["্", "়"])
         self.assertIsNone(keys["KeyL"][2])
 
-    def test_generated_file(self):
-        path = ROOT / "dist/onnoy-visualizer.json"
-        self.assertEqual(json.loads(path.read_text(encoding="utf-8")), export(ROOT / "layout.toml"))
+    def test_cli_generates_json(self):
+        # Exercise the CLI without depending on a prior Kalamine build.
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / "layout.json"
+            subprocess.run(
+                [sys.executable, str(ROOT / "tools/export_web_layout.py"),
+                 str(ROOT / "layout.toml"), str(output)],
+                check=True,
+                cwd=ROOT,
+            )
+            self.assertEqual(
+                json.loads(output.read_text(encoding="utf-8")),
+                export(ROOT / "layout.toml"),
+            )
 
 
 if __name__ == "__main__":
