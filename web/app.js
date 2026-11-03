@@ -277,18 +277,6 @@
       (event.ctrlKey && event.altKey);
     if ((event.ctrlKey || event.altKey) && !altGr) return;
 
-    // Only log keys that Onnoy actually maps on the pressed layer.
-    // In particular, unused AltGr combinations must not create tokens.
-    if (key) {
-      const layer = Number(!!event.shiftKey) + 2 * Number(!!altGr);
-      if (mapping) {
-        if (mapping[event.code]?.[layer] == null) return;
-      } else if (altGr) {
-        // Without the reference we cannot tell which AltGr keys are valid.
-        return;
-      }
-    }
-
     // Backspace edits the history; it is not a recorded keystroke.
     if (event.code === "Backspace") {
       if (!event.ctrlKey && !event.altKey) removeLastKeystroke();
@@ -301,6 +289,11 @@
       label = "↵";
       name = "Enter";
     } else if (key) {
+      // One rule for Base, Shift, AltGr, and Shift+AltGr: only assigned
+      // outputs become keystroke tokens. Empty or unavailable maps never
+      // imply that a physical key produced a character.
+      const layer = Number(!!event.shiftKey) + 2 * Number(!!altGr);
+      if (!mapping?.[event.code]?.[layer]) return;
       const letter = /^[A-Z]$/.test(key);
       const base = key === " " ? "␣" : key === "§" ? "ISO" :
         letter ? (event.shiftKey ? key : key.toLowerCase()) : key;

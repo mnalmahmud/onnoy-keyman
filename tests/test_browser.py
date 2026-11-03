@@ -1,4 +1,5 @@
 """Chromium smoke tests for typing and the four-layer keyboard interface."""
+import json
 import os
 import threading
 import unittest
@@ -140,15 +141,74 @@ class BrowserSmoke(unittest.TestCase):
                 page.locator("#editor").focus()
                 page.keyboard.press("k")
                 self.assertEqual(page.locator("#editor").input_value(), "ক")
-                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
+                # Typing still works, but without a mapping the history
+                # cannot establish whether any layer is assigned.
+                self.assertEqual(page.locator("#keystroke-log kbd").count(), 0)
+                self.assertTrue(page.locator("#keystroke-placeholder").is_visible())
+            finally:
+                browser.close()
+
+    def test_keystroke_history_checks_all_four_layers(self):
+        """Unassigned output is ignored regardless of modifier combination."""
+        from playwright.sync_api import sync_playwright
+
+        layout = json.loads((ROOT / "site/layout.json").read_text(encoding="utf-8"))
+        # Model an empty slot in every layer, even when an earlier version
+        # of that key used to produce a character.
+        for code, layer in [
+            ("KeyQ", 0), ("KeyS", 1), ("KeyA", 2), ("KeyW", 3)
+        ]:
+            layout["keys"][code][layer] = None
+
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch()
+            try:
+                page = browser.new_page()
+                page.route("**/layout.json", lambda route: route.fulfill(
+                    status=200, content_type="application/json",
+                    body=json.dumps(layout, ensure_ascii=False)
+                ))
+                page.goto(self.url, wait_until="load")
+                page.wait_for_function(
+                    "document.querySelector('#status').classList.contains('ready')",
+                    timeout=30000,
+                )
                 page.evaluate("""() => {
-                    document.querySelector('#editor').dispatchEvent(
-                        new KeyboardEvent('keydown', {
-                            bubbles: true, key: 'a', code: 'KeyA',
-                            altKey: true, ctrlKey: true
-                        })
-                    );
+                    const editor = document.getElementById('editor');
+                    editor.focus();
+                    const send = (code, shift = false, altgr = false) => {
+                        editor.dispatchEvent(new KeyboardEvent('keydown', {
+                            bubbles: true, code,
+                            key: code.slice(3).toLowerCase(),
+                            shiftKey: shift, ctrlKey: altgr, altKey: altgr
+                        }));
+                    };
+                    // Unassigned: Base, Shift, AltGr, Shift+AltGr.
+                    send('KeyQ');
+                    send('KeyS', true);
+                    send('KeyA', false, true);
+                    send('KeyW', true, true);
                 }""")
-                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
+                self.assertEqual(page.locator("#keystroke-log kbd").count(), 0)
+                self.assertTrue(page.locator("#keystroke-placeholder").is_visible())
+                page.evaluate("""() => {
+                    const editor = document.getElementById('editor');
+                    const send = (code, shift = false, altgr = false) => {
+                        editor.dispatchEvent(new KeyboardEvent('keydown', {
+                            bubbles: true, code,
+                            key: code.slice(3).toLowerCase(),
+                            shiftKey: shift, ctrlKey: altgr, altKey: altgr
+                        }));
+                    };
+                    // Assigned: one key in each of the same four layers.
+                    send('KeyK');
+                    send('KeyQ', true);
+                    send('KeyW', false, true);
+                    send('KeyD', true, true);
+                }""")
+                self.assertEqual(
+                    page.locator("#keystroke-log kbd").all_inner_texts(),
+                    ["k", "Q", "⇮w", "⇮D"],
+                )
             finally:
                 browser.close()
