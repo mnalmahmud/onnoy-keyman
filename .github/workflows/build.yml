@@ -42,6 +42,7 @@ jobs:
         run: |
           kalamine build layout.toml --qwerty-shortcuts
           python tools/export_web_layout.py
+          python tools/apply_native_sequences.py
       - name: Build Keyman
         run: |
           pnpm install --frozen-lockfile

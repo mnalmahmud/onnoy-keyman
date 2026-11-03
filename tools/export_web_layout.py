@@ -6,6 +6,7 @@ from pathlib import Path
 
 from kalamine.layout import KeyboardLayout, load_layout
 from kalamine.utils import LAYER_KEYS, SCAN_CODES, Layer
+from sequences import altgr_sequences
 
 ROOT = Path(__file__).resolve().parents[1]
 LAYERS = (Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT)
@@ -20,6 +21,8 @@ def export(source: Path) -> dict:
         if any(position in layout.layers[layer] for layer in LAYERS):
             code = SCAN_CODES["web"][position]
             keys[code] = [layout.layers[layer].get(position) for layer in LAYERS]
+    for code, output in altgr_sequences(source, layout).items():
+        keys[code][2] = output
     return {
         "name": layout.meta["name"],
         "layers": ["base", "shift", "altgr", "shift_altgr"],

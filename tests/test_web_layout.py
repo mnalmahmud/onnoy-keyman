@@ -17,7 +17,9 @@ class WebReference(unittest.TestCase):
         self.assertEqual(data["layers"], ["base", "shift", "altgr", "shift_altgr"])
         keys = data["keys"]
         self.assertTrue(all(len(values) == 4 for values in keys.values()))
-        self.assertEqual(keys["KeyK"][:2], ["ক", "খ"])
+        self.assertEqual(keys["KeyK"][:3], ["ক", "খ", "ক্ষ"])
+        self.assertEqual(keys["KeyG"][:3], ["গ", "ঘ", "জ্ঞ"])
+        self.assertEqual(keys["KeyY"], ["ী", "য়", "ঈ", None])
         self.assertEqual(keys["KeyQ"][2:], [None, None])
         self.assertEqual(keys["KeyJ"][2], "\u200d")
         self.assertEqual(keys["KeyD"], ["ড", "ঢ", "দ", "ধ"])
