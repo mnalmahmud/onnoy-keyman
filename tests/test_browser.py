@@ -83,16 +83,16 @@ class BrowserSmoke(unittest.TestCase):
                 # Emulate browsers that express AltGr through Ctrl+Alt.
                 page.evaluate("""() => {
                     const editor = document.querySelector('#editor');
-                    for (const [key, shift] of [['w', false], ['W', true]]) {
+                    for (const [key, code, shift] of [['w', 'KeyW', false], ['D', 'KeyD', true]]) {
                         editor.dispatchEvent(new KeyboardEvent('keydown', {
-                            bubbles: true, key, code: 'KeyW',
+                            bubbles: true, key, code,
                             altKey: true, ctrlKey: true, shiftKey: shift
                         }));
                     }
                 }""")
                 self.assertEqual(
                     page.locator("#keystroke-log kbd").all_inner_texts()[-2:],
-                    ["⇮w", "⇮W"],
+                    ["⇮w", "⇮D"],
                 )
                 page.keyboard.press("Backspace")
                 self.assertEqual(
