@@ -35,28 +35,23 @@ class BrowserSmoke(unittest.TestCase):
             try:
                 page = browser.new_page()
                 page.goto(self.url, wait_until="load")
-                page.wait_for_function(
-                    "document.querySelector('#status').classList.contains('ready')",
-                    timeout=30000,
-                )
+                page.wait_for_function("document.querySelector('#status').classList.contains('ready')", timeout=30000)
                 self.assertEqual(page.locator("[data-layer]").count(), 4)
                 self.assertGreater(page.locator("#keyboard .keyboard-key").count(), 45)
                 page.locator("[data-layer='2']").click()
-                self.assertEqual(
-                    page.locator("[data-layer='2']").get_attribute("aria-pressed"), "true"
-                )
+                self.assertEqual(page.locator("[data-layer='2']").get_attribute("aria-pressed"), "true")
                 page.locator("#keyboard .keyboard-key[data-code='KeyK']").click()
                 self.assertEqual(page.locator("#key-details .inspector-output").count(), 4)
                 self.assertIn("ক", page.locator("#key-details").inner_text())
                 self.assertIn("খ", page.locator("#key-details").inner_text())
-                self.assertEqual(
-                    page.locator("#keyboard .keyboard-key[data-code='KeyJ'] .key-output").inner_text(),
-                    "ZWJ",
-                )
+                self.assertEqual(page.locator("#keyboard .keyboard-key[data-code='KeyJ'] .key-output").inner_text(), "ZWJ")
+                self.assertEqual(page.locator("#keyboard .keyboard-key[data-code='KeyD'] .key-output").inner_text(), "দ")
+                self.assertEqual(page.locator("#keyboard .keyboard-key[data-code='KeyT'] .key-output").inner_text(), "ত")
                 page.locator("[data-layer='3']").click()
-                self.assertEqual(
-                    page.locator("[data-layer='3']").get_attribute("aria-pressed"), "true"
-                )
+                self.assertEqual(page.locator("[data-layer='3']").get_attribute("aria-pressed"), "true")
+                self.assertEqual(page.locator("#keyboard .keyboard-key[data-code='KeyD'] .key-output").inner_text(), "ধ")
+                self.assertEqual(page.locator("#keyboard .keyboard-key[data-code='KeyT'] .key-output").inner_text(), "থ")
+                self.assertEqual(page.locator("#keyboard .keyboard-key[data-code='KeyJ'] .key-output").inner_text(), "ZWNJ")
                 page.locator("[data-layer='0']").click()
                 page.locator("#editor").focus()
                 page.keyboard.press("k")
@@ -64,6 +59,43 @@ class BrowserSmoke(unittest.TestCase):
                 page.keyboard.press("Backquote")
                 page.keyboard.press("x")
                 self.assertEqual(page.locator("#editor").input_value(), "ক্ষ")
+                self.assertEqual(
+                    page.locator("#keystroke-log kbd").all_inner_texts(),
+                    ["k", "`", "x"],
+                )
+                page.keyboard.press("Shift+k")
+                self.assertEqual(page.locator("#keystroke-log kbd").last.inner_text(), "K")
+                # Emulate browsers that express AltGr through Ctrl+Alt.
+                page.evaluate("""() => {
+                    const editor = document.querySelector('#editor');
+                    for (const [key, shift] of [['w', false], ['W', true]]) {
+                        editor.dispatchEvent(new KeyboardEvent('keydown', {
+                            bubbles: true, key, code: 'KeyW',
+                            altKey: true, ctrlKey: true, shiftKey: shift
+                        }));
+                    }
+                }""")
+                self.assertEqual(
+                    page.locator("#keystroke-log kbd").all_inner_texts()[-2:],
+                    ["⇮w", "⇮W"],
+                )
+                page.keyboard.press("Backspace")
+                self.assertEqual(
+                    page.locator("#keystroke-log kbd").all_inner_texts()[-2:],
+                    ["K", "⇮w"],
+                )
+                self.assertNotIn("⌫", page.locator("#keystroke-log").inner_text())
+                # Repeated backspaces consume the history, never append ⌫.
+                for _ in range(5):
+                    page.keyboard.press("Backspace")
+                self.assertEqual(page.locator("#keystroke-log kbd").count(), 0)
+                self.assertTrue(page.locator("#keystroke-placeholder").is_visible())
+                self.assertTrue(page.locator("#clear-keystrokes").is_disabled())
+                page.keyboard.press("k")
+                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
+                page.locator("#clear-keystrokes").click()
+                self.assertEqual(page.locator("#keystroke-log kbd").count(), 0)
+                self.assertTrue(page.locator("#keystroke-placeholder").is_visible())
                 page.locator("#inspect").click()
                 self.assertFalse(page.locator("#unicode-panel").is_hidden())
                 self.assertIn("U+0995", page.locator("#codepoints").inner_text())
@@ -82,23 +114,17 @@ class BrowserSmoke(unittest.TestCase):
             browser = playwright.chromium.launch()
             try:
                 page = browser.new_page()
-                page.route(
-                    "**/layout.json",
-                    lambda route: route.fulfill(
-                        status=404, content_type="application/json", body="{}"
-                    ),
-                )
+                page.route("**/layout.json", lambda route: route.fulfill(
+                    status=404, content_type="application/json", body="{}"))
                 page.goto(self.url, wait_until="load")
                 page.wait_for_function(
                     "document.querySelector('#status-label').textContent.includes('Typing ready')",
-                    timeout=30000,
-                )
-                self.assertIn(
-                    "Reference unavailable", page.locator("#status-label").inner_text()
-                )
+                    timeout=30000)
+                self.assertIn("Reference unavailable", page.locator("#status-label").inner_text())
                 self.assertFalse(page.locator("#error-help").is_hidden())
                 page.locator("#editor").focus()
                 page.keyboard.press("k")
                 self.assertEqual(page.locator("#editor").input_value(), "ক")
+                self.assertEqual(page.locator("#keystroke-log kbd").all_inner_texts(), ["k"])
             finally:
                 browser.close()

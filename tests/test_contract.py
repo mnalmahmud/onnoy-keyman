@@ -50,11 +50,17 @@ class KeymanGeneration(unittest.TestCase):
         expected = {
             "K_K": "ক", "SHIFT K_K": "খ",
             "K_BKQUOTE": "্", "SHIFT K_BKQUOTE": "়",
-            "RALT K_J": "\u200d", "RALT K_D": "\u200c",
+            "RALT K_J": "\u200d", "SHIFT RALT K_J": "\u200c",
+            "K_D": "ড", "SHIFT K_D": "ঢ",
+            "RALT K_D": "দ", "SHIFT RALT K_D": "ধ",
+            "K_T": "ট", "SHIFT K_T": "ঠ",
+            "RALT K_T": "ত", "SHIFT RALT K_T": "থ",
+            "K_Q": "দ", "SHIFT K_Q": "ধ",
+            "K_F": "ত", "SHIFT K_F": "থ",
             "RALT K_W": "ৱ", "SHIFT K_4": "৳",
             "RALT K_4": "4", "SHIFT RALT K_4": "$",
             "RALT K_S": "ষ",
-            "RALT K_Q": None, "SHIFT RALT K_J": None,
+            "RALT K_Q": None,
         }
         for chord, value in expected.items():
             with self.subTest(chord=chord):
