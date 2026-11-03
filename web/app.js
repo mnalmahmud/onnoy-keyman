@@ -252,104 +252,172 @@
     if (shiftDown !== wasShift || altGrDown !== wasAltGr) drawKeyboard();
   }
 
-  // Record only physical keys pressed in the writing area, not text content.
-  // Shortcuts, modifier-only presses, paste and other controls are ignored.
-  const MAX_KEYSTROKES = 100;
+  // The displayed keys are a representation of the CURRENT editor value.
+  // Preserve actual physical keys for unchanged text; infer keys for pasted
+  // or otherwise externally edited characters using the same four-layer map.
+  let strokes = [];
+  let pendingStroke = null;
 
-  function clearKeystrokes() {
-    keystrokeLog.replaceChildren(keystrokePlaceholder);
-    keystrokePlaceholder.hidden = false;
-    clearKeystrokesButton.disabled = true;
+  function physicalNames() {
+    const names = new Map();
+    for (const key of [...rowsFor().join(""), "§"]) {
+      names.set(physicalCode(key), key);
+    }
+    return names;
   }
 
-  function removeLastKeystroke() {
-    keystrokeLog.querySelector(".keystroke-token:last-child")?.remove();
-    const empty = !keystrokeLog.querySelector(".keystroke-token");
-    keystrokePlaceholder.hidden = !empty;
-    clearKeystrokesButton.disabled = empty;
+  function strokeFor(code, layer) {
+    const output = mapping?.[code]?.[layer];
+    if (typeof output !== "string" || !output.length) return null;
+    const key = physicalNames().get(code);
+    if (!key) return null;
+
+    const shift = (layer & 1) !== 0;
+    const altgr = (layer & 2) !== 0;
+    const letter = /^[A-Z]$/.test(key);
+    const shown = key === " " ? "␣" : key === "§" ? "ISO" :
+      letter ? (shift ? key : key.toLowerCase()) : key;
+    return {
+      output,
+      label: (altgr ? "⇮" : "") + (shift && !letter ? "⇧" : "") + shown,
+      name: (altgr ? "AltGr + " : "") + (shift ? "Shift + " : "") +
+        (key === " " ? "Space" : key === "§" ? "ISO extra key" : key),
+      altgr,
+      inferred: false
+    };
   }
 
-  function recordKeystroke(event, key) {
-    if (event.target !== editor || event.isComposing || event.metaKey) return;
-
-    const altGr = altGrDown ||
-      (typeof event.getModifierState === "function" && event.getModifierState("AltGraph")) ||
-      (event.ctrlKey && event.altKey);
-    if ((event.ctrlKey || event.altKey) && !altGr) return;
-
-    // Deletion at the end can undo the last recorded key. For selections
-    // or edits earlier in the text there is no reliable one-to-one mapping
-    // between characters and keys (especially for conjunct shortcuts).
-    if (event.code === "Backspace") {
-      if (!event.ctrlKey && !event.altKey) {
-        if (editor.selectionStart !== editor.selectionEnd ||
-            editor.selectionStart < editor.value.length) {
-          clearKeystrokes();
-        } else if (editor.selectionStart > 0) {
-          removeLastKeystroke();
+  function reverseMap() {
+    const choices = [
+      { output: "\n", label: "↵", name: "Enter", inferred: true }
+    ];
+    if (mapping) {
+      for (const code of Object.keys(mapping)) {
+        for (let layer = 0; layer < 4; layer++) {
+          const stroke = strokeFor(code, layer);
+          if (stroke) choices.push({ ...stroke, inferred: true });
         }
       }
-      return;
     }
-    if (event.code === "Delete") {
-      if (editor.selectionStart < editor.value.length) clearKeystrokes();
-      return;
-    }
+    // Prefer multi-character shortcuts, then unmodified outputs.
+    choices.sort((a, b) => b.output.length - a.output.length);
+    return choices;
+  }
 
-    let label;
-    let name;
-    if (event.code === "Enter") {
-      label = "↵";
-      name = "Enter";
-    } else if (key) {
-      // One rule for Base, Shift, AltGr, and Shift+AltGr: only assigned
-      // outputs become keystroke tokens. Empty or unavailable maps never
-      // imply that a physical key produced a character.
-      const layer = Number(!!event.shiftKey) + 2 * Number(!!altGr);
-      if (!mapping?.[event.code]?.[layer]) return;
-      const letter = /^[A-Z]$/.test(key);
-      const base = key === " " ? "␣" : key === "§" ? "ISO" :
-        letter ? (event.shiftKey ? key : key.toLowerCase()) : key;
-      label = (altGr ? "⇮" : "") +
-        (event.shiftKey && !letter ? "⇧" : "") + base;
-      name = (altGr ? "AltGr + " : "") +
-        (event.shiftKey ? "Shift + " : "") +
-        (key === " " ? "Space" : key === "§" ? "ISO extra key" : key);
-    } else {
-      return;
+  function decodeText(text, actualKey = null) {
+    const choices = reverseMap();
+    const decoded = [];
+    for (let offset = 0; offset < text.length;) {
+      let match = null;
+      // Exact newly typed output keeps the user's physical key rather than
+      // guessing among duplicated mappings.
+      if (actualKey && text.slice(offset) === actualKey.output) {
+        match = actualKey;
+      } else {
+        match = choices.find((choice) => text.startsWith(choice.output, offset));
+      }
+      if (!match) {
+        const character = String.fromCodePoint(text.codePointAt(offset));
+        match = { output: character, label: character, name: "Unmapped character",
+          inferred: true, unmapped: true };
+      }
+      decoded.push({ ...match });
+      offset += match.output.length;
     }
+    return decoded;
+  }
 
-    // Replacement (including Ctrl+A then typing) and edits in the middle
-    // invalidate the recorded key sequence. Start a new sequence instead
-    // of displaying stale keystrokes beside the new text.
-    if (editor.selectionStart !== editor.selectionEnd ||
-        editor.selectionStart < editor.value.length) {
-      clearKeystrokes();
+  function renderKeystrokes() {
+    const fragment = document.createDocumentFragment();
+    for (const stroke of strokes) {
+      const token = document.createElement("kbd");
+      token.className = "keystroke-token";
+      if (stroke.altgr) token.classList.add("keystroke-altgr");
+      if (stroke.unmapped) token.classList.add("keystroke-unmapped");
+      token.textContent = stroke.label;
+      const description = stroke.name +
+        (stroke.inferred ? " · inferred from text" : "");
+      token.setAttribute("aria-label", description);
+      token.title = description;
+      fragment.append(token);
     }
-
-    keystrokePlaceholder.hidden = true;
-    const token = document.createElement("kbd");
-    token.className = "keystroke-token";
-    if (altGr) token.classList.add("keystroke-altgr");
-    token.textContent = label;
-    token.setAttribute("aria-label", name);
-    token.title = name;
-    keystrokeLog.append(token);
-    while (keystrokeLog.children.length > MAX_KEYSTROKES + 1) {
-      keystrokeLog.children[1].remove();
-    }
-    clearKeystrokesButton.disabled = false;
+    keystrokePlaceholder.hidden = strokes.length !== 0;
+    keystrokeLog.replaceChildren(keystrokePlaceholder, fragment);
+    clearKeystrokesButton.disabled = !editor.value.length;
     keystrokeLog.scrollTop = keystrokeLog.scrollHeight;
   }
 
-  clearKeystrokesButton.addEventListener("click", clearKeystrokes);
+  function syncKeystrokes() {
+    const value = editor.value;
+    const previous = strokes.map((stroke) => stroke.output).join("");
+    if (value === previous) {
+      pendingStroke = null;
+      return;
+    }
+
+    // Retain keys whose Unicode outputs are unchanged, even when editing
+    // in the middle. Only decode the inserted/replaced segment.
+    let first = 0;
+    let left = 0;
+    while (first < strokes.length &&
+           value.startsWith(strokes[first].output, left)) {
+      left += strokes[first].output.length;
+      first++;
+    }
+
+    let last = strokes.length;
+    let right = value.length;
+    while (last > first) {
+      const output = strokes[last - 1].output;
+      if (right - output.length < left ||
+          value.slice(right - output.length, right) !== output) break;
+      right -= output.length;
+      last--;
+    }
+
+    const inserted = value.slice(left, right);
+    strokes = [
+      ...strokes.slice(0, first),
+      ...decodeText(inserted, pendingStroke),
+      ...strokes.slice(last)
+    ];
+    if (strokes.map((stroke) => stroke.output).join("") !== value) {
+      strokes = decodeText(value);
+    }
+    pendingStroke = null;
+    renderKeystrokes();
+  }
+
+  function rememberKey(event, key) {
+    if (event.target !== editor || event.isComposing || event.metaKey) return;
+    const altgr = altGrDown ||
+      (typeof event.getModifierState === "function" &&
+        event.getModifierState("AltGraph")) ||
+      (event.ctrlKey && event.altKey);
+    if ((event.ctrlKey || event.altKey) && !altgr) return;
+
+    if (event.code === "Enter") {
+      pendingStroke = { output: "\n", label: "↵", name: "Enter", inferred: false };
+    } else if (key) {
+      const layer = Number(!!event.shiftKey) + 2 * Number(!!altgr);
+      pendingStroke = strokeFor(event.code, layer);
+    } else {
+      pendingStroke = null;
+    }
+  }
+
+  // Rebuild from the current text instead of clearing an independent history.
+  clearKeystrokesButton.addEventListener("click", () => {
+    strokes = decodeText(editor.value);
+    renderKeystrokes();
+  });
 
   // Capture before KeymanWeb handles the focused editor. Physical codes,
   // unlike event.key, are stable across Shift, AltGr and keyboard layouts.
   function trackKey(event, down) {
     modifierState(event, down);
     const key = [...rowsFor().join("")].find((label) => physicalCode(label) === event.code);
-    if (down) recordKeystroke(event, key);
+    if (down) rememberKey(event, key);
     if (!key || !mapping) return;
     if (down) {
       heldKeys.add(event.code);
@@ -441,20 +509,9 @@
       }
     }
   }
-  // Paste/cut/drop are real editing operations, not physical typing.
-  // Do not infer them from inputType: KeymanWeb can report an ordinary
-  // character insertion with an insertFrom* input type.
-  for (const type of ["paste", "cut", "drop"]) {
-    editor.addEventListener(type, clearKeystrokes);
-  }
-  editor.addEventListener("input", (event) => {
-    // Paste, cut, drag/drop, undo and forward deletion change the text
-    // without corresponding physical character-key tokens.
-    const inputType = event.inputType || "";
-    if (/^(history|deleteByCut|deleteWord|deleteSoftLine|deleteHardLine|deleteContentForward)/.test(inputType)) {
-      clearKeystrokes();
-    }
+  editor.addEventListener("input", () => {
     feedback.textContent = "";
+    syncKeystrokes();
     updateEditor();
   });
   inspectButton.addEventListener("click", () => {
@@ -465,7 +522,7 @@
   clearButton.addEventListener("click", () => {
     editor.value = "";
     feedback.textContent = "";
-    clearKeystrokes();
+    syncKeystrokes();
     updateEditor();
     editor.focus();
   });
@@ -482,12 +539,13 @@
   for (const button of document.querySelectorAll("[data-sample]")) {
     button.addEventListener("click", () => {
       editor.value = button.dataset.sample || "";
-      clearKeystrokes();
+      syncKeystrokes();
       feedback.textContent = "Example inserted";
       updateEditor();
       editor.focus();
     });
   }
+  syncKeystrokes();
   updateEditor();
 
   async function loadLayout() {
@@ -507,6 +565,7 @@
         throw new Error("Invalid four-layer keymap");
       }
       mapping = layout.keys;
+      syncKeystrokes();
       drawKeyboard();
       displayStatus();
     } catch (error) {

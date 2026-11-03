@@ -202,6 +202,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visi
 .keystroke-placeholder { color: var(--muted); font-size: 12px; align-self: center; }
 .keystroke-token { display: inline-grid; place-items: center; min-width: 30px; height: 30px; padding: 3px 8px; border: 1px solid var(--line); border-bottom: 2px solid var(--key-shadow); border-radius: 6px; background: var(--surface-soft); color: var(--ink); font: 600 13px/1.3 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: nowrap; }
 .keystroke-altgr { color: var(--accent); border-color: var(--accent); }
+.keystroke-unmapped { border-style: dashed; color: var(--muted); }
 
 .keyboard-heading { padding-bottom: 14px; }
 .geometry-field { color: var(--muted); font-size: 11px; font-weight: 600; }
