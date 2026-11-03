@@ -441,11 +441,17 @@
       }
     }
   }
+  // Paste/cut/drop are real editing operations, not physical typing.
+  // Do not infer them from inputType: KeymanWeb can report an ordinary
+  // character insertion with an insertFrom* input type.
+  for (const type of ["paste", "cut", "drop"]) {
+    editor.addEventListener(type, clearKeystrokes);
+  }
   editor.addEventListener("input", (event) => {
     // Paste, cut, drag/drop, undo and forward deletion change the text
     // without corresponding physical character-key tokens.
     const inputType = event.inputType || "";
-    if (/^(insertFromPaste|insertFromDrop|insertFromYank|history|deleteByCut|deleteWord|deleteSoftLine|deleteHardLine|deleteContentForward)/.test(inputType)) {
+    if (/^(history|deleteByCut|deleteWord|deleteSoftLine|deleteHardLine|deleteContentForward)/.test(inputType)) {
       clearKeystrokes();
     }
     feedback.textContent = "";
