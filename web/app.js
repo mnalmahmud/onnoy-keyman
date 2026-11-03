@@ -469,7 +469,7 @@
       if (!layout.keys || [...codes].some((code) => {
         const values = layout.keys[code];
         return !Array.isArray(values) || values.length !== 4 ||
-          values.some((value) => value !== null && (typeof value !== "string" || [...value].length !== 1));
+          values.some((value) => value !== null && (typeof value !== "string" || [...value].length === 0));
       })) {
         throw new Error("Invalid four-layer keymap");
       }

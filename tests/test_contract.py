@@ -20,13 +20,14 @@ def keyman_rules(source):
     for line in source.splitlines():
         if not line.startswith("+ ["):
             continue
-        match = re.fullmatch(r"\+ \[([^]]+)\] > (nul|U\+[0-9A-Fa-f]{4,6})", line)
+        match = re.fullmatch(r"\+ \[([^]]+)\] > (nul|U\+[0-9A-Fa-f]{4,6}(?: U\+[0-9A-Fa-f]{4,6})*)", line)
         if not match:
             raise AssertionError(f"Invalid generated Keyman rule: {line}")
         chord, value = match.groups()
         if chord in rules:
             raise AssertionError(f"Duplicate Keyman rule: {chord}")
-        rules[chord] = None if value == "nul" else chr(int(value[2:], 16))
+        rules[chord] = (None if value == "nul" else
+                        "".join(chr(int(code[2:], 16)) for code in value.split()))
     return rules
 
 
@@ -60,6 +61,7 @@ class KeymanGeneration(unittest.TestCase):
             "RALT K_W": "ৱ", "SHIFT K_4": "৳",
             "RALT K_4": "4", "SHIFT RALT K_4": "$",
             "RALT K_S": "ষ",
+            "RALT K_Y": "ঈ", "RALT K_K": "ক্ষ", "RALT K_G": "জ্ঞ",
             "RALT K_Q": None,
         }
         for chord, value in expected.items():

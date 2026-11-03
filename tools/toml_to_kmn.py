@@ -6,6 +6,7 @@ from pathlib import Path
 
 from kalamine.layout import KeyboardLayout, load_layout
 from kalamine.utils import LAYER_KEYS, SCAN_CODES, Layer
+from sequences import altgr_sequences
 
 ROOT = Path(__file__).resolve().parents[1]
 LAYERS = (
@@ -32,9 +33,10 @@ def keyman_key(browser_code: str) -> str:
     return SPECIAL_KEYS[browser_code]
 
 
-def render(layout: KeyboardLayout) -> str:
+def render(layout: KeyboardLayout, sequences: dict[str, str] | None = None) -> str:
     if layout.dead_keys:
         raise ValueError("Onnoy is direct Unicode; Keyman dead-key rules are unsupported")
+    sequences = sequences or {}
 
     lines = [
         "c Generated from layout.toml by tools/toml_to_kmn.py — DO NOT EDIT.",
@@ -57,15 +59,18 @@ def render(layout: KeyboardLayout) -> str:
         key = keyman_key(SCAN_CODES["web"][position])
         for layer, modifiers in LAYERS:
             char = layout.layers[layer].get(position)
-            if char is not None and len(char) != 1:
-                raise ValueError(f"Expected one Unicode codepoint: {position} / {layer}")
-            output = f"U+{ord(char):04X}" if char is not None else "nul"
+            if layer == Layer.ALTGR:
+                char = sequences.get(SCAN_CODES["web"][position], char)
+            if char is not None and len(char) != 1 and layer != Layer.ALTGR:
+                raise ValueError(f"Unexpected multi-character output: {position} / {layer}")
+            output = " ".join(f"U+{ord(c):04X}" for c in char) if char else "nul"
             lines.append(f"+ [{modifiers}{key}] > {output}")
     return "\n".join(lines) + "\n"
 
 
 def generate(source: Path) -> str:
-    return render(KeyboardLayout(load_layout(source)))
+    layout = KeyboardLayout(load_layout(source))
+    return render(layout, altgr_sequences(source, layout))
 
 
 def main() -> None:
