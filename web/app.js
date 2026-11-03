@@ -445,7 +445,7 @@
     // Paste, cut, drag/drop, undo and forward deletion change the text
     // without corresponding physical character-key tokens.
     const inputType = event.inputType || "";
-    if (/^(insertFrom|insertReplacementText|history|deleteByCut|deleteWord|deleteSoftLine|deleteHardLine|deleteContentForward)/.test(inputType)) {
+    if (/^(insertFromPaste|insertFromDrop|insertFromYank|history|deleteByCut|deleteWord|deleteSoftLine|deleteHardLine|deleteContentForward)/.test(inputType)) {
       clearKeystrokes();
     }
     feedback.textContent = "";
