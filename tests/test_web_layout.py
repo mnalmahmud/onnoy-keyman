@@ -18,7 +18,11 @@ class WebReference(unittest.TestCase):
         self.assertEqual(keys["KeyK"][:2], ["ক", "খ"])
         self.assertEqual(keys["KeyQ"][2:], [None, None])
         self.assertEqual(keys["KeyJ"][2], "\u200d")
-        self.assertEqual(keys["KeyD"][2], "\u200c")
+        self.assertEqual(keys["KeyD"], ["ড", "ঢ", "দ", "ধ"])
+        self.assertEqual(keys["KeyT"], ["ট", "ঠ", "ত", "থ"])
+        self.assertEqual(keys["KeyQ"][:2], ["দ", "ধ"])
+        self.assertEqual(keys["KeyF"][:2], ["ত", "থ"])
+        self.assertEqual(keys["KeyJ"][3], "\u200c")
         self.assertEqual(keys["Backquote"][:2], ["্", "়"])
         self.assertIsNone(keys["KeyL"][2])
 
